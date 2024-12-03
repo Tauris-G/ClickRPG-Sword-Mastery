@@ -2,6 +2,8 @@
 
 Welcome to **The Click-tastic Adventure**, an engaging and immersive clicker game where you embark on an epic journey to defend your realm from mischievous monsters! Click, upgrade, and conquer your way to becoming the ultimate hero. ⚔️💰👾
 
+RUN GAME:  https://tauris-g.github.io/The-Click-tastic-RPG/
+
 ## Table of Contents
 
 - [Features](#features)
