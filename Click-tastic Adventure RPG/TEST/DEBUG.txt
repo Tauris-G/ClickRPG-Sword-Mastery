@@ -1,0 +1,91 @@
+<script>
+    // Developer Tool: Debug Button - add to the end of the game
+    (function createDebugTools() {
+        const debugContainer = document.createElement('div');
+        debugContainer.style.position = 'fixed';
+        debugContainer.style.bottom = '10px';
+        debugContainer.style.right = '10px';
+        debugContainer.style.zIndex = '9999';
+        debugContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+        debugContainer.style.color = '#fff';
+        debugContainer.style.padding = '10px';
+        debugContainer.style.borderRadius = '5px';
+        debugContainer.style.textAlign = 'center';
+        debugContainer.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.5)';
+        debugContainer.style.fontFamily = "'Press Start 2P', cursive";
+
+        // Level Up Button
+        const levelUpButton = document.createElement('button');
+        levelUpButton.textContent = 'Level Up 🚀';
+        levelUpButton.style.margin = '5px';
+        levelUpButton.style.cursor = 'pointer';
+        levelUpButton.onclick = function () {
+            gainExperience(expToNext); // Instantly level up
+            showNotification('💡 Debug: Leveled up instantly!', 'achievement');
+        };
+
+        // Add Gold Button
+        const addGoldButton = document.createElement('button');
+        addGoldButton.textContent = 'Add 1000 Gold 💰';
+        addGoldButton.style.margin = '5px';
+        addGoldButton.style.cursor = 'pointer';
+        addGoldButton.onclick = function () {
+            gold += 1000; // Add 1000 gold instantly
+            updateStats();
+            showNotification('💡 Debug: Added 1000 Gold!', 'achievement');
+        };
+
+        // Unlimited HP Toggle
+        const unlimitedHPButton = document.createElement('button');
+        unlimitedHPButton.textContent = 'Unlimited HP ❤️';
+        unlimitedHPButton.style.margin = '5px';
+        unlimitedHPButton.style.cursor = 'pointer';
+        let unlimitedHPActive = false;
+        unlimitedHPButton.onclick = function () {
+            unlimitedHPActive = !unlimitedHPActive;
+            if (unlimitedHPActive) {
+                health = Infinity; // Set health to unlimited
+                updateStats();
+                showNotification('💡 Debug: Unlimited HP activated!', 'achievement');
+                unlimitedHPButton.textContent = 'Unlimited HP ❤️ (Active)';
+            } else {
+                health = maxHealth; // Revert to max health
+                updateStats();
+                showNotification('💡 Debug: Unlimited HP deactivated!', 'achievement');
+                unlimitedHPButton.textContent = 'Unlimited HP ❤️';
+            }
+        };
+
+        // Max Attack Power Button
+        const maxAttackButton = document.createElement('button');
+        maxAttackButton.textContent = 'Max Attack Power ⚔️';
+        maxAttackButton.style.margin = '5px';
+        maxAttackButton.style.cursor = 'pointer';
+        maxAttackButton.onclick = function () {
+            attackPower = 99999; // Set attack power to an extremely high value
+            updateStats();
+            showNotification('💡 Debug: Max Attack Power activated!', 'achievement');
+        };
+
+        // Max Defense Button
+        const maxDefenseButton = document.createElement('button');
+        maxDefenseButton.textContent = 'Max Defense 🛡️';
+        maxDefenseButton.style.margin = '5px';
+        maxDefenseButton.style.cursor = 'pointer';
+        maxDefenseButton.onclick = function () {
+            defense = 99999; // Set defense to an extremely high value
+            updateStats();
+            showNotification('💡 Debug: Max Defense activated!', 'achievement');
+        };
+
+        // Append Buttons to Debug Container
+        debugContainer.appendChild(levelUpButton);
+        debugContainer.appendChild(addGoldButton);
+        debugContainer.appendChild(unlimitedHPButton);
+        debugContainer.appendChild(maxAttackButton);
+        debugContainer.appendChild(maxDefenseButton);
+
+        // Append Debug Container to Body
+        document.body.appendChild(debugContainer);
+    })();
+</script>
