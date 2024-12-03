@@ -203,32 +203,6 @@ function initializeAchievements() {
     });
 }
 
-// Initialize Upgrades Display
-function initializeUpgrades() {
-    const upgradesList = document.getElementById('upgradesList');
-    upgradesList.style.display = 'flex';
-    upgradesList.style.flexWrap = 'wrap';
-    upgradesList.style.justifyContent = 'center';
-    upgradesList.style.gap = '10px';
-
-    upgrades.forEach(upg => {
-        const upgDiv = document.createElement('div');
-        upgDiv.className = 'achievement'; // Reusing styles
-        upgDiv.id = `upgrade${upg.id}`;
-        upgDiv.innerHTML = `
-            <span class="icon">🔧</span>
-            <div>
-                <strong>${upg.name} ${getUpgradeEmoji(upg.type)}</strong><br>
-                ${upg.effect}
-            </div>
-            <button class="upgrade-button" onclick="buyUpgrade('${upg.type}')">
-                ${upg.type !== 'autoClick' ? `${upg.name} (Owned: ${upg.owned}) - Cost: <span id="upgradeCost${upg.id}">${upg.cost}</span> 💰` : `${upg.name} - Cost: <span id="upgradeCost${upg.id}">${upg.cost}</span> 💰`}
-            </button>
-        `;
-        upgradesList.appendChild(upgDiv);
-    });
-}
-
 // Function to get relevant emoji based on upgrade type
 function getUpgradeEmoji(type) {
     switch(type) {
@@ -257,6 +231,29 @@ function getUpgradeEmoji(type) {
     }
 }
 
+// Initialize Upgrades Display
+function initializeUpgrades() {
+    const upgradesList = document.getElementById('upgradesList');
+    upgradesList.innerHTML = ''; // Clear existing upgrade elements
+
+    upgrades.forEach(upg => {
+        const upgDiv = document.createElement('div');
+        upgDiv.className = 'achievement'; // Reusing styles
+        upgDiv.id = `upgrade${upg.id}`;
+        upgDiv.innerHTML = `
+            <span class="icon">🔧</span>
+            <div>
+                <strong>${upg.name} ${getUpgradeEmoji(upg.type)}</strong><br>
+                ${upg.effect}
+            </div>
+            <button class="upgrade-button" onclick="buyUpgrade('${upg.type}')">
+                ${upg.type !== 'autoClick' ? `${upg.name} (Owned: ${upg.owned}) - Cost: <span id="upgradeCost${upg.id}">${upg.cost}</span> 💰` : `${upg.name} - Cost: <span id="upgradeCost${upg.id}">${upg.cost}</span> 💰`}
+            </button>
+        `;
+        upgradesList.appendChild(upgDiv);
+    });
+}
+
 // Initialize Swords Display
 function initializeSwords() {
     const swordsList = document.getElementById('swordsList');
@@ -281,6 +278,30 @@ function initializeSwords() {
     });
 }
 
+// Initialize Skill Tree Display (Assuming Skill Tree is NOT being used)
+// Commenting out as per user request to not add Skill Tree
+/*
+function initializeSkillTree() {
+    const skillTreeList = document.getElementById('skillTreeList');
+    skillTreeList.innerHTML = ''; // Clear existing content
+
+    skills.forEach(skill => {
+        const skillDiv = document.createElement('div');
+        skillDiv.className = 'skill-node';
+        if (!skill.owned) skillDiv.classList.add('locked');
+        skillDiv.id = `skill${skill.id}`;
+        skillDiv.innerHTML = `
+            <span class="icon">🌟</span>
+            <strong>${skill.name}</strong>
+            <p>${skill.effect}</p>
+            <p>Cost: ${skill.cost} XP</p>
+        `;
+        skillDiv.onclick = () => unlockSkill(skill.id);
+        skillTreeList.appendChild(skillDiv);
+    });
+}
+*/
+
 // Initialize the Game
 function initializeGame() {
     initializeAchievements();
@@ -288,6 +309,7 @@ function initializeGame() {
     initializeSwords();
     updateStats();
     updateAchievements();
+    renderLoadedMonsters(); // Render any loaded monsters
     spawnMonsterRandomly(); // Start spawning monsters
     startPassiveIncome();
 }
@@ -295,6 +317,9 @@ function initializeGame() {
 // ---------------------------
 // Event Listeners
 // ---------------------------
+
+// Critical Hit Notification Cooldown
+let criticalHitNotificationCooldown = false;
 
 // Hero Click Event with Blood Particle Effect and Critical Hit
 document.getElementById('hero').addEventListener('click', function (event) {
@@ -306,7 +331,7 @@ document.getElementById('hero').addEventListener('click', function (event) {
     // Critical Hit Logic
     if (currentCriticalHitChance()) {
         damageDealt *= 2;
-        showNotification('⚡ Critical Hit! Double Damage!', 'critical');
+        showCriticalHitNotification(); // Use the cooldown-controlled notification
     }
 
     let goldEarned = currentGoldGain(damageDealt);
@@ -347,9 +372,14 @@ function currentGoldGain(amount) {
     return amount * (1 + (2 * goldMultiplier)) * (1 + 0.15 * luckMultiplier); // 15% per luck upgrade
 }
 
-// Show Notification Function
+// Show Notification Function with Queue
+let notificationQueue = [];
+const maxNotifications = 5; // Adjust this number as needed
+
 function showNotification(message, type) {
     const notificationArea = document.getElementById('notificationArea');
+    if (notificationQueue.length >= maxNotifications) return; // Limit notifications
+
     const notification = document.createElement('div');
     notification.className = 'notification';
     if (type === 'critical') {
@@ -365,10 +395,29 @@ function showNotification(message, type) {
     }
     notification.textContent = message;
     notificationArea.appendChild(notification);
+    notificationQueue.push(notification);
+
     // Remove after animation
     setTimeout(() => {
         notification.remove();
+        notificationQueue.shift(); // Remove from the queue
     }, 3000);
+}
+
+// Show Critical Hit Notification with Cooldown
+function showCriticalHitNotification() {
+    if (criticalHitNotificationCooldown) return; // Exit if on cooldown
+
+    // Display notification
+    showNotification('⚡ Critical Hit! Double Damage!', 'critical');
+
+    // Set cooldown to prevent spamming
+    criticalHitNotificationCooldown = true;
+
+    // Reset cooldown after 1 second (adjust as needed)
+    setTimeout(() => {
+        criticalHitNotificationCooldown = false;
+    }, 1000);
 }
 
 // Blood Particle Effect Function
@@ -754,8 +803,7 @@ function attackMonster(monsterId) {
         const isCriticalHit = currentCriticalHitChance();
         if (isCriticalHit) {
             playerDamage *= 2; // Double the damage for critical hit
-            showNotification('⚡ Critical Hit! Double Damage!', 'critical');
-            playSound(document.getElementById('criticalHitSound')); // Play critical hit sound
+            showCriticalHitNotification(); // Use the cooldown-controlled notification
         } else {
             playSound(document.getElementById('clickSound')); // Play normal attack sound
         }
@@ -796,7 +844,7 @@ function attackMonster(monsterId) {
             gainExperience(monster.isBoss ? 500 : 50);
 
             // Handle final boss victory with all swords owned
-            if (monster.isBoss && monster.isFinal && swords.every(sword => sword.owned)) { // **Fixed Condition**
+            if (monster.isBoss && monster.isFinal && swords.every(sword => sword.owned)) {
                 showVictoryModal();
             }
         } else {
@@ -870,13 +918,14 @@ function scheduleMonsterAttack(monster) {
     }, attackDelay);
 }
 
-// Schedule Monster Spell Casting Function
+// Schedule Monster Spell Casting Function (Fixed Recursive Call)
 function scheduleMonsterSpell(monster) {
     const spellDelay = Math.floor(Math.random() * (15000 - 5000 + 1)) + 5000; // 5 to 15 seconds
     setTimeout(() => {
-        if (!gamePaused && monsters.find(m => m.id === monster.id)) {
-            castSpell(monster);
-            scheduleMonsterSpell(monster); // Schedule the next spell
+        const activeMonster = monsters.find(m => m.id === monster.id);
+        if (!gamePaused && activeMonster) {
+            castSpell(activeMonster);
+            scheduleMonsterSpell(activeMonster); // Reschedule only for existing monsters
         }
     }, spellDelay);
 }
@@ -1067,7 +1116,7 @@ function loadGame() {
                     }
                 }
             } else {
-                if (upgrades[index].owned) {
+                if (gameState.autoClickPurchased) {
                     upgrades[index].owned = 1;
                     autoClickPurchased = true;
                     const upgradeButton = document.getElementById(`upgrade${upg.id}`).querySelector('button');
@@ -1166,7 +1215,7 @@ function resetGame() {
 
         // Reset Upgrades
         upgrades.forEach(upg => {
-            upg.owned = 0;
+            upg.owned = upg.type === 'autoClick' ? false : 0;
             const upgradeButton = document.getElementById(`upgrade${upg.id}`).querySelector('button');
             if (upg.type !== 'autoClick') {
                 upgradeButton.innerHTML = `${upg.name} (Owned: ${upg.owned}) - Cost: <span id="upgradeCost${upg.id}">${upg.cost}</span> 💰`;
@@ -1243,10 +1292,18 @@ function startPassiveIncome() {
 // Helper Functions
 // ---------------------------
 
-// Play Sound Function
+// Play Sound Function with Error Handling
 function playSound(sound) {
-    sound.currentTime = 0;
-    sound.play();
+    if (sound) {
+        try {
+            sound.currentTime = 0;
+            sound.play().catch((error) => {
+                console.error("Audio playback failed:", error);
+            });
+        } catch (error) {
+            console.error("Error interacting with audio element:", error);
+        }
+    }
 }
 
 // ---------------------------
@@ -1307,13 +1364,16 @@ function buyHeart() {
 }
 
 // ---------------------------
-// Initialize the Game on Window Load
+// Navigation and UI Enhancements
 // ---------------------------
+
+// Initialize the Game on Window Load
 window.addEventListener('load', function () {
+    // Show the tutorial modal
     const tutorialModal = document.getElementById("tutorialModal");
     tutorialModal.classList.add("active"); // Show the tutorial modal
 
-    // Background music will start when the tutorial runs
+    // Background music will start when the user interacts
     const backgroundMusic = document.getElementById("backgroundMusic");
     backgroundMusic.volume = 0.5;
     backgroundMusic.play().catch(() => {
@@ -1322,12 +1382,102 @@ window.addEventListener('load', function () {
 
     document.addEventListener("click", function startMusic() {
         if (backgroundMusic.paused) {
-            backgroundMusic.play();
+            backgroundMusic.play().catch((error) => {
+                console.error("Error playing background music:", error);
+            });
         }
         document.removeEventListener("click", startMusic);
     });
 
-    // Remove initializeGame() from here
-    // initializeGame();
+    // Initialize all game components
+    initializeGame();
+    enhanceUIResponsiveness();
 });
 
+// Volume Slider and Mute Button
+const volumeSlider = document.getElementById('volumeSlider');
+const backgroundMusicElement = document.getElementById('backgroundMusic');
+const audioElements = document.querySelectorAll('audio'); // Select all audio elements
+
+// Adjust volume based on slider value
+volumeSlider.addEventListener('input', (event) => {
+    const volume = event.target.value;
+    audioElements.forEach(audio => {
+        audio.volume = volume;
+    });
+});
+
+const muteButton = document.getElementById('muteButton');
+let isMuted = false;
+
+// Toggle Music Functionality
+function toggleMusic() {
+    if (isMuted) {
+        backgroundMusicElement.muted = false;
+        isMuted = false;
+        muteButton.textContent = '🔊';
+    } else {
+        backgroundMusicElement.muted = true;
+        isMuted = true;
+        muteButton.textContent = '🔈';
+    }
+}
+
+// ---------------------------
+// UI Responsiveness and Pixel Animation Enhancements
+// ---------------------------
+
+function enhanceUIResponsiveness() {
+    // Adjust font sizes and container padding for smaller screens
+    const gameContainer = document.getElementById('game-container');
+    const hero = document.getElementById('hero');
+    const stats = document.querySelector('.stats');
+    const upgradesList = document.getElementById('upgradesList');
+
+    function adjustUI() {
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+
+        if (screenWidth < 800) {
+            gameContainer.style.padding = '20px';
+            gameContainer.style.fontSize = '10px';
+            hero.style.fontSize = '60px'; // Smaller hero size for mobile
+            stats.style.width = '90%';
+        } else {
+            gameContainer.style.padding = '40px';
+            gameContainer.style.fontSize = '14px';
+            hero.style.fontSize = '100px'; // Default hero size
+            stats.style.width = '300px';
+        }
+
+        // Adjust the upgrades list responsiveness
+        if (screenWidth < 500) {
+            upgradesList.style.gap = '10px';
+        } else {
+            upgradesList.style.gap = '20px';
+        }
+    }
+
+    // Call adjustUI on window resize
+    window.addEventListener('resize', adjustUI);
+
+    // Initial adjustment on page load
+    adjustUI();
+
+    // Pixel-style animation for hero and monsters
+    const monstersContainer = document.getElementById('monstersContainer');
+    const heroClickEffect = document.createElement('div');
+    heroClickEffect.className = 'hero-pixel-click-effect';
+    gameContainer.appendChild(heroClickEffect);
+
+    hero.addEventListener('click', (event) => {
+        heroClickEffect.style.left = `${event.clientX}px`;
+        heroClickEffect.style.top = `${event.clientY}px`;
+        heroClickEffect.classList.add('animate');
+
+        // Remove the animation class after animation ends
+        setTimeout(() => {
+            heroClickEffect.classList.remove('animate');
+        }, 300);
+    });
+}
