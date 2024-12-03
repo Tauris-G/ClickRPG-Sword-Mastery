@@ -16,7 +16,7 @@ body {
     overflow: hidden; /* Prevent scrollbars when monsters spawn */
 }
 
-/* Game Container */
+/* Game Footer */
 #gameFooter {
     position: fixed;
     bottom: 0;
@@ -29,7 +29,6 @@ body {
     font-size: 12px;
     border-top: 2px solid #ffcc00;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
-    font-family: 'Press Start 2P', cursive;
     z-index: 1000;
 }
 
@@ -37,6 +36,7 @@ body {
     margin: 0;
 }
 
+/* Game Container */
 #game-container {
     position: relative;
     background-color: #333;
@@ -75,6 +75,7 @@ h1 {
     pointer-events: none;
 }
 
+/* Notification Styles */
 .notification {
     background-color: rgba(255, 0, 0, 0.8);
     color: #fff;
@@ -440,8 +441,7 @@ button:hover {
 
 @media (max-width: 800px) {
     #game-container {
-        width: 95%;
-        height: 100vh;
+        padding: 20px;
     }
 
     h1 {
@@ -449,7 +449,7 @@ button:hover {
     }
 
     #hero {
-        font-size: 80px; /* Reduced size for smaller screens */
+        font-size: 80px; /* Reduced size for mobile */
     }
 
     .stats {
@@ -475,6 +475,34 @@ button:hover {
     .progress-bar-container {
         width: 180px;
         height: 18px;
+    }
+
+    /* Upgrade List Adjustments */
+    #upgradesList {
+        gap: 10px;
+        padding: 20px;
+        background-color: #222;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    #upgradesList .achievement {
+        width: 120px; /* Further adjusted width */
+        padding: 8px;
+    }
+
+    #upgradesList .achievement .icon {
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+
+    #upgradesList .achievement div {
+        font-size: 10px;
+    }
+
+    #upgradesList .upgrade-button {
+        padding: 6px 8px;
+        font-size: 10px;
     }
 }
 
@@ -511,4 +539,130 @@ button:hover {
         width: 150px;
         height: 15px;
     }
+
+    /* Upgrade List Adjustments */
+    #upgradesList {
+        gap: 5px;
+        padding: 10px;
+    }
+
+    #upgradesList .achievement {
+        width: 100px;
+        padding: 5px;
+    }
+
+    #upgradesList .achievement .icon {
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+
+    #upgradesList .achievement div {
+        font-size: 8px;
+    }
+
+    #upgradesList .upgrade-button {
+        padding: 4px 6px;
+        font-size: 8px;
+    }
+}
+
+/* Fix Alignment in the Upgrades Tab */
+
+/* Upgrades List Container */
+/* Consolidated #upgradesList styles to prevent duplication */
+#upgradesList {
+    display: flex;
+    flex-wrap: wrap; /* Allows items to wrap to the next line */
+    justify-content: center; /* Centers all upgrade items */
+    gap: 20px; /* Adds space between items */
+    padding: 20px; /* Adds padding inside the upgrades container */
+    background-color: #222; /* Gives a distinct background for upgrades */
+    border-radius: 10px; /* Smooth edges for the container */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Subtle shadow for depth */
+}
+
+/* Individual Upgrade Item */
+#upgradesList .achievement {
+    display: flex;
+    flex-direction: column; /* Stack content vertically */
+    align-items: center; /* Center content horizontally */
+    justify-content: space-between; /* Space content evenly */
+    width: 150px; /* Consistent width for items */
+    padding: 10px; /* Inner spacing for each item */
+    background-color: #444; /* Background for each upgrade */
+    border: 2px solid #ffcc00; /* Highlight border */
+    border-radius: 8px; /* Rounded corners for upgrades */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); /* Shadow for depth */
+}
+
+/* Upgrade Icon */
+#upgradesList .achievement .icon {
+    font-size: 20px; /* Larger icon for visibility */
+    margin-bottom: 10px; /* Space below icon */
+}
+
+/* Upgrade Button */
+#upgradesList .upgrade-button {
+    margin-top: 10px; /* Space between button and description */
+    background-color: #28a745; /* Green for positive action */
+    color: white; /* White text for contrast */
+    border: none; /* Removes default button border */
+    border-radius: 5px; /* Smooth edges */
+    padding: 8px 10px; /* Button padding */
+    font-size: 12px; /* Button text size */
+    transition: background-color 0.3s, transform 0.2s; /* Smooth hover effects */
+}
+
+#upgradesList .upgrade-button:hover {
+    background-color: #218838; /* Slightly darker green on hover */
+    transform: scale(1.05); /* Slight zoom effect */
+}
+
+#upgradesList .upgrade-button:disabled {
+    background-color: #6c757d; /* Gray for disabled buttons */
+    cursor: not-allowed; /* Disabled cursor */
+}
+
+/* Upgrade Text Description */
+#upgradesList .achievement div {
+    text-align: center; /* Center text inside upgrades */
+    font-size: 12px; /* Consistent font size */
+    color: #fff; /* White text for readability */
+}
+
+/* Pixel-Style Animations and Responsiveness */
+
+/* Hero Click Effect */
+.hero-pixel-click-effect {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: #ffcc00;
+    border: 2px solid #ff6600;
+    box-shadow: 0 0 10px rgba(255, 102, 0, 0.8);
+    transform: translate(-50%, -50%);
+    border-radius: 50%; /* Pixel-style circle */
+    pointer-events: none;
+    opacity: 0;
+    animation: pixelClickEffect 0.3s forwards;
+}
+
+@keyframes pixelClickEffect {
+    0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(2);
+    }
+}
+
+/* Additional Responsive Adjustments */
+@media (max-width: 800px) {
+    /* Already handled in previous media queries */
+}
+
+@media (max-width: 500px) {
+    /* Already handled in previous media queries */
 }
