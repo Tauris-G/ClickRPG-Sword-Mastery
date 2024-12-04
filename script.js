@@ -682,17 +682,29 @@ function spawnFinalBoss() {
 // Spawn Monster Function
 function spawnMonster() {
     const randomType = monsterTypes[Math.floor(Math.random() * monsterTypes.length)];
-    const scaledType = scaleMonsterType(randomType);
+    const healthVariation = Math.floor(Math.random() * 50) - 25; // Health +/- 25
+    const attackVariation = Math.floor(Math.random() * 5) - 2; // Attack +/- 2
+
     const newMonster = {
         id: monsterId,
-        name: scaledType.name,
-        health: scaledType.health,
-        attack: scaledType.attack,
-        emoji: scaledType.emoji,
-        isBoss: false
+        name: `${randomType.name} (Lv. ${level})`,
+        health: Math.max(1, randomType.health + healthVariation),
+        attack: Math.max(1, randomType.attack + attackVariation),
+        emoji: randomType.emoji,
+        isBoss: false,
     };
+
     monsters.push(newMonster);
     renderMonster(newMonster);
+    showNotification(`👾 New Monster Appeared: ${newMonster.name}!`, 'achievement');
+
+    // Play monster appear sound
+    const monsterAppearSound = document.getElementById('monsterAppearSound');
+    if (monsterAppearSound) {
+        monsterAppearSound.currentTime = 0; // Reset playback position
+        monsterAppearSound.play();
+    }
+
     monsterId++;
 }
 
