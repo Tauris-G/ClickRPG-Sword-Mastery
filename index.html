@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>The Click-tastic Adventure</title>
-    <!-- Nuoroda į išorinį CSS -->
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -30,6 +29,8 @@
         <button class="tab-button" onclick="switchTab('upgrades', this)">Upgrades 🛠️</button>
         <button class="tab-button" onclick="switchTab('swords', this)">Swords 🗡️</button>
         <button class="tab-button" onclick="switchTab('achievements', this)">Achievements 🏆</button>
+        <button class="tab-button" onclick="switchTab('quests', this)">Quests 📜</button>
+        <button class="tab-button" onclick="switchTab('forge', this)">Forge 🔥</button>
     </div>
 
     <!-- Blood Particles Container -->
@@ -47,6 +48,8 @@
         <h2>🏆 Victory! 🏆</h2>
         <p>Congratulations! You have acquired all 30 swords and reached Level 100!</p>
         <button onclick="closeVictoryModal()">Celebrate 🎉</button>
+        <!-- Prestige Button -->
+        <button id="prestigeButton" onclick="prestige()" style="display:none;">Prestige</button>
     </div>
 
     <!-- Game Over Modal -->
@@ -60,11 +63,9 @@
     <div style="width: 100%; flex: 1; display: flex; flex-direction: column; align-items: center; overflow: hidden;">
         <!-- Home Section -->
         <div id="home" class="section active">
-            <!-- Hero -->
             <div id="hero" title="Click to earn gold!">🧝</div>
             <p>Click your hero to earn gold and fend off mischievous monsters! 💰👾</p>
 
-            <!-- Stats -->
             <div class="stats">
                 <p>Gold: <span id="gold">0</span> 💰</p>
                 <p>Level: <span id="level">1</span> 🔼</p>
@@ -77,9 +78,14 @@
                 <p>Defense: <span id="defense">1</span> 🛡️</p>
                 <p>Health: <span id="currentHealth">100</span> / <span id="maxHealth">100</span> ❤️</p>
                 <p>Lives: <span id="lives">3</span> 💔</p>
+                <p>Prestige Count: <span id="prestigeCountDisplay">0</span></p>
             </div>
 
-            <!-- Monsters Container -->
+            <!-- Combo Indicator -->
+            <div id="comboContainer">
+                <p>Combo: <span id="comboCount">0</span> 🔥 (Gold Bonus: <span id="comboBonus">0%</span>)</p>
+            </div>
+
             <div id="monstersContainer"></div>
         </div>
 
@@ -100,6 +106,24 @@
             <h2>Achievements 🏆</h2>
             <div id="achievementsList"></div>
         </div>
+
+        <!-- Quests Section -->
+        <div id="quests" class="section">
+            <h2>Quests 📜</h2>
+            <div id="questsList"></div>
+        </div>
+
+        <!-- Forge Section -->
+        <div id="forge" class="section">
+            <h2>Forge 🔥</h2>
+            <p>Combine certain swords to forge powerful synergies!</p>
+            <div id="forgeSection">
+                <p><strong>Synergy: "Venomous Light Serpent"</strong><br>
+                Requires owning Swords #5, #10, #15. Grants +50 Attack once.<br>
+                <button id="forgeButton" onclick="attemptForgeSynergy()">Forge Synergy</button></p>
+                <p id="forgeStatus"></p>
+            </div>
+        </div>
     </div>
 
     <!-- Save and Load Buttons -->
@@ -107,9 +131,7 @@
         <button onclick="saveGame()">💾 Save Game</button>
         <button onclick="loadGame()">📂 Load Game</button>
         <button id="resetButton" onclick="resetGame()">🔄 Reset Game</button>
-        <!-- Buy Heart Button -->
         <button id="buyHeartButton" onclick="buyHeart()">❤️ Buy Full Heart (10k Gold)</button>
-        <!-- Mute and Volume Controls -->
         <button id="muteButton" onclick="toggleMusic()">🔊</button>
         <input type="range" id="volumeSlider" min="0" max="1" step="0.01" onchange="setVolume(this.value)">
     </div>
@@ -131,10 +153,10 @@
     <!-- Background Music -->
     <audio id="backgroundMusic" src="https://cdn.pixabay.com/audio/2021/11/05/audio_6acc538346.mp3" preload="auto" loop></audio>
 </div>
+<footer id="gameFooter">
+    <p>© 2024 Tauris Games Inc.™ All Rights Reserved. Unauthorized clicking may result in humorous consequences. 🤪 | Version 1.0.2</p>
+</footer>
 
 <script src="script.js"></script>
-<footer id="gameFooter">
-    <p>© 2024 Tauris Games Inc.™ All Rights Reserved. Unauthorized clicking may result in humorous consequences. 🤪 | Version 1.0.0</p>
-</footer>
 </body>
 </html>
