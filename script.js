@@ -33,7 +33,6 @@ const comboMaxStacks = 5;
 const comboDuration = 2000; 
 let lastClickTime = 0;
 
-// Upgrade base costs
 const baseUpgradeCosts = {
     attack: 50,
     defense: 75,
@@ -61,7 +60,6 @@ const upgrades = [
     { id: 10, type: 'luck', name: 'Luck Enhancement', cost: baseUpgradeCosts.luck, effect: 'Increase gold gain by 15%.', owned: 0 }
 ];
 
-// Swords (30 swords)
 const swords = [
     { id: 1, name: 'Stick of Fury 🪵', cost: 300, damage: 2, description: 'A sturdy stick with fury.', owned: false },
     { id: 2, name: 'Rusty Blade 🗡️', cost: 900, damage: 5, description: 'A rusty blade, surprisingly effective.', owned: false },
@@ -72,7 +70,7 @@ const swords = [
     { id: 7, name: 'Phoenix Blade 🔥🗡️', cost: 13500, damage: 75, description: 'Imbued with phoenix fire.', owned: false },
     { id: 8, name: 'Thunderstrike ⚡🗡️', cost: 16200, damage: 90, description: 'Channels the power of thunder.', owned: false },
     { id: 9, name: 'Frostmourne ❄️🗡️', cost: 18900, damage: 105, description: 'Freezes enemies on impact.', owned: false },
-    { id: 10, name: 'Venomous Viper 🐍🗡️', cost: 22500, damage:120, description:'Coated with deadly venom.', owned:false},
+    { id: 10, name: 'Venomous Viper 🐍🗡️', cost:22500, damage:120, description:'Coated with deadly venom.', owned:false},
     { id: 11, name:'Celestial Longsword 🌌🗡️', cost:27000, damage:140, description:'Harnesses celestial energy.', owned:false},
     { id: 12, name:'Inferno Edge 🔥🗡️', cost:31500, damage:160, description:'Burns with eternal flames.', owned:false},
     { id: 13, name:'Earthshaker Hammer 🛠️', cost:36000, damage:180, description:'Can shatter earth.', owned:false},
@@ -128,7 +126,6 @@ const monsterTypes = [
     { name: 'Giant Goblin Grug 👹', health:180, attack:18, emoji:'👹'}
 ];
 
-// Monsters & Bosses
 let monsters = [];
 let monsterId = 1;
 let currentBoss = null;
@@ -192,6 +189,7 @@ function startGame() {
 }
 
 // Tutorial dialog
+let dialogIndex = 0;
 const tutorialDialog = [
     "Welcome, young adventurer! 👀 Prepare for an epic journey!",
     "This world is plagued with annoying monsters. 👾",
@@ -201,7 +199,6 @@ const tutorialDialog = [
     "Don't die. That's bad. 💀",
     "Hit 'Start Game' and show these monsters who's boss!"
 ];
-let dialogIndex = 0;
 function nextDialog() {
     dialogIndex++;
     const dialogElement = document.getElementById("npcDialog");
@@ -319,12 +316,23 @@ function currentGoldGain(amount){
 }
 
 function gainExperience(amount){
-    experience+=amount;
-    while(experience>=expToNext&&level<100){
-        experience-=expToNext;
-        levelUp();
+    experience += amount;
+    let bossShouldSpawn = false; 
+
+    while(experience >= expToNext && level < 100){
+        experience -= expToNext;
+        levelUp(); 
+        if(level % 10 === 0 && level < 100 && !currentBoss){
+            bossShouldSpawn = true;
+        }
     }
-    if(level===100 && swords.every(s=>s.owned)) showVictoryModal();
+
+    if(bossShouldSpawn){
+        spawnBoss(true);
+    }
+
+    if(level === 100 && swords.every(s => s.owned)) showVictoryModal();
+    
     updateStats();
     checkQuests();
 }
@@ -335,20 +343,18 @@ function levelUp(){
     playSound(document.getElementById('levelUpSound'));
     showLevelUpModal();
     checkAchievements();
-    if(level%5===0) scaleMonsters();
-    if(level%10===0 && level<100) spawnBoss(true);
 
-    // papildomas pranešimas 50 lygyje
-    if(level===50){
+    if(level % 5 === 0) scaleMonsters();
+
+    if(level === 50){
         showNotification('Halfway there! Keep going!','achievement');
     }
-    // pranešimas 90 lygyje
-    if(level===90){
+    if(level === 90){
         showNotification('Almost at 100! The final challenge awaits!','achievement');
     }
 
-    if(level===100) spawnFinalBoss();
-    if(level===100 && swords.every(s=>s.owned)) showVictoryModal();
+    if(level === 100) spawnFinalBoss();
+    if(level === 100 && swords.every(s => s.owned)) showVictoryModal();
 }
 
 function showLevelUpModal(){
@@ -641,7 +647,12 @@ function loadGame(){
         prestigeCount=gameState.prestigeCount||0;
         updateStats();
         renderLoadedMonsters();
-        if(currentBoss){renderBoss(currentBoss);bossAttackLoop(currentBoss);}
+        
+        if(currentBoss){
+            renderMonster(currentBoss);
+            bossAttackLoop(currentBoss);
+        }
+
         initializeQuests();
         updateComboDisplay();
         showNotification('📂 Game Loaded!','success');
@@ -869,6 +880,16 @@ function updateComboDisplay(){
     document.getElementById('comboBonus').textContent=(comboCount*10)+'%';
 }
 
+function getMonsterSpawnInterval(){
+    if(level<=10){
+        return Math.floor(Math.random()*(60000-30000+1))+30000; 
+    } else if(level<=20){
+        return Math.floor(Math.random()*(40000-20000+1))+20000; 
+    } else {
+        return Math.floor(Math.random()*(30000-10000+1))+10000; 
+    }
+}
+
 function spawnMonster() {
     const randomType = monsterTypes[Math.floor(Math.random()*monsterTypes.length)];
     const healthVariation=Math.floor(Math.random()*50)-25;
@@ -879,7 +900,9 @@ function spawnMonster() {
         health:Math.max(1,randomType.health+healthVariation),
         attack:Math.max(1,randomType.attack+attackVariation),
         emoji:randomType.emoji,
-        isBoss:false
+        isBoss:false,
+        attackTimeout:null,
+        spellTimeout:null
     };
     monsters.push(newMonster);
     renderMonster(newMonster);
@@ -890,74 +913,90 @@ function spawnMonster() {
 }
 
 function renderMonster(monster) {
-    const monstersContainer=document.getElementById('monstersContainer');
-    const monsterDiv=document.createElement('div');
-    monsterDiv.className='monster undefeated';
-    monsterDiv.id=`monster${monster.id}`;
-    monsterDiv.innerHTML=`
+    console.log(`[DEBUG] renderMonster called for: ${monster.name} (ID: ${monster.id}) Boss?: ${monster.isBoss}`);
+    const monstersContainer = document.getElementById('monstersContainer');
+    const monsterDiv = document.createElement('div');
+    monsterDiv.className = 'monster'; // Removed 'undefeated' class and boss-monster class
+
+    monsterDiv.id = `monster${monster.id}`;
+
+    monsterDiv.innerHTML = `
     <span class="icon">${monster.emoji}</span>
     <div>
-    <strong>${monster.name}</strong><br>
-    Health: <span id="monsterHealth${monster.id}">${monster.health}</span> ❤️<br>
-    Attack: <span id="monsterAttack${monster.id}">${monster.attack}</span> ⚔️
+        <strong>${monster.name}</strong><br>
+        Health: <span id="monsterHealth${monster.id}">${monster.health}</span> ❤️<br>
+        Attack: <span id="monsterAttack${monster.id}">${monster.attack}</span> ⚔️
     </div>
     <button class="upgrade-button" onclick="attackMonster(${monster.id})">Attack 👊</button>
     `;
     monstersContainer.appendChild(monsterDiv);
-    scheduleMonsterAttack(monster);
-    scheduleMonsterSpell(monster);
 }
 
 function attackMonster(monsterId) {
     const monster=monsters.find(m=>m.id===monsterId)||(currentBoss&&currentBoss.id===monsterId?currentBoss:null);
-    if(monster){
-        let playerDamage=attackPower;
-        const isCritical=currentCriticalHitChance();
-        if(isCritical){
-            playerDamage*=2;
-            if(!criticalHitNotificationCooldown){
-                showNotification('⚡ Critical Hit! Double Damage!','critical');
-                playSound(document.getElementById('criticalHitSound'));
-                criticalHitNotificationCooldown=true;
-                setTimeout(()=>{criticalHitNotificationCooldown=false;},1000);
-            }
-        } else {
-            playSound(document.getElementById('clickSound'));
+    if(!monster) return; 
+
+    let playerDamage=attackPower;
+    const isCritical=currentCriticalHitChance();
+    if(isCritical){
+        playerDamage*=2;
+        if(!criticalHitNotificationCooldown){
+            showNotification('⚡ Critical Hit! Double Damage!','critical');
+            playSound(document.getElementById('criticalHitSound'));
+            criticalHitNotificationCooldown=true;
+            setTimeout(()=>{criticalHitNotificationCooldown=false;},1000);
         }
-        const monsterSlayerUpgrades=upgrades.find(u=>u.type==='monsterSlayer').owned;
-        playerDamage+=3*monsterSlayerUpgrades;
-        monster.health-=playerDamage;
-        showDamageAnimation(playerDamage,`monster${monster.id}`);
-        if(monster.health<=0){
-            if(monster.isBoss){
-                gold+=1000;
-                experience+=1000; 
-                bossesDefeated++;
-                playSound(document.getElementById('bossDefeatedSound'));
-                showNotification(`🎉 Boss ${monster.name} defeated! Earned 1000 gold and 1000 XP!`,'success');
-                currentBoss=null;
-            } else {
-                gold+=100;
-                monstersDefeated++;
-                playSound(document.getElementById('monsterDefeatedSound'));
-                showNotification(`🎉 Monster ${monster.name} defeated! Earned 100 gold!`,'success');
-                experience+=100; 
-            }
-            const monsterIndex=monsters.indexOf(monster);
-            if(monsterIndex>=0) monsters.splice(monsterIndex,1);
-            const monsterDiv=document.getElementById(`monster${monster.id}`);
-            if(monsterDiv) monsterDiv.remove();
-            updateStats();
-            checkAchievements();
-            checkQuests();
-            if(monster.isBoss&&monster.isFinal&&swords.every(s=>s.owned)) showVictoryModal();
-        } else {
-            document.getElementById(`monsterHealth${monster.id}`).textContent=monster.health;
-        }
+    } else {
+        playSound(document.getElementById('clickSound'));
+    }
+    const monsterSlayerUpgrades=upgrades.find(u=>u.type==='monsterSlayer').owned;
+    playerDamage+=3*monsterSlayerUpgrades;
+    monster.health-=playerDamage;
+    showDamageAnimation(playerDamage,`monster${monster.id}`);
+    if(monster.health<=0){
+        killMonster(monster);
+    } else {
+        const mh=document.getElementById(`monsterHealth${monster.id}`);
+        if(mh) mh.textContent=monster.health;
     }
 }
 
+function killMonster(monster) {
+    clearMonsterIntervals(monster);
+    if(monster.isBoss){
+        gold+=1000;
+        experience+=1000; 
+        bossesDefeated++;
+        playSound(document.getElementById('bossDefeatedSound'));
+        showNotification(`🎉 Boss ${monster.name} defeated! Earned 1000 gold and 1000 XP!`,'success');
+        currentBoss=null;
+    } else {
+        gold+=100;
+        monstersDefeated++;
+        playSound(document.getElementById('monsterDefeatedSound'));
+        showNotification(`🎉 Monster ${monster.name} defeated! Earned 100 gold!`,'success');
+        experience+=100; 
+    }
+
+    monsters=monsters.filter(m=>m.id!==monster.id);
+    const monsterDiv=document.getElementById(`monster${monster.id}`);
+    if(monsterDiv) monsterDiv.remove();
+
+    updateStats();
+    checkAchievements();
+    checkQuests();
+    if(monster.isBoss&&monster.isFinal&&swords.every(s=>s.owned)) showVictoryModal();
+}
+
+function clearMonsterIntervals(monster){
+    if(monster.attackTimeout) clearTimeout(monster.attackTimeout);
+    if(monster.spellTimeout) clearTimeout(monster.spellTimeout);
+    monster.attackTimeout=null;
+    monster.spellTimeout=null;
+}
+
 function attackPlayer(monster) {
+    if(!monsters.find(m=>m.id===monster.id) && !(currentBoss && currentBoss.id===monster.id)) return;
     const shieldUpgrades=upgrades.find(u=>u.type==='shield').owned;
     const damage=Math.max(monster.attack-(2*shieldUpgrades),0);
     health-=damage;
@@ -975,10 +1014,21 @@ function attackPlayer(monster) {
         } else {
             handleGameOver();
         }
-        monsters=monsters.filter(m=>m.id!==monster.id);
-        const monsterDiv=document.getElementById(`monster${monster.id}`);
-        if(monsterDiv) monsterDiv.remove();
+        removeMonster(monster);
     }
+}
+
+function removeMonster(monster){
+    clearMonsterIntervals(monster);
+    
+    // Jei pašalinamas monstras yra bosas, atstatome currentBoss į null
+    if(monster.isBoss && currentBoss && currentBoss.id === monster.id) {
+        currentBoss = null;
+    }
+    
+    monsters = monsters.filter(m=>m.id!==monster.id);
+    const monsterDiv=document.getElementById(`monster${monster.id}`);
+    if(monsterDiv) monsterDiv.remove();
 }
 
 function showDamageAnimation(amount, targetId) {
@@ -1003,18 +1053,21 @@ function showDamageAnimation(amount, targetId) {
 
 function scheduleMonsterAttack(monster) {
     const attackDelay=Math.floor(Math.random()*(7000-3000+1))+3000;
-    setTimeout(()=>{
-        if(!gamePaused&&monsters.find(m=>m.id===monster.id)) attackPlayer(monster);
+    monster.attackTimeout=setTimeout(()=>{
+        if(!gamePaused && (monsters.find(m=>m.id===monster.id)||(currentBoss&&currentBoss.id===monster.id))){
+            attackPlayer(monster);
+            scheduleMonsterAttack(monster);
+        }
     },attackDelay);
 }
 
 function scheduleMonsterSpell(monster) {
     const spellDelay=Math.floor(Math.random()*(15000-5000+1))+5000;
-    setTimeout(()=>{
-        const activeMonster=monsters.find(m=>m.id===monster.id);
-        if(!gamePaused&&activeMonster){
+    monster.spellTimeout=setTimeout(()=>{
+        const activeMonster=monsters.find(m=>m.id===monster.id)||(currentBoss&&currentBoss.id===monster.id?currentBoss:null);
+        if(!gamePaused&&activeMonster&&!activeMonster.isBoss){
             castSpell(activeMonster);
-            scheduleMonsterSpell(activeMonster);
+            scheduleMonsterSpell(activeMonster); 
         }
     },spellDelay);
 }
@@ -1034,9 +1087,7 @@ function castSpell(monster) {
         } else {
             handleGameOver();
         }
-        monsters=monsters.filter(m=>m.id!==monster.id);
-        const monsterDiv=document.getElementById(`monster${monster.id}`);
-        if(monsterDiv) monsterDiv.remove();
+        removeMonster(monster);
     }
 }
 
@@ -1064,10 +1115,12 @@ function attemptForgeSynergy() {
 }
 
 function initializeQuests(){
+    console.log("[DEBUG] initializeQuests called.");
     const questsList=document.getElementById('questsList');
     questsList.innerHTML='';
     quests.forEach(q=>{
         const conditionMet=checkQuestCondition(q);
+        console.log(`[DEBUG] Rendering quest: ${q.name}, level: ${q.level}, conditionMet: ${conditionMet}`);
         let statusText=conditionMet?(q.claimed?'Completed (Claimed)':'Completed!'):'In Progress';
         let claimButton=conditionMet&&!q.claimed?`<button onclick="claimQuestReward(${q.id})">Claim Reward</button>`:'';
         const currentGoal=getQuestGoal(q);
@@ -1135,57 +1188,73 @@ function checkQuests(){
 function spawnMonsterRandomly() {
     if(gamePaused)return;
     spawnMonster();
-    setInterval(()=>{
-        if(!gamePaused) spawnMonster();
-    }, Math.floor(Math.random()*(30000-10000+1))+10000);
+    function scheduleNextSpawn(){
+        const interval=getMonsterSpawnInterval();
+        setTimeout(()=>{
+            if(!gamePaused){
+                spawnMonster();
+                scheduleNextSpawn();
+            }
+        },interval);
+    }
+    scheduleNextSpawn();
 }
 
-function spawnBoss(isLevelBased=false){
-    if(currentBoss)return;
-    const bossHealthBase = isLevelBased ? (1500 + (level * 100)) : 300; 
-    const bossAttackBase = isLevelBased ? (75 + (level * 10)) : 20;
-    
-    const boss={
-        id:500+bosses.length,
-        name:`Boss ${bosses.length+1}`,
-        health:bossHealthBase,
-        attack:bossAttackBase,
-        emoji:'👹',
-        isBoss:true,
-        isFinal:false
+function spawnBoss(isLevelBased = false) {
+    if (currentBoss) {
+        console.log("[DEBUG] spawnBoss called but currentBoss already exists. Skipping.");
+        return;
+    }
+    console.log(`[DEBUG] spawnBoss called. isLevelBased: ${isLevelBased}, level: ${level}`);
+
+    const bossHealthBase = isLevelBased ? (500 + (level * 50)) : 300;
+    const bossAttackBase = isLevelBased ? (10 + (level * 5)) : 20;
+
+    const boss = {
+        id: 500 + bosses.length,
+        name: `Boss ${bosses.length + 1}`,
+        health: bossHealthBase,
+        attack: bossAttackBase,
+        emoji: '👹',
+        isBoss: true,
+        isFinal: false,
+        attackTimeout: null,
+        spellTimeout: null
     };
-    currentBoss=boss;
-    bosses.push(boss);
-    renderBoss(boss);
-    bossAttackLoop(boss);
-    showNotification(`⚠️ Boss appeared: ${boss.name}!`,'achievement');
-    playSound(document.getElementById('bossAppearSound'));
-}
 
-function renderBoss(boss){
-    const monstersContainer=document.getElementById('monstersContainer');
-    const bossDiv=document.createElement('div');
-    bossDiv.className='monster undefeated boss';
-    bossDiv.id=`monster${boss.id}`;
-    bossDiv.innerHTML=`
-    <span class="icon">${boss.emoji}</span>
-    <div>
-    <strong>${boss.name}</strong><br>
-    Health: <span id="monsterHealth${boss.id}">${boss.health}</span> ❤️<br>
-    Attack: <span id="monsterAttack${boss.id}">${boss.attack}</span> ⚔️
-    </div>
-    <button class="upgrade-button" onclick="attackMonster(${boss.id})">Attack 👊</button>
-    `;
-    monstersContainer.appendChild(bossDiv);
+    currentBoss = boss;
+    bosses.push(boss);
+    monsters.push(boss);
+
+    console.log(`[DEBUG] Boss created: ${boss.name}, ID: ${boss.id}, HP: ${boss.health}, Attack: ${boss.attack}`);
+
+    renderMonster(boss);
+    bossAttackLoop(boss);
+
+    showNotification(`⚠️ Boss appeared: ${boss.name}!`, 'achievement');
+
+    const bossAppearSoundElement = document.getElementById('bossAppearSound');
+    if (bossAppearSoundElement) {
+        playSound(bossAppearSoundElement);
+    }
 }
 
 function spawnFinalBoss() {
-    if(currentBoss)return;
-    currentBoss={...finalBoss};
-    renderBoss(currentBoss);
+    console.log("[DEBUG] spawnFinalBoss called.");
+    if(currentBoss) {
+        console.log("[DEBUG] spawnFinalBoss: currentBoss already exists, skipping final boss spawn.");
+        return;
+    }
+
+    currentBoss={...finalBoss, attackTimeout:null, spellTimeout:null};
+    console.log(`[DEBUG] Final Boss object created: ${currentBoss.name} (ID: ${currentBoss.id}, HP: ${currentBoss.health}, Attack: ${currentBoss.attack})`);
+
+    monsters.push(currentBoss);
+    renderMonster(currentBoss);
     bossAttackLoop(currentBoss);
     showNotification(`⚠️ Final Boss Appears: ${currentBoss.name}!`,'achievement');
-    playSound(document.getElementById('bossAppearSound'));
+    const bossAppearSound=document.getElementById('bossAppearSound');
+    if(bossAppearSound) playSound(bossAppearSound);
 }
 
 function bossAttackLoop(boss) {
@@ -1214,6 +1283,7 @@ function prestige(){
             s.owned=false;
         });
 
+        monsters.forEach(m=>clearMonsterIntervals(m));
         monsters=[];
         monsterId=1;
         monstersDefeated=0;
@@ -1239,18 +1309,20 @@ function prestige(){
     }
 }
 
-window.addEventListener('load',function(){
-    const tutorialModal=document.getElementById("tutorialModal");
+window.addEventListener('load', function(){
+    const tutorialModal = document.getElementById("tutorialModal");
     tutorialModal.classList.add("active");
-    const backgroundMusic=document.getElementById("backgroundMusic");
-    backgroundMusic.volume=0.5;
-    backgroundMusic.play().catch(()=>{});
-    document.addEventListener("click",function startMusic(){
-        if(backgroundMusic.paused){
-            backgroundMusic.play().catch(()=>{});
-        }
-        document.removeEventListener("click",startMusic);
-    });
+    const backgroundMusic = document.getElementById("backgroundMusic");
+    if(backgroundMusic){
+        backgroundMusic.volume = 0.5;
+        backgroundMusic.play().catch(()=>{});
+        document.addEventListener("click", function startMusic(){
+            if(backgroundMusic.paused){
+                backgroundMusic.play().catch(()=>{});
+            }
+            document.removeEventListener("click", startMusic);
+        });
+    }
     enhanceUIResponsiveness();
     document.getElementById('hero').addEventListener('click', heroClick);
 });
