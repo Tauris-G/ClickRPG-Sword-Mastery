@@ -1,4 +1,13 @@
-'use strict';
+'use strict'; 
+
+// Visa žemiau esanti logika iškelta iš HTML failo, sutvarkyta ir optimizuota.
+// Čia yra visas žaidimo JavaScript kodas.
+
+// --------------------------------------------------
+// Jūsų pateiktas kodas, perkeltas iš HTML po </html> į script.js
+// Nieko iš esmės nekeičiam, tik sutvarkom 'use strict' poziciją
+// bei patikriname, kad visos funkcijos egzistuoja ir veikia tinkamai.
+// --------------------------------------------------
 
 // Dialog Array
 const tutorialDialog = [
@@ -10,7 +19,6 @@ const tutorialDialog = [
     "Oh, and don't die. That’s generally bad for adventurers. 💀",
     "Ready? Hit the 'Start Game' button and show these monsters who's boss!"
 ];
-
 let dialogIndex = 0; // Current dialog line index
 
 // Game Variables and Data
@@ -34,7 +42,7 @@ let autoClickPurchased = false;
 let bossesDefeated = 0;
 let deaths = 0;
 
-// Upgrade Costs (Increased Base Costs for Balance)
+// Upgrade Costs
 const baseUpgradeCosts = {
     attack: 50,
     defense: 75,
@@ -49,7 +57,7 @@ const baseUpgradeCosts = {
 };
 let upgradeCosts = { ...baseUpgradeCosts };
 
-// Upgrades Data (10 Upgrades with Adjusted Effects and Costs)
+// Upgrades Data
 const upgrades = [
     { id: 1, type: 'attack', name: 'Attack Upgrade I', cost: baseUpgradeCosts.attack, effect: 'Increase Attack Power by 2.', owned: 0 },
     { id: 2, type: 'defense', name: 'Defense Upgrade I', cost: baseUpgradeCosts.defense, effect: 'Increase Defense by 2.', owned: 0 },
@@ -63,7 +71,7 @@ const upgrades = [
     { id: 10, type: 'luck', name: 'Luck Enhancement', cost: baseUpgradeCosts.luck, effect: 'Increase gold gain by 15%.', owned: 0 }
 ];
 
-// Swords Data (30 Swords with Increased Costs)
+// Swords Data (30 Swords)
 const swords = [
     { id: 1, name: 'Stick of Fury 🪵', cost: 100, damage: 2, description: 'A sturdy stick that slaps enemies with fury.', owned: false },
     { id: 2, name: 'Rusty Blade 🗡️', cost: 300, damage: 5, description: 'An old, rusty blade. Surprisingly effective, increasing attack by 5.', owned: false },
@@ -97,7 +105,7 @@ const swords = [
     { id: 30, name: 'Infinity Blade ♾️🗡️', cost: 37500, damage: 520, description: 'The ultimate blade with infinite power.', owned: false }
 ];
 
-// Monsters Data (30 Monsters with Varied Abilities)
+// Monsters Data (30 Monsters)
 const monsterTypes = [
     { name: 'Slimey McSlimeface 🟢', health: 40, attack: 4, emoji: '🟢' },
     { name: 'Gobblin Giggles 👺', health: 60, attack: 6, emoji: '👺' },
@@ -151,7 +159,7 @@ const finalBoss = {
     isBoss: true
 };
 
-// Achievements Data (Extended as needed)
+// Achievements Data
 const achievements = [
     { id: 1, name: 'First Click', description: 'Click the hero once.', achieved: false },
     { id: 2, name: 'Gold Collector', description: 'Earn 100 gold.', achieved: false },
@@ -171,17 +179,15 @@ const achievements = [
     { id: 16, name: 'Monster Slayer', description: 'Defeat 5 monsters.', achieved: false },
     { id: 17, name: 'Boss Hunter', description: 'Defeat a boss.', achieved: false },
     { id: 18, name: 'Ultimate Conqueror', description: 'Defeat the final boss and own all swords.', achieved: false },
-    { id: 19, name: 'Survivor', description: 'Survive 3 deaths.', achieved: false },
-    // Add more achievements as needed
+    { id: 19, name: 'Survivor', description: 'Survive 3 deaths.', achieved: false }
 ];
 
-// ---------------------------
-// Initialization Functions
-// ---------------------------
+// --------------------------------------------------
+// Initialization and Utility Functions
+// --------------------------------------------------
 
-// Function to recalculate Attack Power based on owned swords
 function recalculateAttackPower() {
-    attackPower = 1; // Base attack power
+    attackPower = 1; 
     swords.forEach(sword => {
         if (sword.owned) {
             attackPower += sword.damage;
@@ -190,10 +196,9 @@ function recalculateAttackPower() {
     updateStats();
 }
 
-// Initialize Achievements Display
 function initializeAchievements() {
     const achievementsList = document.getElementById('achievementsList');
-    achievementsList.innerHTML = ''; // Clear existing achievements
+    achievementsList.innerHTML = '';
     achievements.forEach(ach => {
         const achDiv = document.createElement('div');
         achDiv.className = 'achievement locked';
@@ -203,42 +208,28 @@ function initializeAchievements() {
     });
 }
 
-// Function to get relevant emoji based on upgrade type
 function getUpgradeEmoji(type) {
     switch(type) {
-        case 'attack':
-            return '⚔️';
-        case 'defense':
-            return '🛡️';
-        case 'health':
-            return '❤️';
-        case 'autoClick':
-            return '🤖';
-        case 'criticalHit':
-            return '⚡';
-        case 'goldMultiplier':
-            return '💰';
-        case 'experienceBoost':
-            return '📈';
-        case 'monsterSlayer':
-            return '👹';
-        case 'shield':
-            return '🛡️';
-        case 'luck':
-            return '🍀';
-        default:
-            return '';
+        case 'attack': return '⚔️';
+        case 'defense': return '🛡️';
+        case 'health': return '❤️';
+        case 'autoClick': return '🤖';
+        case 'criticalHit': return '⚡';
+        case 'goldMultiplier': return '💰';
+        case 'experienceBoost': return '📈';
+        case 'monsterSlayer': return '👹';
+        case 'shield': return '🛡️';
+        case 'luck': return '🍀';
+        default: return '';
     }
 }
 
-// Initialize Upgrades Display
 function initializeUpgrades() {
     const upgradesList = document.getElementById('upgradesList');
-    upgradesList.innerHTML = ''; // Clear existing upgrade elements
-
+    upgradesList.innerHTML = '';
     upgrades.forEach(upg => {
         const upgDiv = document.createElement('div');
-        upgDiv.className = 'achievement'; // Reusing styles
+        upgDiv.className = 'achievement';
         upgDiv.id = `upgrade${upg.id}`;
         upgDiv.innerHTML = `
             <span class="icon">🔧</span>
@@ -247,18 +238,16 @@ function initializeUpgrades() {
                 ${upg.effect}
             </div>
             <button class="upgrade-button" onclick="buyUpgrade('${upg.type}')">
-                ${upg.type !== 'autoClick' ? `${upg.name} (Owned: ${upg.owned}) - Cost: <span id="upgradeCost${upg.id}">${upg.cost}</span> 💰` : `${upg.name} - Cost: <span id="upgradeCost${upg.id}">${upg.cost}</span> 💰`}
+            ${upg.type !== 'autoClick' ? `${upg.name} (Owned: ${upg.owned}) - Cost: <span id="upgradeCost${upg.id}">${upg.cost}</span> 💰` : `${upg.name} - Cost: <span id="upgradeCost${upg.id}">${upg.cost}</span> 💰`}
             </button>
         `;
         upgradesList.appendChild(upgDiv);
     });
 }
 
-// Initialize Swords Display
 function initializeSwords() {
     const swordsList = document.getElementById('swordsList');
-    swordsList.innerHTML = ''; // Clear existing sword elements to prevent duplication
-
+    swordsList.innerHTML = '';
     swords.forEach(sword => {
         const swordDiv = document.createElement('div');
         swordDiv.className = 'sword';
@@ -270,70 +259,32 @@ function initializeSwords() {
                 ${sword.description}<br>
                 Damage: ${sword.damage} 🗡️
             </div>
-            <button class="upgrade-button" onclick="buySword(${sword.id})">
-                Buy (Cost: <span id="swordCost${sword.id}">${sword.cost}</span> 💰)
-            </button>
+            <button class="upgrade-button" onclick="buySword(${sword.id})"> Buy (Cost: <span id="swordCost${sword.id}">${sword.cost}</span> 💰) </button>
         `;
         swordsList.appendChild(swordDiv);
     });
 }
 
-// Initialize Skill Tree Display (Assuming Skill Tree is NOT being used)
-// Commenting out as per user request to not add Skill Tree
-/*
-function initializeSkillTree() {
-    const skillTreeList = document.getElementById('skillTreeList');
-    skillTreeList.innerHTML = ''; // Clear existing content
-
-    skills.forEach(skill => {
-        const skillDiv = document.createElement('div');
-        skillDiv.className = 'skill-node';
-        if (!skill.owned) skillDiv.classList.add('locked');
-        skillDiv.id = `skill${skill.id}`;
-        skillDiv.innerHTML = `
-            <span class="icon">🌟</span>
-            <strong>${skill.name}</strong>
-            <p>${skill.effect}</p>
-            <p>Cost: ${skill.cost} XP</p>
-        `;
-        skillDiv.onclick = () => unlockSkill(skill.id);
-        skillTreeList.appendChild(skillDiv);
-    });
-}
-*/
-
-// Initialize the Game
 function initializeGame() {
     initializeAchievements();
     initializeUpgrades();
     initializeSwords();
     updateStats();
     updateAchievements();
-    renderLoadedMonsters(); // Render any loaded monsters
-    spawnMonsterRandomly(); // Start spawning monsters
+    renderLoadedMonsters();
+    spawnMonsterRandomly();
     startPassiveIncome();
 }
 
-// ---------------------------
-// Event Listeners
-// ---------------------------
-
-// Critical Hit Notification Cooldown
-let criticalHitNotificationCooldown = false;
-
-// Hero Click Event with Blood Particle Effect and Critical Hit
+// Hero Click Event
 document.getElementById('hero').addEventListener('click', function (event) {
-    if (gamePaused) return; // Ignore clicks if the game is paused
-
+    if (gamePaused) return;
     totalClicks++;
     let damageDealt = attackPower;
-
-    // Critical Hit Logic
     if (currentCriticalHitChance()) {
         damageDealt *= 2;
-        showCriticalHitNotification(); // Use the cooldown-controlled notification
+        showCriticalHitNotification();
     }
-
     let goldEarned = currentGoldGain(damageDealt);
     gold += goldEarned;
     updateStats();
@@ -341,45 +292,38 @@ document.getElementById('hero').addEventListener('click', function (event) {
     gainExperience(currentExperienceGain());
     checkAchievements();
     createBloodParticles(event);
-
-    // Boss Spawn Check
     if (monstersDefeated > 0 && monstersDefeated % 5 === 0 && !currentBoss) {
         spawnBoss();
     }
 });
 
-// ---------------------------
-// Core Game Functions
-// ---------------------------
-
 // Critical Hit Chance Calculation
 function currentCriticalHitChance() {
     const criticalUpgrades = upgrades.find(upg => upg.type === 'criticalHit').owned;
-    const chance = 0.15 + (0.03 * criticalUpgrades); // Base 15% + 3% per critical hit upgrade
+    const chance = 0.15 + (0.03 * criticalUpgrades);
     return Math.random() < chance;
 }
 
-// Current Experience Gain
+// Experience Gain
 function currentExperienceGain() {
     const expUpgrades = upgrades.find(upg => upg.type === 'experienceBoost').owned;
     return 1 + (2 * expUpgrades);
 }
 
-// Current Gold Gain (including Gold Multiplier and Luck)
+// Gold Gain
 function currentGoldGain(amount) {
     const goldMultiplier = upgrades.find(upg => upg.type === 'goldMultiplier').owned;
     const luckMultiplier = upgrades.find(upg => upg.type === 'luck').owned;
-    return amount * (1 + (2 * goldMultiplier)) * (1 + 0.15 * luckMultiplier); // 15% per luck upgrade
+    return amount * (1 + (2 * goldMultiplier)) * (1 + 0.15 * luckMultiplier);
 }
 
-// Show Notification Function with Queue
+// Notification Queue
 let notificationQueue = [];
-const maxNotifications = 5; // Adjust this number as needed
+const maxNotifications = 5;
 
 function showNotification(message, type) {
     const notificationArea = document.getElementById('notificationArea');
-    if (notificationQueue.length >= maxNotifications) return; // Limit notifications
-
+    if (notificationQueue.length >= maxNotifications) return;
     const notification = document.createElement('div');
     notification.className = 'notification';
     if (type === 'critical') {
@@ -396,106 +340,84 @@ function showNotification(message, type) {
     notification.textContent = message;
     notificationArea.appendChild(notification);
     notificationQueue.push(notification);
-
-    // Remove after animation
     setTimeout(() => {
         notification.remove();
-        notificationQueue.shift(); // Remove from the queue
+        notificationQueue.shift();
     }, 3000);
 }
 
-// Show Critical Hit Notification with Cooldown
+// Critical Hit Notification Cooldown
+let criticalHitNotificationCooldown = false;
 function showCriticalHitNotification() {
-    if (criticalHitNotificationCooldown) return; // Exit if on cooldown
-
-    // Display notification
+    if (criticalHitNotificationCooldown) return;
     showNotification('⚡ Critical Hit! Double Damage!', 'critical');
-
-    // Set cooldown to prevent spamming
     criticalHitNotificationCooldown = true;
-
-    // Reset cooldown after 1 second (adjust as needed)
     setTimeout(() => {
         criticalHitNotificationCooldown = false;
     }, 1000);
 }
 
-// Blood Particle Effect Function
+// Blood Particle Effect
 function createBloodParticles(event) {
     const bloodContainer = document.getElementById('bloodParticles');
     const numberOfParticles = 20;
     const containerRect = bloodContainer.getBoundingClientRect();
     const clickX = event.clientX - containerRect.left;
     const clickY = event.clientY - containerRect.top;
-
     for (let i = 0; i < numberOfParticles; i++) {
         const particle = document.createElement('div');
         particle.classList.add('blood-particle');
         particle.style.left = `${clickX}px`;
         particle.style.top = `${clickY}px`;
-        // Random movement
         const dx = `${(Math.random() - 0.5) * 100}px`;
         const dy = `${(Math.random() - 0.5) * 100}px`;
         particle.style.setProperty('--dx', dx);
         particle.style.setProperty('--dy', dy);
         bloodContainer.appendChild(particle);
-        // Remove particle after animation
         particle.addEventListener('animationend', () => {
             particle.remove();
         });
     }
 }
 
-// Upgrade Purchase Function
+// Buy Upgrade
 function buyUpgrade(upgradeType) {
     const upgrade = upgrades.find(upg => upg.type === upgradeType);
     if (!upgrade) {
         showNotification('❗ Invalid upgrade type!', 'error');
         return;
     }
-
     if (upgrade.type !== 'autoClick') {
         const cost = upgradeCosts[upgradeType];
         if (gold >= cost) {
             gold -= cost;
             upgrade.owned += 1;
-
-            // Update counters for achievements
             if (upgrade.type === 'defense') {
                 defenseUpgrades += 1;
             } else if (upgrade.type === 'health') {
                 healthUpgrades += 1;
             }
-
-            // Apply upgrade effects
             applyUpgradeEffect(upgrade.type);
-
-            // Update the cost for next purchase (Increased scaling)
             upgradeCosts[upgradeType] = Math.floor(upgradeCosts[upgradeType] * 2.0);
-
             updateStats();
             playSound(document.getElementById('upgradeSound'));
             checkAchievements();
-
-            // Update upgrade display
             const upgradeButton = document.getElementById(`upgrade${upgrade.id}`).querySelector('button');
             upgradeButton.innerHTML = `${upgrade.name} (Owned: ${upgrade.owned}) - Cost: <span id="upgradeCost${upgrade.id}">${upgradeCosts[upgradeType]}</span> 💰`;
             showNotification(`Purchased Upgrade: ${upgrade.name}`, 'success');
         } else {
             showNotification('❗ Not enough gold! 💸', 'error');
         }
-    } else { // Auto-Clicker is a one-time purchase
+    } else {
         if (gold >= upgradeCosts.autoClick && !autoClickPurchased) {
             gold -= upgradeCosts.autoClick;
-            passiveIncome += 10; // Adds 10 gold per second
+            passiveIncome += 10;
             autoClickPurchased = true;
-            upgrade.owned = 1; // Mark as owned
+            upgrade.owned = 1;
             applyUpgradeEffect(upgrade.type);
             updateStats();
             playSound(document.getElementById('upgradeSound'));
             checkAchievements();
-
-            // Update upgrade display
             const upgradeButton = document.getElementById(`upgrade${upgrade.id}`).querySelector('button');
             upgradeButton.disabled = true;
             upgradeButton.textContent = 'Owned ✅';
@@ -508,7 +430,6 @@ function buyUpgrade(upgradeType) {
     }
 }
 
-// Apply Upgrade Effects
 function applyUpgradeEffect(upgradeType) {
     switch(upgradeType) {
         case 'attack':
@@ -519,25 +440,25 @@ function applyUpgradeEffect(upgradeType) {
             break;
         case 'health':
             maxHealth += 10;
-            health = maxHealth; // Restore health upon max health increase
+            health = maxHealth;
             break;
         case 'criticalHit':
-            // Critical hit chance is handled in the click event
+            // Handled in click logic
             break;
         case 'goldMultiplier':
-            // Gold multiplier is handled in currentGoldGain
+            // Handled in currentGoldGain
             break;
         case 'experienceBoost':
-            // Experience boost is handled in currentExperienceGain
+            // Handled in currentExperienceGain
             break;
         case 'monsterSlayer':
-            // Monster Slayer is handled in attackMonster
+            // Added in attackMonster
             break;
         case 'shield':
-            // Shield reduces incoming damage
+            // Reduces damage taken
             break;
         case 'luck':
-            // Luck multiplier is handled in currentGoldGain
+            // Handled in currentGoldGain
             break;
         default:
             break;
@@ -547,7 +468,7 @@ function applyUpgradeEffect(upgradeType) {
 // Experience and Leveling
 function gainExperience(amount) {
     experience += amount;
-    while (experience >= expToNext && level < 100) { // MAX LEVEL 100
+    while (experience >= expToNext && level < 100) {
         experience -= expToNext;
         levelUp();
     }
@@ -559,45 +480,35 @@ function gainExperience(amount) {
 
 function levelUp() {
     level++;
-    expToNext = Math.floor(expToNext * 2.0); // Increased scaling factor
+    expToNext = Math.floor(expToNext * 2.0);
     playSound(document.getElementById('levelUpSound'));
     showLevelUpModal();
     checkAchievements();
-
-    // Increase monster strength every 5 levels
     if (level % 5 === 0) {
         scaleMonsters();
     }
-
-    // Check for Level-Based Boss
     if (level % 10 === 0 && level < 100) {
-        spawnBoss(true); // Spawn regular level-based boss
+        spawnBoss(true);
     }
-
-    // Spawn Final Boss at level 100
     if (level === 100) {
         spawnFinalBoss();
     }
-
     if (level === 100 && swords.every(sword => sword.owned)) {
         showVictoryModal();
     }
 }
 
-// Show Level-Up Modal
 function showLevelUpModal() {
     document.getElementById('newLevel').textContent = level;
     const modal = document.getElementById('levelUpModal');
     modal.classList.add('active');
 }
 
-// Close Level-Up Modal
 function closeLevelUpModal() {
     const modal = document.getElementById('levelUpModal');
     modal.classList.remove('active');
 }
 
-// Show Victory Modal
 function showVictoryModal() {
     if (!document.getElementById('victoryModal').classList.contains('active')) {
         playSound(document.getElementById('victorySound'));
@@ -607,13 +518,11 @@ function showVictoryModal() {
     }
 }
 
-// Close Victory Modal
 function closeVictoryModal() {
     const modal = document.getElementById('victoryModal');
     modal.classList.remove('active');
 }
 
-// Show Game Over Modal
 function showGameOverModal() {
     playSound(document.getElementById('gameOverSound'));
     const modal = document.getElementById('gameOverModal');
@@ -621,38 +530,35 @@ function showGameOverModal() {
     showNotification('💀 Game Over! 💀', 'error');
 }
 
-// Restart Game after Game Over
 function restartGame() {
     const modal = document.getElementById('gameOverModal');
     modal.classList.remove('active');
     resetGame();
 }
 
-// Update Stats Display
 function updateStats() {
-    document.getElementById('gold').textContent = Math.floor(gold).toLocaleString(); // Format gold
+    document.getElementById('gold').textContent = Math.floor(gold).toLocaleString();
     document.getElementById('level').textContent = level;
-    document.getElementById('experience').textContent = Math.floor(experience).toLocaleString(); // Format XP
-    document.getElementById('expToNext').textContent = Math.floor(expToNext).toLocaleString(); // Format XP to next level
-    document.getElementById('passiveIncome').textContent = passiveIncome.toLocaleString(); // Format passive income
-    document.getElementById('attackPower').textContent = attackPower.toLocaleString(); // Format attack power
-    document.getElementById('defense').textContent = defense.toLocaleString(); // Format defense
-    document.getElementById('currentHealth').textContent = Math.floor(health).toLocaleString(); // Format health
-    document.getElementById('maxHealth').textContent = Math.floor(maxHealth).toLocaleString(); // Format max health
+    document.getElementById('experience').textContent = Math.floor(experience).toLocaleString();
+    document.getElementById('expToNext').textContent = Math.floor(expToNext).toLocaleString();
+    document.getElementById('passiveIncome').textContent = passiveIncome.toLocaleString();
+    document.getElementById('attackPower').textContent = attackPower.toLocaleString();
+    document.getElementById('defense').textContent = defense.toLocaleString();
+    document.getElementById('currentHealth').textContent = Math.floor(health).toLocaleString();
+    document.getElementById('maxHealth').textContent = Math.floor(maxHealth).toLocaleString();
     document.getElementById('lives').textContent = lives;
 
-    // Update XP Bar
     const xpPercentage = Math.min((experience / expToNext) * 100, 100);
     document.getElementById('xpBar').style.width = `${xpPercentage}%`;
 }
 
-// Buy Sword Function
+// Buy Sword
 function buySword(swordId) {
     const sword = swords.find(s => s.id === swordId);
     if (!sword.owned && gold >= sword.cost) {
         gold -= sword.cost;
         sword.owned = true;
-        recalculateAttackPower(); // Recalculate attack power based on owned swords
+        recalculateAttackPower();
         const swordButton = document.getElementById(`sword${sword.id}`).querySelector('button');
         swordButton.disabled = true;
         swordButton.textContent = 'Owned ✅';
@@ -667,24 +573,21 @@ function buySword(swordId) {
     }
 }
 
-// Spawn Final Boss Function
+// Final Boss
 function spawnFinalBoss() {
-    if (currentBoss) return; // Prevent multiple bosses
-
-    currentBoss = { ...finalBoss }; // Clone the final boss data
+    if (currentBoss) return;
+    currentBoss = { ...finalBoss };
     renderBoss(currentBoss);
-    bossAttackLoop(currentBoss); // Initiate attacks
+    bossAttackLoop(currentBoss);
     showNotification(`⚠️ Final Boss Appears: ${currentBoss.name}!`, 'achievement');
-    playSound(document.getElementById('bossAppearSound')); // Play boss appearance sound
-    console.log("Final Boss Spawned:", currentBoss);
+    playSound(document.getElementById('bossAppearSound'));
 }
 
-// Spawn Monster Function
+// Spawn Monster
 function spawnMonster() {
     const randomType = monsterTypes[Math.floor(Math.random() * monsterTypes.length)];
-    const healthVariation = Math.floor(Math.random() * 50) - 25; // Health +/- 25
-    const attackVariation = Math.floor(Math.random() * 5) - 2; // Attack +/- 2
-
+    const healthVariation = Math.floor(Math.random() * 50) - 25;
+    const attackVariation = Math.floor(Math.random() * 5) - 2;
     const newMonster = {
         id: monsterId,
         name: `${randomType.name} (Lv. ${level})`,
@@ -693,22 +596,17 @@ function spawnMonster() {
         emoji: randomType.emoji,
         isBoss: false,
     };
-
     monsters.push(newMonster);
     renderMonster(newMonster);
     showNotification(`👾 New Monster Appeared: ${newMonster.name}!`, 'achievement');
-
-    // Play monster appear sound
     const monsterAppearSound = document.getElementById('monsterAppearSound');
     if (monsterAppearSound) {
-        monsterAppearSound.currentTime = 0; // Reset playback position
+        monsterAppearSound.currentTime = 0;
         monsterAppearSound.play();
     }
-
     monsterId++;
 }
 
-// Render Monster Function
 function renderMonster(monster) {
     const monstersContainer = document.getElementById('monstersContainer');
     const monsterDiv = document.createElement('div');
@@ -724,49 +622,27 @@ function renderMonster(monster) {
         <button class="upgrade-button" onclick="attackMonster(${monster.id})">Attack 👊</button>
     `;
     monstersContainer.appendChild(monsterDiv);
-
-    // Schedule monster attack
     scheduleMonsterAttack(monster);
-
-    // Schedule spell casting if applicable
     scheduleMonsterSpell(monster);
 }
 
-// Scale Monster Attributes Based on Level
-function scaleMonsterType(monsterType) {
-    const scalingFactor = Math.min(level / 5, 10); // Caps scaling at level 50
-    return {
-        name: monsterType.name,
-        health: Math.floor(monsterType.health * scalingFactor),
-        attack: Math.floor(monsterType.attack * scalingFactor),
-        emoji: monsterType.emoji
-    };
-}
-
-// Scale Existing Monsters (Increase their health and attack)
+// Scale Monsters
 function scaleMonsters() {
     monsters.forEach(monster => {
-        monster.health = Math.floor(monster.health * 1.2); // Increase health by 20%
-        monster.attack = Math.floor(monster.attack * 1.2); // Increase attack by 20%
-        // Update the DOM
+        monster.health = Math.floor(monster.health * 1.2);
+        monster.attack = Math.floor(monster.attack * 1.2);
         const healthSpan = document.getElementById(`monsterHealth${monster.id}`);
-        if (healthSpan) {
-            healthSpan.textContent = monster.health;
-        }
+        if (healthSpan) healthSpan.textContent = monster.health;
         const attackSpan = document.getElementById(`monsterAttack${monster.id}`);
-        if (attackSpan) {
-            attackSpan.textContent = monster.attack;
-        }
+        if (attackSpan) attackSpan.textContent = monster.attack;
     });
 }
 
-// Spawn Boss Function
+// Spawn Boss
 function spawnBoss(isLevelBased = false) {
-    if (currentBoss) return; // Avoid multiple bosses
-
+    if (currentBoss) return;
     const bossHealthBase = isLevelBased ? 1000 + (level * 50) : 300;
     const bossAttackBase = isLevelBased ? 50 + (level * 5) : 20;
-
     const boss = {
         id: 500 + bosses.length,
         name: `Boss ${bosses.length + 1}`,
@@ -776,16 +652,14 @@ function spawnBoss(isLevelBased = false) {
         isBoss: true,
         isFinal: false
     };
-
     currentBoss = boss;
     bosses.push(boss);
     renderBoss(boss);
     bossAttackLoop(boss);
     showNotification(`⚠️ Boss appeared: ${boss.name}!`, 'achievement');
-    playSound(document.getElementById('bossAppearSound')); // Play boss appearance sound
+    playSound(document.getElementById('bossAppearSound'));
 }
 
-// Render Boss Function
 function renderBoss(boss) {
     const monstersContainer = document.getElementById('monstersContainer');
     const bossDiv = document.createElement('div');
@@ -801,48 +675,38 @@ function renderBoss(boss) {
         <button class="upgrade-button" onclick="attackMonster(${boss.id})">Attack 👊</button>
     `;
     monstersContainer.appendChild(bossDiv);
-
-    console.log(`Boss rendered: ${boss.name} with ID ${boss.id}`); // Debugging
 }
 
-// Attack Monster Function
+// Attack Monster
 function attackMonster(monsterId) {
     const monster = monsters.find(m => m.id === monsterId) || (currentBoss && currentBoss.id === monsterId ? currentBoss : null);
     if (monster) {
         let playerDamage = attackPower;
-
-        // Check for critical hit
         const isCriticalHit = currentCriticalHitChance();
         if (isCriticalHit) {
-            playerDamage *= 2; // Double the damage for critical hit
-            showCriticalHitNotification(); // Use the cooldown-controlled notification
+            playerDamage *= 2;
+            showCriticalHitNotification();
         } else {
-            playSound(document.getElementById('clickSound')); // Play normal attack sound
+            playSound(document.getElementById('clickSound'));
         }
-
-        // Apply Monster Slayer upgrade
         const monsterSlayerUpgrades = upgrades.find(upg => upg.type === 'monsterSlayer').owned;
         playerDamage += 3 * monsterSlayerUpgrades;
-
         monster.health -= playerDamage;
         showDamageAnimation(playerDamage, `monster${monster.id}`);
-
         if (monster.health <= 0) {
             if (monster.isBoss) {
-                gold += 1000; // Reward for defeating boss
-                experience += 500; // XP for defeating boss
+                gold += 1000;
+                experience += 500;
                 bossesDefeated++;
                 playSound(document.getElementById('bossDefeatedSound'));
                 showNotification(`🎉 Boss ${monster.name} defeated! Earned 1000 gold and 500 XP!`, 'success');
-                currentBoss = null; // Clear boss
+                currentBoss = null;
             } else {
-                gold += 100; // Regular monster reward
+                gold += 100;
                 monstersDefeated++;
                 playSound(document.getElementById('monsterDefeatedSound'));
                 showNotification(`🎉 Monster ${monster.name} defeated! Earned 100 gold!`, 'success');
             }
-
-            // Remove monster/boss from screen and data
             const monsterIndex = monsters.indexOf(monster);
             if (monsterIndex >= 0) {
                 monsters.splice(monsterIndex, 1);
@@ -851,11 +715,8 @@ function attackMonster(monsterId) {
             if (monsterDiv) {
                 monsterDiv.remove();
             }
-
             updateStats();
             gainExperience(monster.isBoss ? 500 : 50);
-
-            // Handle final boss victory with all swords owned
             if (monster.isBoss && monster.isFinal && swords.every(sword => sword.owned)) {
                 showVictoryModal();
             }
@@ -865,7 +726,6 @@ function attackMonster(monsterId) {
     }
 }
 
-// Attack Player Function
 function attackPlayer(monster) {
     const damage = Math.max(monster.attack - defense, 0);
     health -= damage;
@@ -873,18 +733,16 @@ function attackPlayer(monster) {
     playSound(document.getElementById('monsterAttackSound'));
     showNotification(`⚔️ ${monster.name} attacked you for ${damage} damage! ❤️`, 'error');
     updateStats();
-    // Check for game over
     if (health <= 0) {
         lives -= 1;
         deaths += 1;
         if (lives > 0) {
-            health = maxHealth; // Reset health
+            health = maxHealth;
             updateStats();
             showNotification(`💀 You have been defeated by ${monster.name}! You lost a life. ❤️ Lives left: ${lives}`, 'error');
         } else {
             handleGameOver();
         }
-        // Remove the monster
         monsters = monsters.filter(m => m.id !== monster.id);
         const monsterDiv = document.getElementById(`monster${monster.id}`);
         if (monsterDiv) {
@@ -893,7 +751,6 @@ function attackPlayer(monster) {
     }
 }
 
-// Show Damage Animation Function
 function showDamageAnimation(amount, targetId) {
     if (targetId === 'home') {
         const homeSection = document.getElementById('home');
@@ -901,7 +758,6 @@ function showDamageAnimation(amount, targetId) {
         damageText.className = 'damage-text';
         damageText.textContent = `-${amount}`;
         homeSection.appendChild(damageText);
-        // Remove the damage text after animation completes
         setTimeout(() => {
             damageText.remove();
         }, 1000);
@@ -912,7 +768,6 @@ function showDamageAnimation(amount, targetId) {
             damageText.className = 'damage-text';
             damageText.textContent = `-${amount}`;
             targetElement.appendChild(damageText);
-            // Remove the damage text after animation completes
             setTimeout(() => {
                 damageText.remove();
             }, 1000);
@@ -920,9 +775,8 @@ function showDamageAnimation(amount, targetId) {
     }
 }
 
-// Schedule Monster Attack Function
 function scheduleMonsterAttack(monster) {
-    const attackDelay = Math.floor(Math.random() * (7000 - 3000 + 1)) + 3000; // 3 to 7 seconds
+    const attackDelay = Math.floor(Math.random() * (7000 - 3000 + 1)) + 3000;
     setTimeout(() => {
         if (!gamePaused && monsters.find(m => m.id === monster.id)) {
             attackPlayer(monster);
@@ -930,40 +784,34 @@ function scheduleMonsterAttack(monster) {
     }, attackDelay);
 }
 
-// Schedule Monster Spell Casting Function (Fixed Recursive Call)
 function scheduleMonsterSpell(monster) {
-    const spellDelay = Math.floor(Math.random() * (15000 - 5000 + 1)) + 5000; // 5 to 15 seconds
+    const spellDelay = Math.floor(Math.random() * (15000 - 5000 + 1)) + 5000;
     setTimeout(() => {
         const activeMonster = monsters.find(m => m.id === monster.id);
         if (!gamePaused && activeMonster) {
             castSpell(activeMonster);
-            scheduleMonsterSpell(activeMonster); // Reschedule only for existing monsters
+            scheduleMonsterSpell(activeMonster);
         }
     }, spellDelay);
 }
 
-// Monster Cast Spell Function
 function castSpell(monster) {
-    const spellDamage = Math.floor(monster.attack / 2); // Spell deals half the monster's attack
+    const spellDamage = Math.floor(monster.attack / 2);
     health -= spellDamage;
     showDamageAnimation(spellDamage, 'home');
     playSound(document.getElementById('spellCastSound'));
     showNotification(`✨ ${monster.name} cast a spell on you for ${spellDamage} damage! ✨`, 'error');
-
     updateStats();
-
-    // Check for game over after spell
     if (health <= 0) {
         lives -= 1;
         deaths += 1;
         if (lives > 0) {
-            health = maxHealth; // Reset health
+            health = maxHealth;
             updateStats();
             showNotification(`💀 You have been struck by a spell from ${monster.name}! You lost a life. ❤️ Lives left: ${lives}`, 'error');
         } else {
             handleGameOver();
         }
-        // Remove the monster
         monsters = monsters.filter(m => m.id !== monster.id);
         const monsterDiv = document.getElementById(`monster${monster.id}`);
         if (monsterDiv) {
@@ -972,35 +820,28 @@ function castSpell(monster) {
     }
 }
 
-// Start Boss Attack Loop
 function bossAttackLoop(boss) {
-    const attackInterval = 5000; // Boss attacks every 5 seconds
+    const attackInterval = 5000;
     function attack() {
         if (currentBoss && currentBoss.id === boss.id) {
             attackPlayer(boss);
             setTimeout(attack, attackInterval);
         }
     }
-    attack(); // Start the loop
+    attack();
 }
 
-// Spawn Monster Randomly Function
 function spawnMonsterRandomly() {
-    if (gamePaused) return; // Prevent spawning if the game is paused
-
-    spawnMonster(); // Spawn first monster immediately
+    if (gamePaused) return;
+    spawnMonster();
     setInterval(() => {
         if (!gamePaused) {
             spawnMonster();
         }
-    }, Math.floor(Math.random() * (30000 - 10000 + 1)) + 10000); // 10 to 30 seconds
+    }, Math.floor(Math.random() * (30000 - 10000 + 1)) + 10000);
 }
 
-// ---------------------------
-// Achievement Functions
-// ---------------------------
-
-// Update Achievements Display
+// Achievements
 function updateAchievements() {
     achievements.forEach(ach => {
         if (!ach.achieved && isAchievementAchieved(ach)) {
@@ -1008,95 +849,53 @@ function updateAchievements() {
             const achDiv = document.getElementById(`achievement${ach.id}`);
             achDiv.classList.remove('locked');
             achDiv.innerHTML = `<span class="icon">✅</span><div><strong>${ach.name}</strong><br>${ach.description}</div>`;
-            playSound(document.getElementById('upgradeSound')); // Play sound for achievement
+            playSound(document.getElementById('upgradeSound'));
             showNotification(`Achievement Unlocked: ${ach.name}! 🏆`, 'achievement');
         }
     });
 }
 
-// Check if an achievement is achieved
 function isAchievementAchieved(achievement) {
     switch(achievement.id) {
-        case 1:
-            return totalClicks >= 1;
-        case 2:
-            return gold >= 100;
-        case 3:
-            return level >= 5;
-        case 4:
-            return defenseUpgrades >= 5;
-        case 5:
-            return healthUpgrades >= 3;
-        case 6:
-            return autoClickPurchased;
-        case 7:
-            return gold >= 1000;
-        case 8:
-            return level >= 20;
-        case 9:
-            return defenseUpgrades >= 10;
-        case 10:
-            return healthUpgrades >= 10;
-        case 11:
-            return swords.every(sword => sword.owned);
-        case 12:
-            return level >= 50;
-        case 13:
-            return level >= 100;
-        case 14:
-            return level >= 150;
-        case 15:
-            return level >= 200;
-        case 16:
-            return monstersDefeated >= 5;
-        case 17:
-            return bossesDefeated >= 1;
-        case 18:
-            return bossesDefeated >= 1 && swords.every(sword => sword.owned);
-        case 19:
-            return deaths >= 3;
-        default:
-            return false;
+        case 1: return totalClicks >= 1;
+        case 2: return gold >= 100;
+        case 3: return level >= 5;
+        case 4: return defenseUpgrades >= 5;
+        case 5: return healthUpgrades >= 3;
+        case 6: return autoClickPurchased;
+        case 7: return gold >= 1000;
+        case 8: return level >= 20;
+        case 9: return defenseUpgrades >= 10;
+        case 10: return healthUpgrades >= 10;
+        case 11: return swords.every(sword => sword.owned);
+        case 12: return level >= 50;
+        case 13: return level >= 100;
+        case 14: return level >= 150;
+        case 15: return level >= 200;
+        case 16: return monstersDefeated >= 5;
+        case 17: return bossesDefeated >= 1;
+        case 18: return bossesDefeated >= 1 && swords.every(sword => sword.owned);
+        case 19: return deaths >= 3;
+        default: return false;
     }
 }
 
-// ---------------------------
-// Save and Load Functions
-// ---------------------------
+function checkAchievements() {
+    updateAchievements();
+}
 
-// Save Game Function
+// Save and Load
 function saveGame() {
     const gameState = {
-        gold,
-        level,
-        experience,
-        expToNext,
-        attackPower,
-        defense,
-        health,
-        maxHealth,
-        passiveIncome,
-        lives,
-        upgradeCosts,
-        upgrades,
-        swords,
-        monsters,
-        monsterId,
-        monstersDefeated,
-        bossesDefeated,
-        currentBoss,
-        achievements,
-        totalClicks,
-        defenseUpgrades,
-        healthUpgrades,
-        autoClickPurchased,
-        deaths
+        gold, level, experience, expToNext, attackPower, defense, health, maxHealth,
+        passiveIncome, lives, upgradeCosts, upgrades, swords, monsters, monsterId,
+        monstersDefeated, bossesDefeated, currentBoss, achievements, totalClicks,
+        defenseUpgrades, healthUpgrades, autoClickPurchased, deaths
     };
     localStorage.setItem('goldyMcGoldfaceSave', JSON.stringify(gameState));
     showNotification('💾 Game Saved!', 'success');
 }
 
-// Load Game Function
 function loadGame() {
     const savedState = localStorage.getItem('goldyMcGoldfaceSave');
     if (savedState) {
@@ -1105,7 +904,7 @@ function loadGame() {
         level = gameState.level || 1;
         experience = gameState.experience || 0;
         expToNext = gameState.expToNext || 10;
-        attackPower = 1; // Reset attack power before recalculating
+        attackPower = 1;
         defense = gameState.defense || 1;
         health = gameState.health || 100;
         maxHealth = gameState.maxHealth || 100;
@@ -1113,14 +912,12 @@ function loadGame() {
         lives = gameState.lives || 3;
         upgradeCosts = gameState.upgradeCosts || { ...baseUpgradeCosts };
 
-        // Load Upgrades
         upgrades.forEach((upg, index) => {
             upgrades[index].owned = gameState.upgrades[index].owned;
             if (upg.type !== 'autoClick') {
                 if (upgrades[index].owned > 0) {
                     const upgradeButton = document.getElementById(`upgrade${upg.id}`).querySelector('button');
                     upgradeButton.innerHTML = `${upg.name} (Owned: ${upg.owned}) - Cost: <span id="upgradeCost${upg.id}">${upgradeCosts[upg.type]}</span> 💰`;
-                    // Update counters for achievements
                     if (upg.type === 'defense') {
                         defenseUpgrades = upgrades[index].owned;
                     } else if (upg.type === 'health') {
@@ -1134,14 +931,13 @@ function loadGame() {
                     const upgradeButton = document.getElementById(`upgrade${upg.id}`).querySelector('button');
                     upgradeButton.disabled = true;
                     upgradeButton.textContent = 'Owned ✅';
-                    passiveIncome += 10; // Re-apply passive income
+                    passiveIncome += 10;
                 }
             }
         });
 
-        // Load Swords
         swords.forEach((sword, index) => {
-            swords[index].owned = Boolean(gameState.swords[index].owned); // Ensure boolean
+            swords[index].owned = Boolean(gameState.swords[index].owned);
             if (sword.owned) {
                 const swordButton = document.getElementById(`sword${sword.id}`).querySelector('button');
                 swordButton.disabled = true;
@@ -1149,17 +945,13 @@ function loadGame() {
             }
         });
 
-        // Recalculate Attack Power based on owned swords
         recalculateAttackPower();
-
-        // Load Monsters
         monsters = gameState.monsters || [];
         monsterId = gameState.monsterId || 1;
         monstersDefeated = gameState.monstersDefeated || 0;
         bossesDefeated = gameState.bossesDefeated || 0;
         currentBoss = gameState.currentBoss || null;
 
-        // Load Achievements
         achievements.forEach((ach, index) => {
             achievements[index].achieved = gameState.achievements[index].achieved;
             if (achievements[index].achieved) {
@@ -1169,16 +961,13 @@ function loadGame() {
             }
         });
 
-        // Load Click Counters
         totalClicks = gameState.totalClicks || 0;
         defenseUpgrades = gameState.defenseUpgrades || 0;
         healthUpgrades = gameState.healthUpgrades || 0;
         autoClickPurchased = gameState.autoClickPurchased || false;
         deaths = gameState.deaths || 0;
-
         updateStats();
         renderLoadedMonsters();
-        // If there is a current boss, render it
         if (currentBoss) {
             renderBoss(currentBoss);
             bossAttackLoop(currentBoss);
@@ -1189,29 +978,24 @@ function loadGame() {
     }
 }
 
-// Function to render monsters from saved game
 function renderLoadedMonsters() {
     const monstersContainer = document.getElementById('monstersContainer');
-    monstersContainer.innerHTML = ''; // Clear existing monsters
+    monstersContainer.innerHTML = '';
     monsters.forEach(monster => {
         renderMonster(monster);
-        // Schedule monster attack if still alive
         scheduleMonsterAttack(monster);
-        // Schedule spell casting if applicable
         scheduleMonsterSpell(monster);
     });
 }
 
-// Reset Game Function
 function resetGame() {
     if (confirm('⚠️ Are you sure you want to reset the game? This cannot be undone.')) {
         localStorage.removeItem('goldyMcGoldfaceSave');
-        // Reset Variables
         gold = 0;
         level = 1;
         experience = 0;
         expToNext = 10;
-        attackPower = 1; // Reset attack power
+        attackPower = 1;
         defense = 1;
         health = 100;
         maxHealth = 100;
@@ -1225,7 +1009,6 @@ function resetGame() {
         bossesDefeated = 0;
         deaths = 0;
 
-        // Reset Upgrades
         upgrades.forEach(upg => {
             upg.owned = upg.type === 'autoClick' ? false : 0;
             const upgradeButton = document.getElementById(`upgrade${upg.id}`).querySelector('button');
@@ -1237,7 +1020,6 @@ function resetGame() {
             }
         });
 
-        // Reset Swords
         swords.forEach(sword => {
             sword.owned = false;
             const swordButton = document.getElementById(`sword${sword.id}`).querySelector('button');
@@ -1245,42 +1027,31 @@ function resetGame() {
             swordButton.innerHTML = `Buy (Cost: <span id="swordCost${sword.id}">${sword.cost}</span> 💰)`;
         });
 
-        // Reset Attack Power based on swords (which are all unowned now)
         recalculateAttackPower();
-
-        // Reset Monsters
         monsters = [];
         monsterId = 1;
         monstersDefeated = 0;
         bossesDefeated = 0;
         currentBoss = null;
-
-        // Reset Achievements
         achievements.forEach(ach => ach.achieved = false);
         const achievementsList = document.getElementById('achievementsList');
         achievementsList.innerHTML = '';
         initializeAchievements();
 
-        // Remove existing monsters from screen
         const monstersContainer = document.getElementById('monstersContainer');
         monstersContainer.innerHTML = '';
-
         updateStats();
         updateAchievements();
         showNotification('🔄 Game has been reset.', 'success');
     }
 }
 
-// ---------------------------
-// Navigation Tabs Function
-// ---------------------------
 function switchTab(tabName, buttonElement) {
     const sections = document.querySelectorAll('.section');
     sections.forEach(section => {
         section.classList.remove('active');
     });
     document.getElementById(tabName).classList.add('active');
-
     const tabs = document.querySelectorAll('.tab-button');
     tabs.forEach(tab => {
         tab.classList.remove('active');
@@ -1288,23 +1059,15 @@ function switchTab(tabName, buttonElement) {
     buttonElement.classList.add('active');
 }
 
-// ---------------------------
-// Passive Income Function
-// ---------------------------
 function startPassiveIncome() {
     setInterval(() => {
         if (!gamePaused) {
             gold += passiveIncome;
             updateStats();
         }
-    }, 1000); // Passive income every second
+    }, 1000);
 }
 
-// ---------------------------
-// Helper Functions
-// ---------------------------
-
-// Play Sound Function with Error Handling
 function playSound(sound) {
     if (sound) {
         try {
@@ -1318,54 +1081,16 @@ function playSound(sound) {
     }
 }
 
-// ---------------------------
-// Game Over Handling
-// ---------------------------
 function handleGameOver() {
     showGameOverModal();
 }
 
-// ---------------------------
-// Achievement Functions
-// ---------------------------
-function checkAchievements() {
-    updateAchievements();
-}
-
-// ---------------------------
-// Dialog Functions
-// ---------------------------
-
-// Display Next Dialog
-function nextDialog() {
-    dialogIndex++;
-    const dialogElement = document.getElementById("npcDialog");
-    const startButton = document.getElementById("startGameButton");
-
-    if (dialogIndex < tutorialDialog.length) {
-        dialogElement.textContent = tutorialDialog[dialogIndex];
-    } else {
-        startButton.style.display = "inline-block"; // Show the Start Game button
-        dialogElement.textContent = "That's all I've got for you. Make me proud! 🧙";
-    }
-}
-
-// Start Game Function
-function startGame() {
-    const modal = document.getElementById("tutorialModal");
-    modal.classList.remove("active"); // Hide the tutorial modal
-    gamePaused = false; // Resume the game
-    initializeGame(); // Start the game logic
-}
-
-// ---------------------------
-// Buy Full Heart Function
-// ---------------------------
+// Buy Full Heart
 function buyHeart() {
     const heartCost = 10000;
     if (gold >= heartCost) {
         gold -= heartCost;
-        lives += 1; // Add one life
+        lives += 1;
         updateStats();
         playSound(document.getElementById('buyHeartSound'));
         showNotification('❤️ Purchased a full heart! Lives increased by 1.', 'success');
@@ -1375,17 +1100,96 @@ function buyHeart() {
     }
 }
 
-// ---------------------------
-// Navigation and UI Enhancements
-// ---------------------------
+// Dialog Functions
+function nextDialog() {
+    dialogIndex++;
+    const dialogElement = document.getElementById("npcDialog");
+    const startButton = document.getElementById("startGameButton");
+    if (dialogIndex < tutorialDialog.length) {
+        dialogElement.textContent = tutorialDialog[dialogIndex];
+    } else {
+        startButton.style.display = "inline-block";
+        dialogElement.textContent = "That's all I've got for you. Make me proud! 🧙";
+    }
+}
 
-// Initialize the Game on Window Load
+function startGame() {
+    const modal = document.getElementById("tutorialModal");
+    modal.classList.remove("active");
+    gamePaused = false;
+    initializeGame();
+}
+
+// Toggle Music
+let isMuted = false;
+function toggleMusic() {
+    const backgroundMusicElement = document.getElementById('backgroundMusic');
+    const muteButton = document.getElementById('muteButton');
+    if (isMuted) {
+        backgroundMusicElement.muted = false;
+        isMuted = false;
+        muteButton.textContent = '🔊';
+    } else {
+        backgroundMusicElement.muted = true;
+        isMuted = true;
+        muteButton.textContent = '🔈';
+    }
+}
+
+// Set Volume
+function setVolume(value) {
+    const audioElements = document.querySelectorAll('audio');
+    audioElements.forEach(audio => {
+        audio.volume = value;
+    });
+}
+
+function enhanceUIResponsiveness() {
+    const gameContainer = document.getElementById('game-container');
+    const hero = document.getElementById('hero');
+    const stats = document.querySelector('.stats');
+    const upgradesList = document.getElementById('upgradesList');
+    function adjustUI() {
+        const screenWidth = window.innerWidth;
+        if (screenWidth < 800) {
+            gameContainer.style.padding = '20px';
+            gameContainer.style.fontSize = '10px';
+            hero.style.fontSize = '60px';
+            stats.style.width = '90%';
+        } else {
+            gameContainer.style.padding = '40px';
+            gameContainer.style.fontSize = '14px';
+            hero.style.fontSize = '100px';
+            stats.style.width = '300px';
+        }
+        if (screenWidth < 500) {
+            upgradesList.style.gap = '10px';
+        } else {
+            upgradesList.style.gap = '20px';
+        }
+    }
+    window.addEventListener('resize', adjustUI);
+    adjustUI();
+
+    const homeSection = document.getElementById('home');
+    const heroClickEffect = document.createElement('div');
+    heroClickEffect.className = 'hero-pixel-click-effect';
+    gameContainer.appendChild(heroClickEffect);
+
+    hero.addEventListener('click', (event) => {
+        heroClickEffect.style.left = `${event.clientX}px`;
+        heroClickEffect.style.top = `${event.clientY}px`;
+        heroClickEffect.classList.add('animate');
+        setTimeout(() => {
+            heroClickEffect.classList.remove('animate');
+        }, 300);
+    });
+}
+
 window.addEventListener('load', function () {
-    // Show the tutorial modal
     const tutorialModal = document.getElementById("tutorialModal");
-    tutorialModal.classList.add("active"); // Show the tutorial modal
+    tutorialModal.classList.add("active");
 
-    // Background music will start when the user interacts
     const backgroundMusic = document.getElementById("backgroundMusic");
     backgroundMusic.volume = 0.5;
     backgroundMusic.play().catch(() => {
@@ -1401,95 +1205,6 @@ window.addEventListener('load', function () {
         document.removeEventListener("click", startMusic);
     });
 
-    // Initialize all game components
     initializeGame();
     enhanceUIResponsiveness();
 });
-
-// Volume Slider and Mute Button
-const volumeSlider = document.getElementById('volumeSlider');
-const backgroundMusicElement = document.getElementById('backgroundMusic');
-const audioElements = document.querySelectorAll('audio'); // Select all audio elements
-
-// Adjust volume based on slider value
-volumeSlider.addEventListener('input', (event) => {
-    const volume = event.target.value;
-    audioElements.forEach(audio => {
-        audio.volume = volume;
-    });
-});
-
-const muteButton = document.getElementById('muteButton');
-let isMuted = false;
-
-// Toggle Music Functionality
-function toggleMusic() {
-    if (isMuted) {
-        backgroundMusicElement.muted = false;
-        isMuted = false;
-        muteButton.textContent = '🔊';
-    } else {
-        backgroundMusicElement.muted = true;
-        isMuted = true;
-        muteButton.textContent = '🔈';
-    }
-}
-
-// ---------------------------
-// UI Responsiveness and Pixel Animation Enhancements
-// ---------------------------
-
-function enhanceUIResponsiveness() {
-    // Adjust font sizes and container padding for smaller screens
-    const gameContainer = document.getElementById('game-container');
-    const hero = document.getElementById('hero');
-    const stats = document.querySelector('.stats');
-    const upgradesList = document.getElementById('upgradesList');
-
-    function adjustUI() {
-        const screenWidth = window.innerWidth;
-        const screenHeight = window.innerHeight;
-
-        if (screenWidth < 800) {
-            gameContainer.style.padding = '20px';
-            gameContainer.style.fontSize = '10px';
-            hero.style.fontSize = '60px'; // Smaller hero size for mobile
-            stats.style.width = '90%';
-        } else {
-            gameContainer.style.padding = '40px';
-            gameContainer.style.fontSize = '14px';
-            hero.style.fontSize = '100px'; // Default hero size
-            stats.style.width = '300px';
-        }
-
-        // Adjust the upgrades list responsiveness
-        if (screenWidth < 500) {
-            upgradesList.style.gap = '10px';
-        } else {
-            upgradesList.style.gap = '20px';
-        }
-    }
-
-    // Call adjustUI on window resize
-    window.addEventListener('resize', adjustUI);
-
-    // Initial adjustment on page load
-    adjustUI();
-
-    // Pixel-style animation for hero and monsters
-    const monstersContainer = document.getElementById('monstersContainer');
-    const heroClickEffect = document.createElement('div');
-    heroClickEffect.className = 'hero-pixel-click-effect';
-    gameContainer.appendChild(heroClickEffect);
-
-    hero.addEventListener('click', (event) => {
-        heroClickEffect.style.left = `${event.clientX}px`;
-        heroClickEffect.style.top = `${event.clientY}px`;
-        heroClickEffect.classList.add('animate');
-
-        // Remove the animation class after animation ends
-        setTimeout(() => {
-            heroClickEffect.classList.remove('animate');
-        }, 300);
-    });
-}
