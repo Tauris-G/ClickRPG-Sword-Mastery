@@ -24,15 +24,13 @@ let monstersDefeated = 0;
 let deaths = 0;
 
 let synergyForged = false;
-
-// Prestige system
-let prestigeCount = 0; // Each prestige gives permanent gold multiplier
+let prestigeCount = 0; 
 
 // Combo system variables
 let comboCount = 0;
 let comboTimeout = null;
 const comboMaxStacks = 5;
-const comboDuration = 2000; // 2 seconds
+const comboDuration = 2000; 
 let lastClickTime = 0;
 
 // Upgrade base costs
@@ -50,11 +48,10 @@ const baseUpgradeCosts = {
 };
 let upgradeCosts = { ...baseUpgradeCosts };
 
-// Upgrades Data (Renamed Health Upgrade)
 const upgrades = [
     { id: 1, type: 'attack', name: 'Attack Upgrade I', cost: baseUpgradeCosts.attack, effect: 'Increase Attack Power by 2.', owned: 0 },
     { id: 2, type: 'defense', name: 'Defense Upgrade I', cost: baseUpgradeCosts.defense, effect: 'Increase Defense by 2.', owned: 0 },
-    { id: 3, type: 'health', name: 'Max Health Upgrade (+10 Max Health)', cost: baseUpgradeCosts.health, effect: 'Increase Max Health by 10.', owned: 0 },
+    { id: 3, type: 'health', name: 'Max Health Upgrade (+10 Max Health)', cost: baseUpgradeCosts.health, effect: 'Increase Hp and Max Health by 10.', owned: 0 },
     { id: 4, type: 'autoClick', name: 'Auto-Clicker', cost: baseUpgradeCosts.autoClick, effect: 'Gain 10 gold per second.', owned: false },
     { id: 5, type: 'criticalHit', name: 'Critical Hit', cost: baseUpgradeCosts.criticalHit, effect: '15% chance to deal double damage.', owned: 0 },
     { id: 6, type: 'goldMultiplier', name: 'Gold Multiplier', cost: baseUpgradeCosts.goldMultiplier, effect: 'Increase gold per click by 2.', owned: 0 },
@@ -64,7 +61,7 @@ const upgrades = [
     { id: 10, type: 'luck', name: 'Luck Enhancement', cost: baseUpgradeCosts.luck, effect: 'Increase gold gain by 15%.', owned: 0 }
 ];
 
-// Swords (cost x3)
+// Swords (30 swords)
 const swords = [
     { id: 1, name: 'Stick of Fury 🪵', cost: 300, damage: 2, description: 'A sturdy stick with fury.', owned: false },
     { id: 2, name: 'Rusty Blade 🗡️', cost: 900, damage: 5, description: 'A rusty blade, surprisingly effective.', owned: false },
@@ -98,7 +95,6 @@ const swords = [
     { id: 30, name:'Infinity Blade ♾️🗡️', cost:112500, damage:520, description:'The ultimate infinite power.', owned:false}
 ];
 
-// Define monster types (this was missing previously)
 const monsterTypes = [
     { name: 'Slimey McSlimeface 🟢', health: 40, attack: 4, emoji: '🟢' },
     { name: 'Gobblin Giggles 👺', health: 60, attack: 6, emoji:'👺'},
@@ -147,14 +143,12 @@ const finalBoss = {
     isBoss:true
 };
 
-// Quests
 const quests = [
     { id:1, name:'Reach Level', baseGoal:5, baseGold:500, baseXP:100, level:1, claimed:false },
     { id:2, name:'Defeat Monsters', baseGoal:10, baseGold:1000, baseXP:200, level:1, claimed:false },
     { id:3, name:'Own Swords', baseGoal:5, baseGold:1500, baseXP:300, level:1, claimed:false }
 ];
 
-// Achievements
 const achievements = [
     { id:1, name:'First Click', description:'Click the hero once.', achieved:false },
     { id:2, name:'Gold Collector', description:'Earn 100 gold.', achieved:false },
@@ -273,7 +267,6 @@ function createBloodParticles(event){
     }
 }
 
-// Hero click function (No critical hit here now)
 function heroClick(event) {
     if (gamePaused) return;
     totalClicks++;
@@ -286,7 +279,6 @@ function heroClick(event) {
     lastClickTime=now;
     updateComboDisplay();
 
-    // Just gain gold, no critical hit check here
     let damageDealt=attackPower;
     let goldEarned=currentGoldGain(damageDealt);
     gold+=goldEarned;
@@ -322,7 +314,6 @@ function currentGoldGain(amount){
     const goldMult=upgrades.find(u=>u.type==='goldMultiplier').owned;
     const luckMult=upgrades.find(u=>u.type==='luck').owned;
     const comboMultiplier=1+(0.1*comboCount);
-    // Integrate prestige multiplier: each prestige adds 10% more
     const prestigeMultiplier = 1 + (prestigeCount * 0.1);
     return amount*(1+(2*goldMult))*(1+(0.15*luckMult))*comboMultiplier*prestigeMultiplier;
 }
@@ -340,12 +331,22 @@ function gainExperience(amount){
 
 function levelUp(){
     level++;
-    expToNext=Math.floor(expToNext*1.5);
+    expToNext = Math.floor(expToNext * 1.3); 
     playSound(document.getElementById('levelUpSound'));
     showLevelUpModal();
     checkAchievements();
     if(level%5===0) scaleMonsters();
     if(level%10===0 && level<100) spawnBoss(true);
+
+    // papildomas pranešimas 50 lygyje
+    if(level===50){
+        showNotification('Halfway there! Keep going!','achievement');
+    }
+    // pranešimas 90 lygyje
+    if(level===90){
+        showNotification('Almost at 100! The final challenge awaits!','achievement');
+    }
+
     if(level===100) spawnFinalBoss();
     if(level===100 && swords.every(s=>s.owned)) showVictoryModal();
 }
@@ -367,12 +368,10 @@ function showVictoryModal(){
         playSound(document.getElementById('victorySound'));
         modal.classList.add('active');
         showNotification('🏆 You have achieved Victory! 🏆','victory');
-        // Rodyti Prestige mygtuką
         const prestigeButton = document.getElementById('prestigeButton');
         prestigeButton.style.display = 'inline-block';
     }
 }
-
 
 function closeVictoryModal(){
     const modal=document.getElementById('victoryModal');
@@ -461,8 +460,6 @@ function buyUpgrade(type) {
         if (gold >= upg.cost) {
             gold -= upg.cost;
             upg.owned += 1;
-
-            // Apply effects
             switch (type) {
                 case 'attack':
                     attackPower += 2;
@@ -476,25 +473,12 @@ function buyUpgrade(type) {
                     health = maxHealth;
                     healthUpgrades++;
                     break;
-                case 'criticalHit':
-                    break;
-                case 'goldMultiplier':
-                    break;
-                case 'experienceBoost':
-                    break;
-                case 'monsterSlayer':
-                    break;
-                case 'shield':
-                    break;
-                case 'luck':
-                    break;
             }
 
             updateStats();
             playSound(document.getElementById('upgradeSound'));
             showNotification(`${upg.name} purchased!`, 'success');
 
-            // Increase upgrade cost for next time (double)
             upg.cost = Math.floor(upg.cost * 2);
             const upgradeCostSpan = document.getElementById(`upgradeCost${upg.id}`);
             if (upgradeCostSpan) upgradeCostSpan.textContent = upg.cost;
@@ -516,8 +500,8 @@ function checkAchievements(){
 
 function scaleMonsters() {
     monsters.forEach(m=>{
-        m.health=Math.floor(m.health*1.2);
-        m.attack=Math.floor(m.attack*1.2);
+        m.health = Math.floor(m.health*1.3);
+        m.attack = Math.floor(m.attack*1.3);
         const healthSpan=document.getElementById(`monsterHealth${m.id}`);
         if(healthSpan)healthSpan.textContent=m.health;
         const attackSpan=document.getElementById(`monsterAttack${m.id}`);
@@ -662,7 +646,6 @@ function loadGame(){
         updateComboDisplay();
         showNotification('📂 Game Loaded!','success');
 
-        // Jei jau pasiektos pergales salygos (Level 100 ir visi kardai owned), rodyti prestižą
         if(level>=100 && swords.every(s=>s.owned)){
             showVictoryModal();
         }
@@ -708,7 +691,6 @@ function resetGame(){
             swordButton.innerHTML=`Buy (Cost: <span id="swordCost${s.id}">${s.cost}</span> 💰)`;
         });
 
-        // Reset quests
         quests.forEach(q=>{
             q.level=1;
             q.claimed=false;
@@ -949,23 +931,25 @@ function attackMonster(monsterId) {
         if(monster.health<=0){
             if(monster.isBoss){
                 gold+=1000;
-                experience+=500;
+                experience+=1000; 
                 bossesDefeated++;
                 playSound(document.getElementById('bossDefeatedSound'));
-                showNotification(`🎉 Boss ${monster.name} defeated! Earned 1000 gold and 500 XP!`,'success');
+                showNotification(`🎉 Boss ${monster.name} defeated! Earned 1000 gold and 1000 XP!`,'success');
                 currentBoss=null;
             } else {
                 gold+=100;
                 monstersDefeated++;
                 playSound(document.getElementById('monsterDefeatedSound'));
                 showNotification(`🎉 Monster ${monster.name} defeated! Earned 100 gold!`,'success');
+                experience+=100; 
             }
             const monsterIndex=monsters.indexOf(monster);
             if(monsterIndex>=0) monsters.splice(monsterIndex,1);
             const monsterDiv=document.getElementById(`monster${monster.id}`);
             if(monsterDiv) monsterDiv.remove();
             updateStats();
-            gainExperience(monster.isBoss?500:50);
+            checkAchievements();
+            checkQuests();
             if(monster.isBoss&&monster.isFinal&&swords.every(s=>s.owned)) showVictoryModal();
         } else {
             document.getElementById(`monsterHealth${monster.id}`).textContent=monster.health;
@@ -1138,7 +1122,6 @@ function claimQuestReward(id){
         gainExperience(xpReward);
         showNotification(`Quest Completed! Gained ${goldReward} Gold and ${xpReward} XP`,'success');
         updateStats();
-        // Po atsiėmimo padidinam quest lygį
         quest.level++;
         quest.claimed=false; 
         initializeQuests();
@@ -1151,7 +1134,6 @@ function checkQuests(){
 
 function spawnMonsterRandomly() {
     if(gamePaused)return;
-    // spawn one monster immediately
     spawnMonster();
     setInterval(()=>{
         if(!gamePaused) spawnMonster();
@@ -1160,8 +1142,9 @@ function spawnMonsterRandomly() {
 
 function spawnBoss(isLevelBased=false){
     if(currentBoss)return;
-    const bossHealthBase=isLevelBased?(1000+(level*50)):300;
-    const bossAttackBase=isLevelBased?(50+(level*5)):20;
+    const bossHealthBase = isLevelBased ? (1500 + (level * 100)) : 300; 
+    const bossAttackBase = isLevelBased ? (75 + (level * 10)) : 20;
+    
     const boss={
         id:500+bosses.length,
         name:`Boss ${bosses.length+1}`,
@@ -1219,7 +1202,6 @@ function bossAttackLoop(boss) {
 function prestige(){
     if(confirm("Are you sure you want to Prestige?\nYou will reset your progress but gain a permanent gold multiplier.")){
         prestigeCount++;
-        // Perform a soft reset
         gold=0;level=1;experience=0;expToNext=10;
         attackPower=1;defense=1;health=100;maxHealth=100;passiveIncome=0;lives=3;
         totalClicks=0;defenseUpgrades=0;healthUpgrades=0;autoClickPurchased=false;bossesDefeated=0;deaths=0;synergyForged=false;
@@ -1239,7 +1221,6 @@ function prestige(){
         currentBoss=null;
         achievements.forEach(ach=>ach.achieved=false);
 
-        // Quests reset
         quests.forEach(q=>{
             q.level=1;
             q.claimed=false;
