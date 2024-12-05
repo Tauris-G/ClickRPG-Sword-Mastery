@@ -1,6 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
-/* Reset and Base Styles */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -10,24 +9,23 @@
 body {
     font-family: 'Press Start 2P', cursive;
     text-align: center;
-    background-color: #1e1e1e;
+    background-color: #1e1e1e; /* Tamsus fonas – paslaptis ir gylis */
     color: #f0f0f0;
-    overflow: hidden; /* Prevent scrollbars when monsters spawn */
+    overflow: hidden;
+    image-rendering: pixelated; 
 }
 
-/* Game Footer */
 #gameFooter {
     position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
-    background-color: #333;
-    color: #ffcc00;
+    background-color: #222; 
+    color: #ffcc00; /* Geltona – akcentas, dėmesio pritraukimas */
     text-align: center;
-    padding: 10px 0;
+    padding: 5px 0;
     font-size: 12px;
     border-top: 2px solid #ffcc00;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
     z-index: 1000;
 }
 
@@ -35,38 +33,35 @@ body {
     margin: 0;
 }
 
-/* Game Container */
 #game-container {
     position: relative;
     background-color: #333;
-    border: 6px solid #ffcc00;
-    border-radius: 15px;
-    box-shadow: 0 0 30px rgba(255, 204, 0, 0.8);
-    padding: 40px;
-    max-width: 1600px;
+    border: 4px solid #ffcc00;
+    border-radius: 10px;
+    box-shadow: inset 0 0 0 4px #000; 
+    padding: 20px;
+    max-width: 1400px;
     height: 100vh;
     margin: 0 auto;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
-    box-sizing: border-box;
+    image-rendering: pixelated;
 }
 
-/* Title */
 h1 {
-    font-size: 28px;
+    font-size: 20px;
     margin: 10px 0 20px 0;
-    color: #ffcc00;
-    text-shadow: 3px 3px #000;
+    color: #ffcc00; /* Geltona: nuotykis, energija */
+    text-shadow: 1px 1px #000;
 }
 
-/* Notification Area */
 #notificationArea {
     position: absolute;
     top: 10px;
     width: 90%;
-    max-width: 1200px;
+    max-width: 600px;
     z-index: 20;
     display: flex;
     flex-direction: column;
@@ -74,108 +69,84 @@ h1 {
     pointer-events: none;
 }
 
-/* Notification Styles */
 .notification {
-    background-color: rgba(255, 0, 0, 0.8);
+    background-color: #cc0000; /* Raudona: įspėjimas, pavojus */
     color: #fff;
-    padding: 10px 20px;
+    padding: 5px 10px;
     margin: 5px 0;
-    border-radius: 5px;
+    border-radius: 2px;
+    font-size: 10px;
+    image-rendering: pixelated;
     animation: fadeOut 3s forwards;
-    font-size: 12px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    box-shadow: 0 0 2px #000;
 }
 
-/* Notification Types */
-.notification.critical {
-    background-color: rgba(255, 215, 0, 0.9);
-    color: #000;
-}
-
-.notification.achievement {
-    background-color: rgba(0, 123, 255, 0.9);
-    color: #fff;
-}
-
-.notification.success {
-    background-color: rgba(40, 167, 69, 0.9);
-    color: #fff;
-}
-
-.notification.error {
-    background-color: rgba(220, 53, 69, 0.9);
-    color: #fff;
-}
-
-.notification.victory {
-    background-color: rgba(255, 255, 0, 0.9);
-    color: #000;
-}
-
-/* Fade Out Animation */
 @keyframes fadeOut {
     0% { opacity: 1; transform: translateY(0); }
-    80% { opacity: 1; transform: translateY(-10px); }
-    100% { opacity: 0; transform: translateY(-20px); }
+    100% { opacity: 0; transform: translateY(-10px); }
 }
 
-/* Navigation Tabs */
 .nav-tabs {
     display: flex;
     justify-content: center;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     background-color: #444;
-    border-radius: 8px;
+    border-radius: 0;
     overflow: hidden;
-    box-shadow: 0 0 10px rgba(0,0,0,0.5);
     width: 100%;
-    max-width: 1200px;
+    max-width: 800px;
+    border:2px solid #000;
 }
 
 .nav-tabs button {
     background-color: #444;
     color: #f0f0f0;
     border: none;
-    padding: 12px 25px;
+    padding: 8px 10px;
     cursor: pointer;
-    transition: background-color 0.3s;
-    font-size: 14px;
+    font-size: 12px;
     flex: 1;
+    image-rendering: pixelated;
+    text-shadow: 1px 1px #000;
 }
 
-.nav-tabs button.active, .nav-tabs button:hover {
-    background-color: #ffcc00;
+.nav-tabs button.active,
+.nav-tabs button:hover {
+    background-color: #ffcc00; 
     color: #000;
+    text-shadow: none;
 }
 
-/* Sections */
 .section {
     display: none;
     width: 100%;
     flex: 1;
     overflow-y: auto;
-    padding: 10px;
+    padding: 5px;
 }
 
 .section.active {
     display: block;
 }
 
-/* Hero */
 #hero {
-    font-size: 100px;
+    font-size: 80px;
     cursor: pointer;
     user-select: none;
-    transition: transform 0.1s;
     position: relative;
     z-index: 2;
+    image-rendering: pixelated;
+    will-change: transform;
+    transition: transform 0.1s;
+    box-shadow: inset 0 0 5px #000, 0 0 5px #000;
+    background: linear-gradient(#444,#333);
 }
 
 #hero:active {
-    transform: scale(0.9);
+    transform: scale(0.95);
+    background: linear-gradient(#333,#444);
 }
 
-/* Blood Particle Container */
 #bloodParticles {
     position: absolute;
     top: 0;
@@ -185,44 +156,39 @@ h1 {
     pointer-events: none;
     overflow: hidden;
     z-index: 3;
+    image-rendering: pixelated;
 }
 
 .blood-particle {
     position: absolute;
-    width: 5px;
-    height: 5px;
+    width: 3px;
+    height: 3px;
     background-color: #ff0000;
-    border-radius: 50%;
-    opacity: 0.8;
-    animation: bloodSplash 0.6s forwards;
+    border-radius: 0;
+    opacity: 1;
+    animation: bloodSplash 0.4s forwards;
 }
 
 @keyframes bloodSplash {
-    0% {
-        transform: translate(0, 0) scale(1);
-        opacity: 0.8;
-    }
-    100% {
-        transform: translate(var(--dx), var(--dy)) scale(0.5);
-        opacity: 0;
-    }
+    0% { transform: scale(1); opacity:1; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(1); opacity:0; }
 }
 
-/* Modals */
 .modal {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) scale(0);
-    background-color: rgba(255, 204, 0, 0.95);
+    background-color: #ffcc00;
     color: #000;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    padding: 10px;
+    border-radius: 0;
     z-index: 10;
-    transition: transform 0.5s ease-in-out;
+    transition: transform 0.3s ease-in-out;
     text-align: center;
     max-width: 90%;
+    image-rendering: pixelated;
+    border:2px solid #000;
 }
 
 .modal.active {
@@ -230,383 +196,403 @@ h1 {
 }
 
 .modal h2 {
-    margin-bottom: 10px;
-    font-size: 24px;
+    margin-bottom: 5px;
+    font-size: 14px;
+    text-shadow:1px 1px #000;
 }
 
 .modal p {
-    font-size: 16px;
+    font-size: 10px;
 }
 
 .modal button {
-    margin-top: 20px;
-    background-color: #ffcc00;
+    margin-top: 10px;
+    background-color: #ffcc00; 
     color: #000;
-    padding: 8px 15px;
-    font-size: 10px;
+    padding: 5px 10px;
+    font-size: 8px;
     border: none;
-    border-radius: 5px;
+    border-radius: 0;
     cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
     font-family: 'Press Start 2P', cursive;
+    image-rendering: pixelated;
+    transition: transform 0.1s;
+    border:2px solid #000;
 }
 
 .modal button:hover {
-    transform: scale(1.1);
+    transform: scale(1.05);
+    background-color:#ffe600;
 }
 
-/* Stats */
 .stats {
-    margin-top: 30px;
+    margin-top: 10px;
     text-align: left;
     display: inline-block;
     background-color: #444;
-    padding: 25px;
-    border-radius: 10px;
-    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+    padding: 10px;
+    border-radius: 0;
+    image-rendering: pixelated;
+    border:2px solid #000;
 }
 
 .stats p {
-    font-size: 12px;
-    margin: 8px 0;
+    font-size: 8px;
+    margin: 4px 0;
+    text-shadow:1px 1px #000;
 }
 
 .progress-bar-container {
-    width: 220px;
+    width: 100px;
     background-color: #555;
-    border-radius: 5px;
-    margin: 10px auto;
-    height: 20px;
+    border-radius: 0;
+    margin: 5px auto;
+    height: 10px;
     overflow: hidden;
+    border:1px solid #000;
 }
 
 .progress-bar {
     height: 100%;
-    background-color: #ffcc00;
+    background-color: #ffcc00; 
     width: 0%;
-    transition: width 0.5s;
+    transition: width 0.2s;
+    image-rendering: pixelated;
 }
 
-/* Buttons */
 button {
-    padding: 8px 15px;
-    font-size: 10px;
-    margin: 8px;
-    cursor: pointer;
-    border: none;
-    border-radius: 5px;
-    transition: background-color 0.3s, transform 0.2s;
-    font-family: 'Press Start 2P', cursive;
+    padding: 5px 8px;
+    font-size: 8px;
+    margin:5px;
+    border:none;
+    border-radius:0;
+    font-family:'Press Start 2P', cursive;
+    transition: transform 0.1s;
+    image-rendering: pixelated;
+    border:2px solid #000;
+    background-color:#555;
+    color:#fff;
+    text-shadow:1px 1px #000;
 }
 
 button:hover {
-    transform: scale(1.1);
+    transform: scale(1.05);
+    background-color:#666;
 }
 
 .upgrade-button {
-    background-color: #28a745;
-    color: #fff;
+    background-color:#28a745; /* Žalia: augimas, sėkmė */
+    color:#fff;
+    image-rendering: pixelated;
 }
 
 .upgrade-button:disabled {
-    background-color: #6c757d;
-    cursor: not-allowed;
+    background-color:#6c757d;
+    cursor:not-allowed;
 }
 
-/* Swords and Achievements */
-#swordsList, #achievementsList {
-    margin-top: 15px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-}
-
-.sword, .achievement, .monster {
-    background-color: #555;
-    border: 2px solid #ffcc00;
-    border-radius: 8px;
-    padding: 10px;
-    margin: 8px 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: relative;
-    font-size: 12px;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-    width: 140px;
-    flex-direction: column;
-    justify-content: center;
-    overflow: hidden;
-    word-wrap: break-word;
-}
-
-.achievement.locked, .monster.undefeated {
-    opacity: 0.8;
-}
-
-.achievement .icon, .sword .icon, .monster .icon {
-    font-size: 18px;
-    margin-bottom: 5px;
-}
-
-/* Damage Text */
-.damage-text {
-    position: absolute;
-    top: -25px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-weight: bold;
-    color: #ff3333;
-    animation: fadeOutDamage 1s forwards;
-    pointer-events: none;
-    font-size: 14px;
-}
-
-@keyframes fadeOutDamage {
-    0% {
-        opacity: 1;
-        transform: translateY(0) translateX(-50%);
-    }
-    100% {
-        opacity: 0;
-        transform: translateY(-25px) translateX(-50%);
-    }
-}
-
-/* Monsters Container with CSS Grid */
-#monstersContainer {
-    position: relative;
-    width: 100%;
-    height: 600px;
-    background-color: #222;
-    border: 3px solid #ffcc00;
-    border-radius: 15px;
-    overflow: hidden;
-    margin-top: 30px;
-    box-shadow: 0 0 15px rgba(255, 204, 0, 0.7);
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    grid-auto-rows: 160px;
-    gap: 10px;
-}
-
-/* Save, Load, Reset Buttons */
-#saveLoadButtons {
-    margin-top: 30px;
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-#saveLoadButtons button {
-    background-color: #007bff;
-    color: #fff;
-}
-
-#resetButton {
-    background-color: #dc3545;
-}
-
-/* Buy Heart Button */
-#buyHeartButton {
-    background-color: #ffc107;
-    color: #000;
-}
-
-/* Mute and Volume Controls */
-#muteButton {
-    background-color: #6c757d;
-    color: #fff;
-}
-
-#volumeSlider {
-    width: 100px;
-    height: 5px;
-    margin-left: 10px;
-    vertical-align: middle;
-}
-
-/* Upgrades List Container */
 #upgradesList {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 20px;
-    padding: 20px;
-    background-color: #222;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
-
-#upgradesList .achievement {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    width: 150px;
+    gap: 10px;
     padding: 10px;
-    background-color: #444;
-    border: 2px solid #ffcc00;
-    border-radius: 8px;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
 }
 
-#upgradesList .achievement .icon {
-    font-size: 20px;
-    margin-bottom: 10px;
+#swordsList, #achievementsList, #questsList {
+    margin-top:10px;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:5px;
 }
 
-#upgradesList .upgrade-button {
-    margin-top: 10px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 8px 10px;
-    font-size: 12px;
-    transition: background-color 0.3s, transform 0.2s;
+.sword {
+    background-color:#555;
+    border:2px solid #ffcc00;
+    border-radius:0;
+    margin:5px 0;
+    display:flex;
+    flex-direction:column; 
+    position:relative;
+    font-size:8px;
+    image-rendering: pixelated;
+    justify-content: center; 
+    align-items:center;
+    padding:5px;
+    text-align:center;
+    box-shadow: inset 0 0 2px #000;
 }
 
-#upgradesList .upgrade-button:hover {
-    background-color: #218838;
-    transform: scale(1.05);
+/* Color coding swords for emotional rarity response */
+.sword.common .icon, .sword.common strong { color:#f0f0f0; text-shadow:1px 1px #000;}    /* Neutral – paprastas */
+.sword.rare .icon, .sword.rare strong { color:#00a2ff; text-shadow:1px 1px #000;}       /* Mėlyna: ramybė, retumas */
+.sword.epic .icon, .sword.epic strong { color:#af00ff; text-shadow:1px 1px #000;}       /* Purpurinė: magija, mistika */
+.sword.legendary .icon, .sword.legendary strong { color:#ffd700; text-shadow:1px 1px #000;} /* Auksinė: prestižas, aukščiausias lygis */
+
+#forgeSection {
+    margin-top:10px;
+    text-align:center;
+    padding:10px;
+    background: linear-gradient(45deg, #444 25%, #555 25%, #555 50%, #444 50%, #444 75%, #555 75%, #555 100%);
+    background-size: 8px 8px;
+    border:2px solid #ffcc00;
+    border-radius:0;
+    image-rendering: pixelated;
+    animation: forgeGlow 2s infinite alternate;
 }
 
-#upgradesList .upgrade-button:disabled {
-    background-color: #6c757d;
-    cursor: not-allowed;
+@keyframes forgeGlow {
+    0% { filter: brightness(1); }
+    100% { filter: brightness(1.2); }
 }
 
-#upgradesList .achievement div {
-    text-align: center;
-    font-size: 12px;
-    color: #fff;
+#forgeButton {
+    background-color:#ff6600; /* Oranžinė: energija, kūryba (Forge procesas) */
+    color:#fff;
+    border:2px solid #000;
+    font-size:8px;
+    padding:5px 8px;
+    text-shadow:1px 1px #000;
 }
 
-/* Hero Pixel-Style Click Effect */
-.hero-pixel-click-effect {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    background-color: #ffcc00;
-    border: 2px solid #ff6600;
-    box-shadow: 0 0 10px rgba(255, 102, 0, 0.8);
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    pointer-events: none;
-    opacity: 0;
-    animation: pixelClickEffect 0.3s forwards;
+#forgeButton:hover {
+    background-color:#ff851b;
 }
 
-@keyframes pixelClickEffect {
-    0% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
-    }
-    100% {
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(2);
-    }
+#forgeStatus {
+    margin-top:5px;
+    font-size:8px;
+    text-shadow:1px 1px #000;
 }
 
-/* Responsive Adjustments */
-@media (max-width: 800px) {
-    #game-container {
-        padding: 20px;
-    }
-    h1 {
-        font-size: 24px;
-    }
-    #hero {
-        font-size: 80px;
-    }
-    .stats {
-        width: 90%;
-        font-size: 10px;
-    }
-    button {
-        font-size: 8px;
-        padding: 5px 10px;
-    }
-    .sword, .achievement, .monster {
-        font-size: 10px;
-        width: 120px;
-        height: auto;
-    }
-    .damage-text {
-        font-size: 12px;
-    }
-    .progress-bar-container {
-        width: 180px;
-        height: 18px;
-    }
-    #upgradesList {
-        gap: 10px;
-        padding: 20px;
-    }
-    #upgradesList .achievement {
-        width: 120px;
-        padding: 8px;
-    }
-    #upgradesList .achievement .icon {
-        font-size: 16px;
-        margin-bottom: 8px;
-    }
-    #upgradesList .achievement div {
-        font-size: 10px;
-    }
-    #upgradesList .upgrade-button {
-        padding: 6px 8px;
-        font-size: 10px;
-    }
+#monstersContainer {
+    position:relative;
+    width:100%;
+    height:400px;
+    background: linear-gradient(90deg, #222 50%, #242424 50%), 
+                linear-gradient(#222 50%, #242424 50%);
+    background-size: 4px 4px;
+    border:2px solid #ffcc00;
+    border-radius:0;
+    overflow:auto;
+    margin-top:10px;
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(120px,1fr));
+    grid-auto-rows:150px;
+    gap:5px;
+    image-rendering: pixelated;
+    box-shadow: inset 0 0 2px #000;
 }
 
-@media (max-width: 500px) {
-    h1 {
-        font-size: 20px;
-    }
-    #hero {
-        font-size: 60px;
-    }
-    .stats {
-        padding: 15px;
-        font-size: 8px;
-    }
-    button {
-        font-size: 6px;
-        padding: 3px 6px;
-    }
-    .sword, .achievement, .monster {
-        font-size: 8px;
-        width: 100px;
-        height: auto;
-    }
-    .damage-text {
-        font-size: 10px;
-    }
-    .progress-bar-container {
-        width: 150px;
-        height: 15px;
-    }
-    #upgradesList {
-        gap: 5px;
-        padding: 10px;
-    }
-    #upgradesList .achievement {
-        width: 100px;
-        padding: 5px;
-    }
-    #upgradesList .achievement .icon {
-        font-size: 14px;
-        margin-bottom: 5px;
-    }
-    #upgradesList .achievement div {
-        font-size: 8px;
-    }
-    #upgradesList .upgrade-button {
-        padding: 4px 6px;
-        font-size: 8px;
-    }
+.monster {
+    background-color:#555;
+    border:2px solid #ffcc00;
+    border-radius:0;
+    margin:5px 0;
+    display:flex;
+    flex-direction:column; 
+    position:relative;
+    font-size:8px;
+    image-rendering: pixelated;
+    justify-content: space-between; 
+    padding:5px;
+    align-items:center;
+    text-align:center;
+    box-shadow: inset 0 0 2px #000;
 }
+
+.monster .icon {
+    font-size:14px;
+    margin-bottom:3px;
+    text-shadow:1px 1px #000;
+}
+
+.monster-info {
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    gap:3px;
+}
+
+.monster-info p {
+    margin:0;
+    text-shadow:1px 1px #000;
+}
+
+.monster button.upgrade-button {
+    margin-top: 5px;
+    font-size: 8px;
+    padding: 3px 5px;
+    background-color:#28a745;
+    color:#fff;
+    border:2px solid #000;
+    width:80%;
+}
+
+.monster button.upgrade-button:hover {
+    background-color:#34d058;
+}
+
+.achievement.locked, .monster.undefeated, .quest.locked {
+    opacity:0.8;
+}
+
+.damage-text {
+    position:absolute;
+    top:-10px;
+    left:50%;
+    transform:translateX(-50%);
+    font-weight:bold;
+    color:#ff3333;
+    animation:fadeOutDamage 0.5s forwards;
+    pointer-events:none;
+    font-size:8px;
+    image-rendering: pixelated;
+    text-shadow:1px 1px #000;
+}
+
+@keyframes fadeOutDamage {
+    0% {opacity:1;transform:translateY(0) translateX(-50%);}
+    100% {opacity:0;transform:translateY(-10px) translateX(-50%);}
+}
+
+#saveLoadButtons {
+    margin-top:10px;
+    display:flex;
+    justify-content:center;
+    gap:5px;
+    flex-wrap:wrap;
+}
+
+#saveLoadButtons button {
+    background-color:#007bff; 
+    color:#fff;
+    border-radius:0;
+    border:2px solid #000;
+    text-shadow:1px 1px #000;
+}
+
+#saveLoadButtons button:hover {
+    background-color:#0088ff;
+}
+
+#resetButton {
+    background-color:#dc3545; /* Raudona: atsargiai, reset */
+}
+
+#buyHeartButton {
+    background-color:#ffc107; /* Geltona: vertingas, gyvybės pirkimas */
+    color:#000;
+    text-shadow:1px 1px #000;
+}
+
+#muteButton {
+    background-color:#6c757d;
+    color:#fff;
+}
+
+#volumeSlider {
+    width:50px;
+    height:5px;
+    margin-left:5px;
+    vertical-align:middle;
+    image-rendering: pixelated;
+}
+
+#comboContainer {
+    margin-top:5px;
+    font-size:8px;
+    background-color:#444;
+    padding:5px;
+    border-radius:0;
+    box-shadow:none;
+    image-rendering: pixelated;
+    border:2px solid #000;
+    text-shadow:1px 1px #000;
+}
+
+@media(max-width:800px){
+    #game-container {padding:10px;}
+    h1 {font-size:16px;}
+    #hero {font-size:60px;}
+    .stats {width:90%;font-size:8px;}
+    button {font-size:6px;padding:3px 6px;}
+    .monster,.sword,.achievement,.quest {font-size:6px;}
+    .damage-text {font-size:6px;}
+    #upgradesList {gap:5px;padding:10px;}
+}
+
+@media(max-width:500px){
+    h1 {font-size:14px;}
+    #hero {font-size:40px;}
+    .stats {padding:10px;font-size:6px;}
+    button {font-size:5px;padding:2px 4px;}
+    .monster,.sword,.achievement,.quest {font-size:6px;}
+    .damage-text {font-size:5px;}
+    #upgradesList {gap:5px;padding:5px;}
+}
+/* ANIMACIJŲ KEYFRAMES */
+
+/* Legendary kardo subtilus švytėjimas */
+@keyframes legendaryGlow {
+    0% { filter: brightness(1); }
+    50% { filter: brightness(1.2); }
+    100% { filter: brightness(1); }
+}
+
+/* Rare kardo melsvas pulsas */
+@keyframes rarePulse {
+    0% { box-shadow: 0 0 0px #00a2ff; }
+    50% { box-shadow: 0 0 5px #00a2ff; }
+    100% { box-shadow: 0 0 0px #00a2ff; }
+}
+
+/* Bosui pasirodžius – trumpas #monstersContainer mirksnis */
+@keyframes bossFlash {
+    0% { background: linear-gradient(90deg, #222 50%, #242424 50%), linear-gradient(#222 50%, #242424 50%); }
+    50% { background: linear-gradient(90deg, #442222 50%, #443333 50%), linear-gradient(#442222 50%, #443333 50%); }
+    100% { background: linear-gradient(90deg, #222 50%, #242424 50%), linear-gradient(#222 50%, #242424 50%); }
+}
+
+/* Herojaus kvėpavimo animacija */
+@keyframes heroBreath {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-2px); }
+    100% { transform: translateY(0); }
+}
+
+/* CLASSĖS RETUMUI IR BOSUI */
+
+/* Legendary kardams suteikiame animaciją */
+.sword.legendary {
+    animation: legendaryGlow 5s infinite ease-in-out;
+}
+
+/* Rare kardams – pulsas */
+.sword.rare {
+    animation: rarePulse 6s infinite ease-in-out;
+}
+
+/* Kai bosas pasirodo, JS gali pridėti klasę .boss-alert #monstersContainer elementui, kuri trumpam suveiks */
+#monstersContainer.boss-alert {
+    animation: bossFlash 2s 1; /* vieną kartą suveiks per 2s */
+}
+
+/* Herojaus kvėpavimas – tiesiog taikome herojaus selektoriui animaciją.
+   Galime nuolat leisti kvėpuoti, arba tik tam tikrais momentais, pridedant/šalinant klasę. */
+#hero {
+    animation: heroBreath 4s infinite ease-in-out;
+}
+
+/* Jei norite, kad hero kvėpavimas vyktų tik tam tikrais momentais, 
+   galite pašalinti tiesioginę animaciją iš #hero ir vietoje to per JS dėti klasę, pvz. .breathing:
+#hero.breathing {
+    animation: heroBreath 4s infinite ease-in-out;
+}
+*/
+
+/* Pastaba: Stenkitės, kad animacijos būtų lėtos ir subtilios, kad nevargintų akių.
+   LegendaryGlow ir rarePulse yra lėti (5s ir 6s), kad efektas būtų minimalus ir malonus. */
