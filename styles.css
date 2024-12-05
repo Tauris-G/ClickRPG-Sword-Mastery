@@ -9,7 +9,7 @@
 body {
     font-family: 'Press Start 2P', cursive;
     text-align: center;
-    background-color: #1e1e1e; /* Tamsus fonas – paslaptis ir gylis */
+    background-color: #1e1e1e;
     color: #f0f0f0;
     overflow: hidden;
     image-rendering: pixelated; 
@@ -21,7 +21,7 @@ body {
     left: 0;
     width: 100%;
     background-color: #222; 
-    color: #ffcc00; /* Geltona – akcentas, dėmesio pritraukimas */
+    color: #ffcc00;
     text-align: center;
     padding: 5px 0;
     font-size: 12px;
@@ -53,7 +53,7 @@ body {
 h1 {
     font-size: 20px;
     margin: 10px 0 20px 0;
-    color: #ffcc00; /* Geltona: nuotykis, energija */
+    color: #ffcc00;
     text-shadow: 1px 1px #000;
 }
 
@@ -70,7 +70,7 @@ h1 {
 }
 
 .notification {
-    background-color: #cc0000; /* Raudona: įspėjimas, pavojus */
+    background-color: #cc0000;
     color: #fff;
     padding: 5px 10px;
     margin: 5px 0;
@@ -140,11 +140,18 @@ h1 {
     transition: transform 0.1s;
     box-shadow: inset 0 0 5px #000, 0 0 5px #000;
     background: linear-gradient(#444,#333);
+    animation: heroBreath 4s infinite ease-in-out;
 }
 
 #hero:active {
     transform: scale(0.95);
     background: linear-gradient(#333,#444);
+}
+
+@keyframes heroBreath {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-2px); }
+    100% { transform: translateY(0); }
 }
 
 #bloodParticles {
@@ -281,7 +288,7 @@ button:hover {
 }
 
 .upgrade-button {
-    background-color:#28a745; /* Žalia: augimas, sėkmė */
+    background-color:#28a745;
     color:#fff;
     image-rendering: pixelated;
 }
@@ -324,11 +331,10 @@ button:hover {
     box-shadow: inset 0 0 2px #000;
 }
 
-/* Color coding swords for emotional rarity response */
-.sword.common .icon, .sword.common strong { color:#f0f0f0; text-shadow:1px 1px #000;}    /* Neutral – paprastas */
-.sword.rare .icon, .sword.rare strong { color:#00a2ff; text-shadow:1px 1px #000;}       /* Mėlyna: ramybė, retumas */
-.sword.epic .icon, .sword.epic strong { color:#af00ff; text-shadow:1px 1px #000;}       /* Purpurinė: magija, mistika */
-.sword.legendary .icon, .sword.legendary strong { color:#ffd700; text-shadow:1px 1px #000;} /* Auksinė: prestižas, aukščiausias lygis */
+.sword.common .icon, .sword.common strong { color:#f0f0f0; text-shadow:1px 1px #000;}
+.sword.rare .icon, .sword.rare strong { color:#00a2ff; text-shadow:1px 1px #000;}
+.sword.epic .icon, .sword.epic strong { color:#af00ff; text-shadow:1px 1px #000;}
+.sword.legendary .icon, .sword.legendary strong { color:#ffd700; text-shadow:1px 1px #000;}
 
 #forgeSection {
     margin-top:10px;
@@ -348,7 +354,7 @@ button:hover {
 }
 
 #forgeButton {
-    background-color:#ff6600; /* Oranžinė: energija, kūryba (Forge procesas) */
+    background-color:#ff6600;
     color:#fff;
     border:2px solid #000;
     font-size:8px;
@@ -480,11 +486,11 @@ button:hover {
 }
 
 #resetButton {
-    background-color:#dc3545; /* Raudona: atsargiai, reset */
+    background-color:#dc3545;
 }
 
 #buyHeartButton {
-    background-color:#ffc107; /* Geltona: vertingas, gyvybės pirkimas */
+    background-color:#ffc107;
     color:#000;
     text-shadow:1px 1px #000;
 }
@@ -514,6 +520,35 @@ button:hover {
     text-shadow:1px 1px #000;
 }
 
+/* Animacijos */
+@keyframes legendaryGlow {
+    0% { filter: brightness(1); }
+    50% { filter: brightness(1.2); }
+    100% { filter: brightness(1); }
+}
+
+@keyframes rarePulse {
+    0% { box-shadow: 0 0 0px #00a2ff; }
+    50% { box-shadow: 0 0 5px #00a2ff; }
+    100% { box-shadow: 0 0 0px #00a2ff; }
+}
+
+.sword.legendary {
+    animation: legendaryGlow 5s infinite ease-in-out;
+}
+
+.sword.rare {
+    animation: rarePulse 6s infinite ease-in-out;
+}
+
+/* Bosui paryškinti */
+.boss-monster {
+    border: 3px solid red; /* Makes the boss stand out */
+    background-color: rgba(255, 0, 0, 0.1); /* Adds a background highlight */
+    z-index: 1000; /* Ensures the boss is on top of other elements */
+}
+
+
 @media(max-width:800px){
     #game-container {padding:10px;}
     h1 {font-size:16px;}
@@ -534,65 +569,3 @@ button:hover {
     .damage-text {font-size:5px;}
     #upgradesList {gap:5px;padding:5px;}
 }
-/* ANIMACIJŲ KEYFRAMES */
-
-/* Legendary kardo subtilus švytėjimas */
-@keyframes legendaryGlow {
-    0% { filter: brightness(1); }
-    50% { filter: brightness(1.2); }
-    100% { filter: brightness(1); }
-}
-
-/* Rare kardo melsvas pulsas */
-@keyframes rarePulse {
-    0% { box-shadow: 0 0 0px #00a2ff; }
-    50% { box-shadow: 0 0 5px #00a2ff; }
-    100% { box-shadow: 0 0 0px #00a2ff; }
-}
-
-/* Bosui pasirodžius – trumpas #monstersContainer mirksnis */
-@keyframes bossFlash {
-    0% { background: linear-gradient(90deg, #222 50%, #242424 50%), linear-gradient(#222 50%, #242424 50%); }
-    50% { background: linear-gradient(90deg, #442222 50%, #443333 50%), linear-gradient(#442222 50%, #443333 50%); }
-    100% { background: linear-gradient(90deg, #222 50%, #242424 50%), linear-gradient(#222 50%, #242424 50%); }
-}
-
-/* Herojaus kvėpavimo animacija */
-@keyframes heroBreath {
-    0% { transform: translateY(0); }
-    50% { transform: translateY(-2px); }
-    100% { transform: translateY(0); }
-}
-
-/* CLASSĖS RETUMUI IR BOSUI */
-
-/* Legendary kardams suteikiame animaciją */
-.sword.legendary {
-    animation: legendaryGlow 5s infinite ease-in-out;
-}
-
-/* Rare kardams – pulsas */
-.sword.rare {
-    animation: rarePulse 6s infinite ease-in-out;
-}
-
-/* Kai bosas pasirodo, JS gali pridėti klasę .boss-alert #monstersContainer elementui, kuri trumpam suveiks */
-#monstersContainer.boss-alert {
-    animation: bossFlash 2s 1; /* vieną kartą suveiks per 2s */
-}
-
-/* Herojaus kvėpavimas – tiesiog taikome herojaus selektoriui animaciją.
-   Galime nuolat leisti kvėpuoti, arba tik tam tikrais momentais, pridedant/šalinant klasę. */
-#hero {
-    animation: heroBreath 4s infinite ease-in-out;
-}
-
-/* Jei norite, kad hero kvėpavimas vyktų tik tam tikrais momentais, 
-   galite pašalinti tiesioginę animaciją iš #hero ir vietoje to per JS dėti klasę, pvz. .breathing:
-#hero.breathing {
-    animation: heroBreath 4s infinite ease-in-out;
-}
-*/
-
-/* Pastaba: Stenkitės, kad animacijos būtų lėtos ir subtilios, kad nevargintų akių.
-   LegendaryGlow ir rarePulse yra lėti (5s ir 6s), kad efektas būtų minimalus ir malonus. */
