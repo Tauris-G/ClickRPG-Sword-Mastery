@@ -1014,7 +1014,12 @@ function clearMonsterIntervals(monster) {
         clearInterval(monster.attackTimeout);
         monster.attackTimeout = null;
     }
+    if (monster.spellTimeout) {
+        clearTimeout(monster.spellTimeout);
+        monster.spellTimeout = null;
+    }
 }
+
 
 
 function attackPlayer(monster) {
@@ -1095,36 +1100,53 @@ function scheduleMonsterAttack(monster) {
     }, Math.floor(Math.random() * (7000 - 3000 + 1)) + 3000); // Random delay for attack.
 }
 
-
 function scheduleMonsterSpell(monster) {
-    const spellDelay=Math.floor(Math.random()*(15000-5000+1))+5000;
-    monster.spellTimeout=setTimeout(()=>{
-        const activeMonster=monsters.find(m=>m.id===monster.id)||(currentBoss&&currentBoss.id===monster.id?currentBoss:null);
-        if(!gamePaused&&activeMonster&&!activeMonster.isBoss){
-            castSpell(activeMonster);
-            scheduleMonsterSpell(activeMonster); 
+    const spellDelay = Math.floor(Math.random() * (15000 - 5000 + 1)) + 5000;
+    
+    // Clear any existing timeout to prevent overlaps
+    if (monster.spellTimeout) {
+        clearTimeout(monster.spellTimeout);
+    }
+    
+    monster.spellTimeout = setTimeout(() => {
+        const activeMonster = monsters.find(m => m.id === monster.id) || (currentBoss && currentBoss.id === monster.id ? currentBoss : null);
+        
+        if (!gamePaused && activeMonster && !activeMonster.isBoss) {
+            castSpell(activeMonster); // Cast spell
+            scheduleMonsterSpell(activeMonster); // Reschedule spell
         }
-    },spellDelay);
+    }, spellDelay);
 }
 
+
 function castSpell(monster) {
-    const spellDamage=Math.floor(monster.attack/2);
-    health-=spellDamage;
-    showDamageAnimation(spellDamage,'home');
+    const spellDamage = Math.floor(monster.attack / 2); // Spell deals half monster attack power
+    health -= spellDamage;
+
+    // Display damage
+    showDamageAnimation(spellDamage, 'home');
     playSound(document.getElementById('spellCastSound'));
-    showNotification(`✨ ${monster.name} cast a spell on you for ${spellDamage} damage! ✨`,'error');
+    showNotification(`✨ ${monster.name} cast a spell on you for ${spellDamage} damage! ✨`, 'error');
+
     updateStats();
-    if(health<=0){
-        lives-=1;deaths+=1;
-        if(lives>0){
-            health=maxHealth;updateStats();
-            showNotification(`💀 Struck by a spell from ${monster.name}! Lost a life. Lives: ${lives}`,'error');
+
+    // Handle player death
+    if (health <= 0) {
+        lives -= 1;
+        deaths += 1;
+
+        if (lives > 0) {
+            health = maxHealth;
+            updateStats();
+            showNotification(`💀 Struck by a spell from ${monster.name}! Lost a life. Lives left: ${lives}`, 'error');
         } else {
             handleGameOver();
         }
-        removeMonster(monster);
+
+        removeMonster(monster); // Optional: remove the monster if they cause death
     }
 }
+
 
 function handleGameOver(){
     showGameOverModal();
