@@ -125,7 +125,6 @@ const monsterTypes = [
     { name: 'Specter Steve 👻', health:120, attack:12, emoji:'👻'},
     { name: 'Giant Goblin Grug 👹', health:180, attack:18, emoji:'👹'}
 ];
-
 let monsters = [];
 let monsterId = 1;
 let currentBoss = null;
@@ -137,7 +136,8 @@ const finalBoss = {
     attack:99,
     emoji:'🌌👹',
     isFinal:true,
-    isBoss:true
+    isBoss:true,
+    attackInterval: null // Nauja savybė atkūrimo atakoms
 };
 
 const quests = [
@@ -578,93 +578,7 @@ function saveGame(){
     showNotification('💾 Game Saved!','success');
 }
 
-function loadGame(){
-    const savedState=localStorage.getItem('goldyMcGoldfaceSave');
-    if(savedState){
-        const gameState=JSON.parse(savedState);
-        gold=gameState.gold||0;
-        level=gameState.level||1;
-        experience=gameState.experience||0;
-        expToNext=gameState.expToNext||10;
-        attackPower=1;
-        defense=gameState.defense||1;
-        health=gameState.health||100;
-        maxHealth=gameState.maxHealth||100;
-        passiveIncome=gameState.passiveIncome||0;
-        lives=gameState.lives||3;
-        upgradeCosts=gameState.upgradeCosts||{...baseUpgradeCosts};
-        quests.forEach((q,i)=>{
-            quests[i]=gameState.quests[i];
-        });
-        upgrades.forEach((upg,index)=>{
-            upgrades[index].owned=gameState.upgrades[index].owned;
-            if(upg.type!=='autoClick'){
-                if(upgrades[index].owned>0){
-                    const upgradeButton=document.getElementById(`upgrade${upg.id}`).querySelector('button');
-                    upgradeButton.innerHTML=`${upg.name} (Owned: ${upg.owned}) - Cost: <span id="upgradeCost${upg.id}">${upgradeCosts[upg.type]}</span> 💰`;
-                    if(upg.type==='defense') defenseUpgrades=upgrades[index].owned;
-                    if(upg.type==='health') healthUpgrades=upgrades[index].owned;
-                }
-            } else {
-                if(gameState.autoClickPurchased){
-                    upgrades[index].owned=1;
-                    autoClickPurchased=true;
-                    const upgradeButton=document.getElementById(`upgrade${upg.id}`).querySelector('button');
-                    upgradeButton.disabled=true;
-                    upgradeButton.textContent='Owned ✅';
-                    passiveIncome+=10;
-                }
-            }
-        });
-        swords.forEach((sw,index)=>{
-            swords[index].owned=Boolean(gameState.swords[index].owned);
-            if(sw.owned){
-                const swordButton=document.getElementById(`sword${sw.id}`).querySelector('button');
-                swordButton.disabled=true;
-                swordButton.textContent='Owned ✅';
-            }
-        });
-        recalculateAttackPower();
-        monsters=gameState.monsters||[];
-        monsterId=gameState.monsterId||1;
-        monstersDefeated=gameState.monstersDefeated||0;
-        bossesDefeated=gameState.bossesDefeated||0;
-        currentBoss=gameState.currentBoss||null;
-        achievements.forEach((ach,index)=>{
-            achievements[index].achieved=gameState.achievements[index].achieved;
-            if(achievements[index].achieved){
-                const achDiv=document.getElementById(`achievement${ach.id}`);
-                achDiv.classList.remove('locked');
-                achDiv.innerHTML=`<span class="icon">✅</span><div><strong>${ach.name}</strong><br>${ach.description}</div>`;
-            }
-        });
-        totalClicks=gameState.totalClicks||0;
-        defenseUpgrades=gameState.defenseUpgrades||0;
-        healthUpgrades=gameState.healthUpgrades||0;
-        autoClickPurchased=gameState.autoClickPurchased||false;
-        deaths=gameState.deaths||0;
-        synergyForged=gameState.synergyForged||false;
-        prestigeCount=gameState.prestigeCount||0;
-        updateStats();
-        renderLoadedMonsters();
-        
-        if(currentBoss){
-            renderMonster(currentBoss);
-            bossAttackLoop(currentBoss);
-        }
 
-        initializeQuests();
-        updateComboDisplay();
-        showNotification('📂 Game Loaded!','success');
-
-        if(level>=100 && swords.every(s=>s.owned)){
-            showVictoryModal();
-        }
-
-    } else {
-        showNotification('❗ No saved game found.','error');
-    }
-}
 
 function renderLoadedMonsters(){
     const monstersContainer=document.getElementById('monstersContainer');
@@ -675,6 +589,107 @@ function renderLoadedMonsters(){
         scheduleMonsterSpell(monster);
     });
 }
+
+function loadGame(){
+    const savedState = localStorage.getItem('goldyMcGoldfaceSave');
+    if(savedState){
+        const gameState = JSON.parse(savedState);
+        gold = gameState.gold || 0;
+        level = gameState.level || 1;
+        experience = gameState.experience || 0;
+        expToNext = gameState.expToNext || 10;
+        attackPower = 1;
+        defense = gameState.defense || 1;
+        health = gameState.health || 100;
+        maxHealth = gameState.maxHealth || 100;
+        passiveIncome = gameState.passiveIncome || 0;
+        lives = gameState.lives || 3;
+        upgradeCosts = gameState.upgradeCosts || { ...baseUpgradeCosts };
+        quests.forEach((q, i) => {
+            quests[i] = gameState.quests[i];
+        });
+        upgrades.forEach((upg, index) => {
+            upgrades[index].owned = gameState.upgrades[index].owned;
+            if(upg.type !== 'autoClick'){
+                if(upgrades[index].owned > 0){
+                    const upgradeButton = document.getElementById(`upgrade${upg.id}`).querySelector('button');
+                    upgradeButton.innerHTML = `${upg.name} (Owned: ${upg.owned}) - Cost: <span id="upgradeCost${upg.id}">${upgradeCosts[upg.type]}</span> 💰`;
+                    if(upg.type === 'defense') defenseUpgrades = upgrades[index].owned;
+                    if(upg.type === 'health') healthUpgrades = upgrades[index].owned;
+                }
+            } else {
+                if(gameState.autoClickPurchased){
+                    upgrades[index].owned = 1;
+                    autoClickPurchased = true;
+                    const upgradeButton = document.getElementById(`upgrade${upg.id}`).querySelector('button');
+                    upgradeButton.disabled = true;
+                    upgradeButton.textContent = 'Owned ✅';
+                    passiveIncome += 10;
+                }
+            }
+        });
+        swords.forEach((sw, index) => {
+            swords[index].owned = Boolean(gameState.swords[index].owned);
+            if(sw.owned){
+                const swordButton = document.getElementById(`sword${sw.id}`).querySelector('button');
+                swordButton.disabled = true;
+                swordButton.textContent = 'Owned ✅';
+            }
+        });
+        recalculateAttackPower();
+        monsters = gameState.monsters || [];
+        monsterId = gameState.monsterId || 1;
+        monstersDefeated = gameState.monstersDefeated || 0;
+        bossesDefeated = gameState.bossesDefeated || 0;
+        currentBoss = gameState.currentBoss || null;
+        achievements.forEach((ach, index) => {
+            achievements[index].achieved = gameState.achievements[index].achieved;
+            if(achievements[index].achieved){
+                const achDiv = document.getElementById(`achievement${ach.id}`);
+                achDiv.classList.remove('locked');
+                achDiv.innerHTML = `<span class="icon">✅</span><div><strong>${ach.name}</strong><br>${ach.description}</div>`;
+            }
+        });
+        totalClicks = gameState.totalClicks || 0;
+        defenseUpgrades = gameState.defenseUpgrades || 0;
+        healthUpgrades = gameState.healthUpgrades || 0;
+        autoClickPurchased = gameState.autoClickPurchased || false;
+        deaths = gameState.deaths || 0;
+        synergyForged = gameState.synergyForged || false;
+        prestigeCount = gameState.prestigeCount || 0;
+        updateStats();
+        renderLoadedMonsters();
+        
+        // Pradedame atkūrimo atakų ciklą tik jei bossas yra gyvas
+        if(currentBoss){
+            const boss = monsters.find(m => m.id === currentBoss.id);
+            if(boss){
+                currentBoss = boss; // Atnaujiname currentBoss su atitinkamu monstru
+                startBossAttackLoop(boss);
+            } else {
+                currentBoss = null;
+            }
+        }
+        
+        // ĮVESKITE ŠIĄ EILUTĘ, kad žaidimas būtų nepaused po įkėlimo
+        gamePaused = false;
+
+        initializeQuests();
+        // ... Po visų žaidimo būsenos atstatymo operacijų
+updateComboDisplay();
+gamePaused = false; // Pridėkite šią eilutę
+
+        showNotification('📂 Game Loaded!','success');
+
+        if(level >= 100 && swords.every(s => s.owned)){
+            showVictoryModal();
+        }
+
+    } else {
+        showNotification('❗ No saved game found.','error');
+    }
+}
+
 
 function resetGame(){
     if(confirm('⚠️ Are you sure you want to reset the game?')){
@@ -891,46 +906,46 @@ function getMonsterSpawnInterval(){
 }
 
 function spawnMonster() {
-    const randomType = monsterTypes[Math.floor(Math.random()*monsterTypes.length)];
-    const healthVariation=Math.floor(Math.random()*50)-25;
-    const attackVariation=Math.floor(Math.random()*5)-2;
-    const newMonster={
-        id:monsterId,
-        name:`${randomType.name} (Lv. ${level})`,
-        health:Math.max(1,randomType.health+healthVariation),
-        attack:Math.max(1,randomType.attack+attackVariation),
-        emoji:randomType.emoji,
-        isBoss:false,
-        attackTimeout:null,
-        spellTimeout:null
+    const randomType = monsterTypes[Math.floor(Math.random() * monsterTypes.length)];
+    const healthVariation = Math.floor(Math.random() * 50) - 25;
+    const attackVariation = Math.floor(Math.random() * 5) - 2;
+    const newMonster = {
+        id: monsterId,
+        name: `${randomType.name} (Lv. ${level})`,
+        health: Math.max(1, randomType.health + healthVariation),
+        attack: Math.max(1, randomType.attack + attackVariation),
+        emoji: randomType.emoji,
+        isBoss: false,
+        attackTimeout: null
     };
+
     monsters.push(newMonster);
     renderMonster(newMonster);
-    showNotification(`👾 New Monster Appeared: ${newMonster.name}!`,'achievement');
-    const monsterAppearSound=document.getElementById('monsterAppearSound');
-    playSound(monsterAppearSound);
+    scheduleMonsterAttack(newMonster); // Ensure attack schedule starts here.
     monsterId++;
+
+    showNotification(`👾 New Monster Appeared: ${newMonster.name}!`, 'achievement');
+    playSound(document.getElementById('monsterAppearSound'));
 }
 
 function renderMonster(monster) {
-    console.log(`[DEBUG] renderMonster called for: ${monster.name} (ID: ${monster.id}) Boss?: ${monster.isBoss}`);
     const monstersContainer = document.getElementById('monstersContainer');
     const monsterDiv = document.createElement('div');
-    monsterDiv.className = 'monster'; // Removed 'undefeated' class and boss-monster class
-
+    monsterDiv.className = 'monster';
     monsterDiv.id = `monster${monster.id}`;
 
     monsterDiv.innerHTML = `
-    <span class="icon">${monster.emoji}</span>
-    <div>
-        <strong>${monster.name}</strong><br>
-        Health: <span id="monsterHealth${monster.id}">${monster.health}</span> ❤️<br>
-        Attack: <span id="monsterAttack${monster.id}">${monster.attack}</span> ⚔️
-    </div>
-    <button class="upgrade-button" onclick="attackMonster(${monster.id})">Attack 👊</button>
+        <span class="icon">${monster.emoji}</span>
+        <div>
+            <strong>${monster.name}</strong><br>
+            Health: <span id="monsterHealth${monster.id}">${monster.health}</span> ❤️<br>
+            Attack: <span id="monsterAttack${monster.id}">${monster.attack}</span> ⚔️
+        </div>
+        <button class="upgrade-button" onclick="attackMonster(${monster.id})">Attack 👊</button>
     `;
     monstersContainer.appendChild(monsterDiv);
 }
+
 
 function attackMonster(monsterId) {
     const monster=monsters.find(m=>m.id===monsterId)||(currentBoss&&currentBoss.id===monsterId?currentBoss:null);
@@ -964,70 +979,84 @@ function attackMonster(monsterId) {
 function killMonster(monster) {
     clearMonsterIntervals(monster);
     if(monster.isBoss){
-        gold+=1000;
-        experience+=1000; 
+        gold += 1000;
+        experience += 1000; 
         bossesDefeated++;
         playSound(document.getElementById('bossDefeatedSound'));
-        showNotification(`🎉 Boss ${monster.name} defeated! Earned 1000 gold and 1000 XP!`,'success');
-        currentBoss=null;
+        showNotification(`🎉 Boss ${monster.name} defeated! Earned 1000 gold and 1000 XP!`, 'success');
+        
+        // Išvalome atkūrimo atakų ciklą
+        if(monster.attackInterval){
+            clearInterval(monster.attackInterval);
+            monster.attackInterval = null;
+        }
+        
+        currentBoss = null;
     } else {
-        gold+=100;
+        gold += 100;
         monstersDefeated++;
         playSound(document.getElementById('monsterDefeatedSound'));
-        showNotification(`🎉 Monster ${monster.name} defeated! Earned 100 gold!`,'success');
-        experience+=100; 
+        showNotification(`🎉 Monster ${monster.name} defeated! Earned 100 gold!`, 'success');
+        experience += 100; 
     }
 
-    monsters=monsters.filter(m=>m.id!==monster.id);
-    const monsterDiv=document.getElementById(`monster${monster.id}`);
+    monsters = monsters.filter(m => m.id !== monster.id);
+    const monsterDiv = document.getElementById(`monster${monster.id}`);
     if(monsterDiv) monsterDiv.remove();
 
     updateStats();
     checkAchievements();
     checkQuests();
-    if(monster.isBoss&&monster.isFinal&&swords.every(s=>s.owned)) showVictoryModal();
+    if(monster.isBoss && monster.isFinal && swords.every(s => s.owned)) showVictoryModal();
+}
+function clearMonsterIntervals(monster) {
+    if (monster.attackTimeout) {
+        clearInterval(monster.attackTimeout);
+        monster.attackTimeout = null;
+    }
 }
 
-function clearMonsterIntervals(monster){
-    if(monster.attackTimeout) clearTimeout(monster.attackTimeout);
-    if(monster.spellTimeout) clearTimeout(monster.spellTimeout);
-    monster.attackTimeout=null;
-    monster.spellTimeout=null;
-}
 
 function attackPlayer(monster) {
-    if(!monsters.find(m=>m.id===monster.id) && !(currentBoss && currentBoss.id===monster.id)) return;
-    const shieldUpgrades=upgrades.find(u=>u.type==='shield').owned;
-    const damage=Math.max(monster.attack-(2*shieldUpgrades),0);
-    health-=damage;
-    showDamageAnimation(damage,'home');
+    if (!monster) return; // Safeguard against null/undefined monsters.
+
+    const shieldUpgrades = upgrades.find(u => u.type === 'shield').owned || 0;
+    const damage = Math.max(monster.attack - (2 * shieldUpgrades), 0);
+
+    health -= damage;
+    showDamageAnimation(damage, 'home');
     playSound(document.getElementById('monsterAttackSound'));
-    showNotification(`⚔️ ${monster.name} attacked you for ${damage} damage! ❤️`,'error');
-    updateStats();
-    if(health<=0){
-        lives-=1;
-        deaths+=1;
-        if(lives>0) {
-            health=maxHealth;
-            updateStats();
-            showNotification(`💀 You have been defeated by ${monster.name}! Lost a life. Lives left: ${lives}`,'error');
+    showNotification(`⚔️ ${monster.name} attacked you for ${damage} damage! ❤️`, 'error');
+
+    if (health <= 0) {
+        lives -= 1;
+        deaths += 1;
+        if (lives > 0) {
+            health = maxHealth;
+            showNotification(`💀 You died! Lost a life. Lives left: ${lives}`, 'error');
         } else {
             handleGameOver();
         }
-        removeMonster(monster);
     }
+
+    updateStats();
 }
+
 
 function removeMonster(monster){
     clearMonsterIntervals(monster);
     
-    // Jei pašalinamas monstras yra bosas, atstatome currentBoss į null
+    // Jei pašalinamas monstras yra bosas, atstatome currentBoss į null ir išvalome atkūrimo atakų ciklą
     if(monster.isBoss && currentBoss && currentBoss.id === monster.id) {
+        if(monster.attackInterval){
+            clearInterval(monster.attackInterval);
+            monster.attackInterval = null;
+        }
         currentBoss = null;
     }
     
-    monsters = monsters.filter(m=>m.id!==monster.id);
-    const monsterDiv=document.getElementById(`monster${monster.id}`);
+    monsters = monsters.filter(m => m.id !== monster.id);
+    const monsterDiv = document.getElementById(`monster${monster.id}`);
     if(monsterDiv) monsterDiv.remove();
 }
 
@@ -1050,16 +1079,22 @@ function showDamageAnimation(amount, targetId) {
         }
     }
 }
-
 function scheduleMonsterAttack(monster) {
-    const attackDelay=Math.floor(Math.random()*(7000-3000+1))+3000;
-    monster.attackTimeout=setTimeout(()=>{
-        if(!gamePaused && (monsters.find(m=>m.id===monster.id)||(currentBoss&&currentBoss.id===monster.id))){
-            attackPlayer(monster);
-            scheduleMonsterAttack(monster);
+    if (monster.attackTimeout) {
+        clearInterval(monster.attackTimeout); // Clear any existing interval to avoid duplication.
+    }
+
+    monster.attackTimeout = setInterval(() => {
+        // Check if the monster is still alive and in the game.
+        if (!gamePaused && monsters.includes(monster)) {
+            console.log(`[DEBUG] Monster ${monster.name} is attacking!`);
+            attackPlayer(monster); // Trigger the player's health reduction.
+        } else {
+            clearInterval(monster.attackTimeout); // Stop the interval if the monster is removed.
         }
-    },attackDelay);
+    }, Math.floor(Math.random() * (7000 - 3000 + 1)) + 3000); // Random delay for attack.
 }
+
 
 function scheduleMonsterSpell(monster) {
     const spellDelay=Math.floor(Math.random()*(15000-5000+1))+5000;
@@ -1201,11 +1236,7 @@ function spawnMonsterRandomly() {
 }
 
 function spawnBoss(isLevelBased = false) {
-    if (currentBoss) {
-        console.log("[DEBUG] spawnBoss called but currentBoss already exists. Skipping.");
-        return;
-    }
-    console.log(`[DEBUG] spawnBoss called. isLevelBased: ${isLevelBased}, level: ${level}`);
+    if (currentBoss) return;
 
     const bossHealthBase = isLevelBased ? (500 + (level * 50)) : 300;
     const bossAttackBase = isLevelBased ? (10 + (level * 5)) : 20;
@@ -1218,55 +1249,51 @@ function spawnBoss(isLevelBased = false) {
         emoji: '👹',
         isBoss: true,
         isFinal: false,
-        attackTimeout: null,
-        spellTimeout: null
+        attackTimeout: null
     };
 
     currentBoss = boss;
     bosses.push(boss);
     monsters.push(boss);
 
-    console.log(`[DEBUG] Boss created: ${boss.name}, ID: ${boss.id}, HP: ${boss.health}, Attack: ${boss.attack}`);
-
     renderMonster(boss);
-    bossAttackLoop(boss);
-
+    scheduleMonsterAttack(boss);
     showNotification(`⚠️ Boss appeared: ${boss.name}!`, 'achievement');
-
-    const bossAppearSoundElement = document.getElementById('bossAppearSound');
-    if (bossAppearSoundElement) {
-        playSound(bossAppearSoundElement);
-    }
 }
+
 
 function spawnFinalBoss() {
-    console.log("[DEBUG] spawnFinalBoss called.");
-    if(currentBoss) {
-        console.log("[DEBUG] spawnFinalBoss: currentBoss already exists, skipping final boss spawn.");
-        return;
-    }
+    if (currentBoss) return;
 
-    currentBoss={...finalBoss, attackTimeout:null, spellTimeout:null};
-    console.log(`[DEBUG] Final Boss object created: ${currentBoss.name} (ID: ${currentBoss.id}, HP: ${currentBoss.health}, Attack: ${currentBoss.attack})`);
+    const finalBoss = {
+        ...finalBoss, 
+        id: 999,
+        health: 20000,
+        attack: 99,
+        attackTimeout: null,
+        isBoss: true,
+        isFinal: true
+    };
 
+    currentBoss = finalBoss;
     monsters.push(currentBoss);
+
     renderMonster(currentBoss);
-    bossAttackLoop(currentBoss);
-    showNotification(`⚠️ Final Boss Appears: ${currentBoss.name}!`,'achievement');
-    const bossAppearSound=document.getElementById('bossAppearSound');
-    if(bossAppearSound) playSound(bossAppearSound);
+    scheduleMonsterAttack(currentBoss);
+    showNotification(`⚠️ Final Boss Appears: ${currentBoss.name}!`, 'achievement');
 }
 
-function bossAttackLoop(boss) {
-    const attackInterval=5000;
-    function attack(){
-        if(currentBoss&&currentBoss.id===boss.id){
+
+function startBossAttackLoop(boss) {
+    const attackInterval = 5000; // Atakuoja kas 5 sekundes
+    // Naudojame setInterval ir saugome interval ID boss objekte
+    boss.attackInterval = setInterval(() => {
+        if(currentBoss && currentBoss.id === boss.id){
             attackPlayer(boss);
-            setTimeout(attack,attackInterval);
         }
-    }
-    attack();
+    }, attackInterval);
 }
+
 
 function prestige(){
     if(confirm("Are you sure you want to Prestige?\nYou will reset your progress but gain a permanent gold multiplier.")){
