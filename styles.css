@@ -141,6 +141,7 @@ h1 {
     box-shadow: inset 0 0 5px #000, 0 0 5px #000;
     background: linear-gradient(#444,#333);
     animation: heroBreath 4s infinite ease-in-out;
+    margin-bottom:10px;
 }
 
 #hero:active {
@@ -331,11 +332,6 @@ button:hover {
     box-shadow: inset 0 0 2px #000;
 }
 
-.sword.common .icon, .sword.common strong { color:#f0f0f0; text-shadow:1px 1px #000;}
-.sword.rare .icon, .sword.rare strong { color:#00a2ff; text-shadow:1px 1px #000;}
-.sword.epic .icon, .sword.epic strong { color:#af00ff; text-shadow:1px 1px #000;}
-.sword.legendary .icon, .sword.legendary strong { color:#ffd700; text-shadow:1px 1px #000;}
-
 #forgeSection {
     margin-top:10px;
     text-align:center;
@@ -412,34 +408,6 @@ button:hover {
     font-size:14px;
     margin-bottom:3px;
     text-shadow:1px 1px #000;
-}
-
-.monster-info {
-    flex:1;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-    gap:3px;
-}
-
-.monster-info p {
-    margin:0;
-    text-shadow:1px 1px #000;
-}
-
-.monster button.upgrade-button {
-    margin-top: 5px;
-    font-size: 8px;
-    padding: 3px 5px;
-    background-color:#28a745;
-    color:#fff;
-    border:2px solid #000;
-    width:80%;
-}
-
-.monster button.upgrade-button:hover {
-    background-color:#34d058;
 }
 
 .achievement.locked, .monster.undefeated, .quest.locked {
@@ -520,7 +488,7 @@ button:hover {
     text-shadow:1px 1px #000;
 }
 
-/* Animacijos */
+/* Animations for special swords */
 @keyframes legendaryGlow {
     0% { filter: brightness(1); }
     50% { filter: brightness(1.2); }
@@ -541,13 +509,12 @@ button:hover {
     animation: rarePulse 6s infinite ease-in-out;
 }
 
-/* Bosui paryškinti */
+/* Boss Highlight */
 .boss-monster {
-    border: 3px solid red; /* Makes the boss stand out */
-    background-color: rgba(255, 0, 0, 0.1); /* Adds a background highlight */
-    z-index: 1000; /* Ensures the boss is on top of other elements */
+    border: 3px solid red;
+    background-color: rgba(255, 0, 0, 0.1);
+    z-index: 1000;
 }
-
 
 @media(max-width:800px){
     #game-container {padding:10px;}
@@ -569,6 +536,7 @@ button:hover {
     .damage-text {font-size:5px;}
     #upgradesList {gap:5px;padding:5px;}
 }
+
 #shieldsList {
     display: flex;
     flex-wrap: wrap;
@@ -588,9 +556,10 @@ button:hover {
     justify-content: center;
     padding: 10px;
     text-align: center;
-    font-size: 12px;
+    font-size: 10px;
     image-rendering: pixelated;
     box-shadow: inset 0 0 5px #000;
+    width:120px;
 }
 
 .shield .icon {
@@ -604,7 +573,7 @@ button:hover {
     color: #fff;
     border: 2px solid #000;
     padding: 5px 10px;
-    font-size: 10px;
+    font-size: 8px;
     cursor: pointer;
     transition: transform 0.1s;
 }
@@ -617,33 +586,36 @@ button:hover {
 .shield em {
     font-style: italic;
     color: #ffcc00;
-    font-size: 10px;
+    font-size: 8px;
 }
+
+/* Stat Section */
 .stat-section {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: #2b2b2b; /* Dark background */
-    border: 2px solid #4caf50; /* Green border */
-    border-radius: 10px; /* Rounded corners */
-    padding: 10px; /* Padding for spacing */
-    margin: 10px 0; /* Spacing between sections */
-    color: #ffffff; /* Text color */
-    font-family: Arial, sans-serif; /* Font style */
-    font-size: 16px; /* Font size */
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    background-color: #2b2b2b;
+    border: 2px solid #4caf50;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px 0;
+    color: #ffffff;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .stat-title {
-    font-weight: bold; /* Bold text for the title */
-    color: #4caf50; /* Green color for the title */
+    font-weight: bold;
+    color: #4caf50;
 }
 
 .stat-value {
-    font-size: 18px; /* Slightly larger font for value */
-    font-weight: bold; /* Bold text for the value */
-    color: #ffeb3b; /* Yellow color for emphasis */
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffeb3b;
 }
+
 @keyframes glow {
     0% {
         background-color: #4caf50;
@@ -661,4 +633,103 @@ button:hover {
 
 .stat-value.update-glow {
     animation: glow 0.5s ease-in-out;
+}
+
+#petContainer {
+    background-color: #444;
+    border: 2px solid #ffcc00;
+    color: #f0f0f0;
+    font-size: 10px;
+    padding: 10px;
+    margin-top: 10px;
+    display: inline-block;
+    image-rendering: pixelated;
+    text-align: center;
+}
+
+#buyPetButton {
+    background-color: #28a745;
+    color: #fff;
+    border: 2px solid #000;
+    padding: 5px;
+    font-size: 8px;
+    cursor: pointer;
+    font-family: 'Press Start 2P', cursive;
+}
+
+#buyPetButton:hover {
+    transform: scale(1.05);
+    background-color: #34d058;
+}
+
+#artifactsContainer {
+    margin-top: 10px;
+    background-color: #444;
+    border:2px solid #ffcc00;
+    padding:10px;
+    font-size:10px;
+    color:#f0f0f0;
+    font-family:'Press Start 2P', cursive;
+    text-align:left;
+    max-width:200px;
+    margin:auto;
+}
+
+#artifactList {
+    list-style:none;
+    padding:0;
+    margin:0;
+}
+
+#artifactList li {
+    margin-bottom:5px;
+    text-shadow:1px 1px #000;
+}
+
+#festivalContainer {
+    margin-top:10px;
+    background-color:#444;
+    border:2px solid #ffcc00;
+    padding:10px;
+    text-align:center;
+    font-size:10px;
+    color:#f0f0f0;
+    font-family:'Press Start 2P', cursive;
+    max-width:300px;
+    margin:10px auto;
+}
+
+#joinFestivalButton {
+    background-color:#28a745;
+    color:#fff;
+    border:2px solid #000;
+    padding:5px;
+    font-size:8px;
+    cursor:pointer;
+    image-rendering: pixelated;
+    margin-top:5px;
+}
+
+#joinFestivalButton:hover {
+    transform: scale(1.05);
+    background-color:#34d058;
+}
+
+#playerTitleContainer {
+    margin-top:10px;
+    font-size:10px;
+    color:#f0f0f0;
+    text-shadow:1px 1px #000;
+    max-width:200px;
+    margin:10px auto;
+    background-color:#444;
+    border:2px solid #ffcc00;
+    padding:5px;
+    image-rendering: pixelated;
+}
+
+@media (max-width:800px) {
+    #festivalContainer, #playerTitleContainer, #artifactsContainer {
+        margin-top:5px;
+    }
 }
