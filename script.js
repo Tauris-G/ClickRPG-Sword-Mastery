@@ -15,8 +15,6 @@ let maxHealth = 100;
 let passiveIncome = 0;
 let lives = 3;
 let healthRegenRate = 1; // Starts with 1 health per second
-let spells = []; // Array to store active spells, initially empty
-
 
 let totalClicks = 0;
 let defenseUpgrades = 0;
@@ -25,11 +23,9 @@ let autoClickPurchased = false;
 let bossesDefeated = 0;
 let monstersDefeated = 0;
 let deaths = 0;
-
 let synergyForged = false;
-let prestigeCount = 0; 
+let prestigeCount = 0;
 
-// Combo system variables
 let comboCount = 0;
 let comboTimeout = null;
 const comboMaxStacks = 5;
@@ -46,9 +42,11 @@ const baseUpgradeCosts = {
     experienceBoost: 1000,
     monsterSlayer: 1250,
     shield: 1500,
-    luck: 1750
+    luck: 1750,
 };
+
 let upgradeCosts = { ...baseUpgradeCosts };
+
 const upgrades = [
     { id: 1, type: 'attack', name: 'Attack Upgrade I', cost: baseUpgradeCosts.attack, effect: 'Increase Attack Power by 2.', owned: 0 },
     { id: 2, type: 'defense', name: 'Defense Upgrade I', cost: baseUpgradeCosts.defense, effect: 'Increase Defense by 2.', owned: 0 },
@@ -58,19 +56,18 @@ const upgrades = [
     { id: 6, type: 'goldMultiplier', name: 'Gold Multiplier', cost: baseUpgradeCosts.goldMultiplier, effect: 'Increase gold per click by 2.', owned: 0 },
     { id: 7, type: 'experienceBoost', name: 'Experience Boost', cost: baseUpgradeCosts.experienceBoost, effect: 'Gain 3 XP per click.', owned: 0 },
     { id: 8, type: 'monsterSlayer', name: 'Monster Slayer', cost: baseUpgradeCosts.monsterSlayer, effect: 'Deal 3 extra damage to monsters.', owned: 0 },
-    { id: 9, type: 'shield', name: 'Shield', cost: baseUpgradeCosts.shield, effect: 'Reduce incoming damage by 2.', owned: 0 },
+    { id: 9, type: 'shield', name: 'Shield', cost: baseUpgradeCosts.shield, effect: 'Reduce incoming damage by 2 per owned shield upgrade.', owned: 0 },
     { id: 10, type: 'luck', name: 'Luck Enhancement', cost: baseUpgradeCosts.luck, effect: 'Increase gold gain by 15%.', owned: 0 },
     { id: 11, type: 'healthRegen', name: 'Health Regeneration Boost', cost: 1000, effect: 'Increase health regeneration by 2% of max health per second.', owned: 0 }
 ];
 
-
 const swords = [
     { id: 1, name: 'Stick of Fury 🪵', cost: 300, damage: 2, description: 'A sturdy stick with fury.', owned: false },
     { id: 2, name: 'Rusty Blade 🗡️', cost: 900, damage: 5, description: 'A rusty blade, surprisingly effective.', owned: false },
-    { id: 3, name: 'Goblin\'s Gleam 🗡️👹', cost: 2250, damage: 10, description: 'A gleaming sword from goblins.', owned: false },
+    { id: 3, name: 'Goblin\'s Gleam 👹🗡️', cost: 2250, damage: 10, description: 'A gleaming sword from goblins.', owned: false },
     { id: 4, name: 'Dragon\'s Tooth Sabre 🐉🗡️', cost: 4500, damage: 20, description: 'A sabre made from a dragon tooth.', owned: false },
     { id: 5, name: 'Legendary Lightbringer 🌟🗡️', cost: 9000, damage: 50, description: 'A legendary sword of light.', owned: false },
-    { id: 6, name: 'Shadow Dagger 🗡️🌑', cost: 10800, damage: 60, description: 'Forged in dark shadows.', owned: false },
+    { id: 6, name: 'Shadow Dagger 🌑🗡️', cost: 10800, damage: 60, description: 'Forged in dark shadows.', owned: false },
     { id: 7, name: 'Phoenix Blade 🔥🗡️', cost: 13500, damage: 75, description: 'Imbued with phoenix fire.', owned: false },
     { id: 8, name: 'Thunderstrike ⚡🗡️', cost: 16200, damage: 90, description: 'Channels the power of thunder.', owned: false },
     { id: 9, name: 'Frostmourne ❄️🗡️', cost: 18900, damage: 105, description: 'Freezes enemies on impact.', owned: false },
@@ -98,24 +95,24 @@ const swords = [
 ];
 
 const monsterTypes = [
-    { name: 'Slimey McSlimeface 🟢', health: 40, attack: 4, emoji: '🟢', isMagic: false },
+    { name: 'Slimey McSlimeface 🟢', health: 40, attack: 4, emoji: '🟢'},
     { name: 'Gobblin Giggles 👺', health: 60, attack: 6, emoji:'👺'},
     { name: 'Orcward the Awkward 🐗', health:100, attack:10, emoji:'🐗'},
     { name: 'Trolltastic the Troll 🧌', health:160, attack:16, emoji:'🧌'},
     { name: 'Dragzilla the Dazzling 🐉', health:300, attack:30, emoji:'🐉'},
     { name: 'Bashful Blob 🤖', health:50, attack:4, emoji:'🤖'},
     { name: 'Sneaky Sneaker 🕵️', health:70, attack:8, emoji:'🕵️'},
-    { name: 'Vampire Vex 🧛‍♂️', health: 120, attack: 12, emoji: '🧛‍♂️', isMagic: true },
-    { name: 'Werewolf Wally 🐺', health: 140, attack: 14, emoji: '🐺', isMagic: false },
+    { name: 'Vampire Vex 🧛‍♂️', health:120, attack:12, emoji:'🧛‍♂️', isMagic:true},
+    { name: 'Werewolf Wally 🐺', health:140, attack:14, emoji:'🐺'},
     { name: 'Zombie Zed 🧟‍♂️', health:80, attack:8, emoji:'🧟‍♂️'},
-    { name: 'Ghostly Gary 👻', health: 90, attack: 9, emoji: '👻', isMagic: true },
+    { name: 'Ghostly Gary 👻', health:90, attack:9, emoji:'👻', isMagic:true},
     { name: 'Skeleton Sam 💀', health:70, attack:6, emoji:'💀'},
-    { name: 'Cyclops Carl 👁️', health: 180, attack: 18, emoji: '👁️', isMagic: false },
+    { name: 'Cyclops Carl 👁️', health:180, attack:18, emoji:'👁️'},
     { name: 'Giant Grog 🦍', health:240, attack:24, emoji:'🦍'},
     { name: 'Lizard Lord 🦎', health:110, attack:11, emoji:'🦎'},
     { name: 'Harpy Hannah 🦅', health:100, attack:10, emoji:'🦅'},
     { name: 'Mummy Mike 🧱', health:130, attack:13, emoji:'🧱'},
-    { name: 'Demon Drake 🐉', health: 200, attack: 20, emoji: '🐉', isMagic: true },
+    { name: 'Demon Drake 🐉', health:200, attack:20, emoji:'🐉', isMagic:true},
     { name: 'Banshee Bella 👺', health:140, attack:16, emoji:'👺'},
     { name: 'Phoenix Phil 🔥', health:160, attack:18, emoji:'🔥'},
     { name: 'Hydra Henry 🐉', health:220, attack:22, emoji:'🐉'},
@@ -126,13 +123,15 @@ const monsterTypes = [
     { name: 'Leviathan Leo 🐉', health:280, attack:28, emoji:'🐉'},
     { name: 'Chimera Charlie 🐯', health:230, attack:23, emoji:'🐯'},
     { name: 'Behemoth Ben 🐘', health:250, attack:25, emoji:'🐘'},
-    { name: 'Specter Steve 👻', health: 120, attack: 12, emoji: '👻', isMagic: true },
+    { name: 'Specter Steve 👻', health:120, attack:12, emoji:'👻', isMagic:true},
     { name: 'Giant Goblin Grug 👹', health:180, attack:18, emoji:'👹'}
 ];
+
 let monsters = [];
 let monsterId = 1;
 let currentBoss = null;
 const bosses = [];
+
 const finalBoss = {
     id: 999,
     name: 'Titan of the Abyss 🌌👹',
@@ -141,7 +140,7 @@ const finalBoss = {
     emoji:'🌌👹',
     isFinal:true,
     isBoss:true,
-    attackInterval: null // Nauja savybė atkūrimo atakoms
+    attackInterval: null
 };
 
 const quests = [
@@ -172,6 +171,50 @@ const achievements = [
     { id:19, name:'Survivor', description:'Survive 3 deaths.', achieved:false }
 ];
 
+// Define currentGoldGain function
+function currentGoldGain(amount) {
+    const goldMult = upgrades.find(u => u.type === 'goldMultiplier').owned;
+    const luckMult = upgrades.find(u => u.type === 'luck').owned;
+    const comboMultiplier = 1 + (0.05 * comboCount);
+    const prestigeMultiplier = 1 + (prestigeCount * 0.05);
+    return Math.floor(amount * (1 + (1.5 * goldMult)) * (1 + (0.1 * luckMult)) * comboMultiplier * prestigeMultiplier);
+}
+
+function currentCriticalHitChance(){
+    const critUpg=upgrades.find(u=>u.type==='criticalHit').owned;
+    const chance=0.15+(0.03*critUpg);
+    return Math.random()<chance;
+}
+
+function currentExperienceGain(){
+    const expUpg=upgrades.find(u=>u.type==='experienceBoost').owned;
+    return 1+(2*expUpg);
+}
+
+function gainExperience(amount) {
+    const levelSpeedMultiplier = 2; 
+    const xpMultiplier = level >= 10 ? 2 : 1; 
+    experience += amount * levelSpeedMultiplier * xpMultiplier;
+
+    let bossShouldSpawn = false;
+    while (experience >= expToNext && level < 100) {
+        experience -= expToNext;
+        levelUp();
+        if (level % 10 === 0 && level < 100 && !currentBoss) {
+            bossShouldSpawn = true;
+        }
+    }
+
+    if (bossShouldSpawn) {
+        spawnBoss(true);
+    }
+
+    if (level === 100 && swords.every(s => s.owned)) showVictoryModal();
+
+    updateStats();
+    checkQuests();
+}
+
 function initializeGame() {
     initializeAchievements();
     initializeUpgrades();
@@ -179,20 +222,10 @@ function initializeGame() {
     initializeShields();
     updateStats();
     updateAchievements();
-    renderLoadedMonsters();
-    delayedMonsterSpawn(); // Start delayed spawn when the game initializes
     startPassiveIncome();
     initializeQuests();
     updateComboDisplay();
-    startHealthRegeneration(); // Start health regeneration at the beginning
-}
-
-
-function startGame() {
-    const modal = document.getElementById("tutorialModal");
-    modal.classList.remove("active");
-    gamePaused = false;
-    initializeGame();
+    startHealthRegeneration();
 }
 
 // Tutorial dialog
@@ -206,6 +239,15 @@ const tutorialDialog = [
     "Don't die. That's bad. 💀",
     "Hit 'Start Game' and show these monsters who's boss!"
 ];
+
+function startGame() {
+    const modal = document.getElementById("tutorialModal");
+    modal.classList.remove("active");
+    gamePaused = false;
+    initializeGame();
+    delayedMonsterSpawn(); // Start the countdown to spawn monsters
+}
+
 function nextDialog() {
     dialogIndex++;
     const dialogElement = document.getElementById("npcDialog");
@@ -228,30 +270,18 @@ function switchTab(tabName, buttonElement) {
     buttonElement.classList.add('active');
 }
 
-let notificationQueue=[];
-const maxNotifications=3;
 let activeNotifications = new Set();
 
 function showNotification(message, type) {
-    // Jei notifikacija jau aktyvi, nieko nedarome
     if (activeNotifications.has(message)) return;
 
     const notificationArea = document.getElementById('notificationArea');
     const notification = document.createElement('div');
     notification.className = 'notification';
-    
-    // Pridėkime papildomus stilius pagal tipą
-    if (type === 'critical') notification.classList.add('critical');
-    if (type === 'achievement') notification.classList.add('achievement');
-    if (type === 'success') notification.classList.add('success');
-    if (type === 'error') notification.classList.add('error');
-    if (type === 'victory') notification.classList.add('victory');
-    
     notification.textContent = message;
     notificationArea.appendChild(notification);
     activeNotifications.add(message);
 
-    // Pašaliname notifikaciją po 3 sekundžių
     setTimeout(() => {
         notification.remove();
         activeNotifications.delete(message);
@@ -312,61 +342,14 @@ function heroClick(event) {
     },comboDuration);
 }
 
-function currentCriticalHitChance(){
-    const critUpg=upgrades.find(u=>u.type==='criticalHit').owned;
-    const chance=0.15+(0.03*critUpg);
-    return Math.random()<chance;
-}
-
-function currentExperienceGain(){
-    const expUpg=upgrades.find(u=>u.type==='experienceBoost').owned;
-    return 1+(2*expUpg);
-}
-
-function currentGoldGain(amount) {
-    const goldMult = upgrades.find(u => u.type === 'goldMultiplier').owned;
-    const luckMult = upgrades.find(u => u.type === 'luck').owned;
-    const comboMultiplier = 1 + (0.05 * comboCount); // Sumažintas bonusas iš kombinacijų
-    const prestigeMultiplier = 1 + (prestigeCount * 0.05); // Mažesnis prestižo bonusas
-    return Math.floor(amount * (1 + (1.5 * goldMult)) * (1 + (0.1 * luckMult)) * comboMultiplier * prestigeMultiplier);
-}
-
-function gainExperience(amount) {
-    const levelSpeedMultiplier = 2; // Didesnis greitis lygiams
-    const xpMultiplier = level >= 10 ? 2 : 1; // Dviguba XP nuo 10 lygio
-    experience += amount * levelSpeedMultiplier * xpMultiplier;
-
-    let bossShouldSpawn = false;
-    while (experience >= expToNext && level < 100) {
-        experience -= expToNext;
-        levelUp();
-        if (level % 10 === 0 && level < 100 && !currentBoss) {
-            bossShouldSpawn = true;
-        }
-    }
-
-    if (bossShouldSpawn) {
-        spawnBoss(true);
-    }
-
-    if (level === 100 && swords.every(s => s.owned)) showVictoryModal();
-
-    updateStats();
-    checkQuests();
-}
-
-
 function levelUp() {
     level++;
-    expToNext = Math.floor(expToNext * 1.25); // Arba kitoks lygių skalavimas
+    expToNext = Math.floor(expToNext * 1.25);
     playSound(document.getElementById('levelUpSound'));
     showLevelUpModal();
     checkAchievements();
 
-    if (level % 5 === 0) scaleMonsters();
-
-    // Specialios notifikacijos tam tikruose lygmenyse
-    showLevelMilestoneNotification(); // Kvietimas naujai funkcijai
+    showLevelMilestoneNotification(); 
 
     if (level === 50) {
         showNotification('🌟 You are halfway to mastery! Keep going!', 'achievement');
@@ -380,8 +363,6 @@ function levelUp() {
     updateStats();
     checkQuests();
 }
-
-
 
 function showLevelUpModal(){
     document.getElementById('newLevel').textContent=level;
@@ -436,7 +417,6 @@ function updateStats() {
     document.getElementById('lives').textContent = lives;
     document.getElementById('prestigeCountDisplay').textContent = prestigeCount;
 
-    // Add health regeneration rate to stats display
     const healthRegenUpgrade = upgrades.find(u => u.type === 'healthRegen');
     const regenRate = healthRegenRate + (healthRegenUpgrade ? Math.round(maxHealth * 0.02 * healthRegenUpgrade.owned) : 0);
     document.getElementById('healthRegenRate').textContent = `${regenRate} HP/s`;
@@ -444,8 +424,6 @@ function updateStats() {
     const xpPercentage = Math.min((experience / expToNext) * 100, 100);
     document.getElementById('xpBar').style.width = `${xpPercentage}%`;
 }
-
-
 
 function recalculateAttackPower(){
     attackPower=1;
@@ -481,7 +459,6 @@ function buyUpgrade(type) {
         gold -= upg.cost;
         upg.owned += 1;
 
-        // Apply effects based on upgrade type
         switch (type) {
             case 'attack':
                 attackPower += 2;
@@ -496,7 +473,13 @@ function buyUpgrade(type) {
                 healthUpgrades++;
                 break;
             case 'healthRegen':
-                // Health regeneration increase is handled in `startHealthRegeneration`
+                // Effect applied automatically in updateStats
+                break;
+            case 'autoClick':
+                if(!autoClickPurchased){
+                    autoClickPurchased=true;
+                    passiveIncome+=10;
+                }
                 break;
         }
 
@@ -504,7 +487,6 @@ function buyUpgrade(type) {
         playSound(document.getElementById('upgradeSound'));
         showNotification(`${upg.name} purchased!`, 'success');
 
-        // Increase the cost for the next purchase
         upg.cost = Math.floor(upg.cost * 2);
         const upgradeCostSpan = document.getElementById(`upgradeCost${upg.id}`);
         if (upgradeCostSpan) upgradeCostSpan.textContent = upg.cost;
@@ -522,18 +504,6 @@ function buyUpgrade(type) {
 function checkAchievements(){
     updateAchievements();
 }
-
-function scaleMonsters() {
-    monsters.forEach(m => {
-        m.health = Math.floor(m.health * (1.3 + level * 0.01)); // Sunkesniems lygiams didesnis sveikatos augimas
-        m.attack = Math.floor(m.attack * (1.2 + level * 0.01)); // Mažesnis žalos augimas
-        const healthSpan = document.getElementById(`monsterHealth${m.id}`);
-        if (healthSpan) healthSpan.textContent = m.health;
-        const attackSpan = document.getElementById(`monsterAttack${m.id}`);
-        if (attackSpan) attackSpan.textContent = m.attack;
-    });
-}
-
 
 function isAchievementAchieved(achievement){
     switch(achievement.id){
@@ -554,7 +524,7 @@ function isAchievementAchieved(achievement){
         case 15:return level>=200;
         case 16:return monstersDefeated>=5;
         case 17:return bossesDefeated>=1;
-        case 18:return bossesDefeated>=1&&swords.every(s=>s.owned);
+        case 18:return bossesDefeated>=1 && swords.every(s=>s.owned);
         case 19:return deaths>=3;
         default:return false;
     }
@@ -598,7 +568,64 @@ function saveGame(){
     showNotification('💾 Game Saved!','success');
 }
 
-
+function loadGame(){
+    const savedState = localStorage.getItem('goldyMcGoldfaceSave');
+    if(savedState){
+        const gameState = JSON.parse(savedState);
+        gold = gameState.gold || 0;
+        level = gameState.level || 1;
+        experience = gameState.experience || 0;
+        expToNext = gameState.expToNext || 10;
+        defense = gameState.defense || 1;
+        health = gameState.health || 100;
+        maxHealth = gameState.maxHealth || 100;
+        passiveIncome = gameState.passiveIncome || 0;
+        lives = gameState.lives || 3;
+        quests.forEach((q, i) => {
+            quests[i] = gameState.quests[i];
+        });
+        upgrades.forEach((upg, index) => {
+            upgrades[index].owned = gameState.upgrades[index].owned;
+            if(upg.type === 'autoClick' && upgrades[index].owned){
+                autoClickPurchased = true;
+                passiveIncome +=10;
+            } else {
+                if(upg.type==='defense') defenseUpgrades=upgrades[index].owned;
+                if(upg.type==='health') healthUpgrades=upgrades[index].owned;
+            }
+        });
+        swords.forEach((sw, index) => {
+            swords[index].owned = Boolean(gameState.swords[index].owned);
+        });
+        recalculateAttackPower();
+        monsters = gameState.monsters || [];
+        monsterId = gameState.monsterId || 1;
+        monstersDefeated = gameState.monstersDefeated || 0;
+        bossesDefeated = gameState.bossesDefeated || 0;
+        currentBoss = gameState.currentBoss || null;
+        achievements.forEach((ach, index) => {
+            achievements[index].achieved = gameState.achievements[index].achieved;
+        });
+        totalClicks = gameState.totalClicks || 0;
+        defenseUpgrades = gameState.defenseUpgrades || 0;
+        healthUpgrades = gameState.healthUpgrades || 0;
+        autoClickPurchased = gameState.autoClickPurchased || false;
+        deaths = gameState.deaths || 0;
+        synergyForged = gameState.synergyForged || false;
+        prestigeCount = gameState.prestigeCount || 0;
+        updateStats();
+        renderLoadedMonsters();
+        gamePaused = false;
+        initializeQuests();
+        updateComboDisplay();
+        showNotification('📂 Game Loaded!','success');
+        if(level >= 100 && swords.every(s => s.owned)){
+            showVictoryModal();
+        }
+    } else {
+        showNotification('❗ No saved game found.','error');
+    }
+}
 
 function renderLoadedMonsters(){
     const monstersContainer=document.getElementById('monstersContainer');
@@ -610,107 +637,6 @@ function renderLoadedMonsters(){
     });
 }
 
-function loadGame(){
-    const savedState = localStorage.getItem('goldyMcGoldfaceSave');
-    if(savedState){
-        const gameState = JSON.parse(savedState);
-        gold = gameState.gold || 0;
-        level = gameState.level || 1;
-        experience = gameState.experience || 0;
-        expToNext = gameState.expToNext || 10;
-        attackPower = 1;
-        defense = gameState.defense || 1;
-        health = gameState.health || 100;
-        maxHealth = gameState.maxHealth || 100;
-        passiveIncome = gameState.passiveIncome || 0;
-        lives = gameState.lives || 3;
-        upgradeCosts = gameState.upgradeCosts || { ...baseUpgradeCosts };
-        quests.forEach((q, i) => {
-            quests[i] = gameState.quests[i];
-        });
-        upgrades.forEach((upg, index) => {
-            upgrades[index].owned = gameState.upgrades[index].owned;
-            if(upg.type !== 'autoClick'){
-                if(upgrades[index].owned > 0){
-                    const upgradeButton = document.getElementById(`upgrade${upg.id}`).querySelector('button');
-                    upgradeButton.innerHTML = `${upg.name} (Owned: ${upg.owned}) - Cost: <span id="upgradeCost${upg.id}">${upgradeCosts[upg.type]}</span> 💰`;
-                    if(upg.type === 'defense') defenseUpgrades = upgrades[index].owned;
-                    if(upg.type === 'health') healthUpgrades = upgrades[index].owned;
-                }
-            } else {
-                if(gameState.autoClickPurchased){
-                    upgrades[index].owned = 1;
-                    autoClickPurchased = true;
-                    const upgradeButton = document.getElementById(`upgrade${upg.id}`).querySelector('button');
-                    upgradeButton.disabled = true;
-                    upgradeButton.textContent = 'Owned ✅';
-                    passiveIncome += 10;
-                }
-            }
-        });
-        swords.forEach((sw, index) => {
-            swords[index].owned = Boolean(gameState.swords[index].owned);
-            if(sw.owned){
-                const swordButton = document.getElementById(`sword${sw.id}`).querySelector('button');
-                swordButton.disabled = true;
-                swordButton.textContent = 'Owned ✅';
-            }
-        });
-        recalculateAttackPower();
-        monsters = gameState.monsters || [];
-        monsterId = gameState.monsterId || 1;
-        monstersDefeated = gameState.monstersDefeated || 0;
-        bossesDefeated = gameState.bossesDefeated || 0;
-        currentBoss = gameState.currentBoss || null;
-        achievements.forEach((ach, index) => {
-            achievements[index].achieved = gameState.achievements[index].achieved;
-            if(achievements[index].achieved){
-                const achDiv = document.getElementById(`achievement${ach.id}`);
-                achDiv.classList.remove('locked');
-                achDiv.innerHTML = `<span class="icon">✅</span><div><strong>${ach.name}</strong><br>${ach.description}</div>`;
-            }
-        });
-        totalClicks = gameState.totalClicks || 0;
-        defenseUpgrades = gameState.defenseUpgrades || 0;
-        healthUpgrades = gameState.healthUpgrades || 0;
-        autoClickPurchased = gameState.autoClickPurchased || false;
-        deaths = gameState.deaths || 0;
-        synergyForged = gameState.synergyForged || false;
-        prestigeCount = gameState.prestigeCount || 0;
-        updateStats();
-        renderLoadedMonsters();
-        
-        // Pradedame atkūrimo atakų ciklą tik jei bossas yra gyvas
-        if(currentBoss){
-            const boss = monsters.find(m => m.id === currentBoss.id);
-            if(boss){
-                currentBoss = boss; // Atnaujiname currentBoss su atitinkamu monstru
-                startBossAttackLoop(boss);
-            } else {
-                currentBoss = null;
-            }
-        }
-        
-        // ĮVESKITE ŠIĄ EILUTĘ, kad žaidimas būtų nepaused po įkėlimo
-        gamePaused = false;
-
-        initializeQuests();
-        // ... Po visų žaidimo būsenos atstatymo operacijų
-updateComboDisplay();
-gamePaused = false; // Pridėkite šią eilutę
-
-        showNotification('📂 Game Loaded!','success');
-
-        if(level >= 100 && swords.every(s => s.owned)){
-            showVictoryModal();
-        }
-
-    } else {
-        showNotification('❗ No saved game found.','error');
-    }
-}
-
-
 function resetGame(){
     if(confirm('⚠️ Are you sure you want to reset the game?')){
         localStorage.removeItem('goldyMcGoldfaceSave');
@@ -721,20 +647,10 @@ function resetGame(){
 
         upgrades.forEach(upg=>{
             upg.owned=(upg.type==='autoClick'?false:0);
-            const upgradeButton=document.getElementById(`upgrade${upg.id}`).querySelector('button');
-            if(upg.type!=='autoClick'){
-                upgradeButton.innerHTML=`${upg.name} (Owned: ${upg.owned}) - Cost: <span id="upgradeCost${upg.id}">${upg.cost}</span> 💰`;
-            } else {
-                upgradeButton.disabled=false;
-                upgradeButton.innerHTML=`${upg.name} - Cost: <span id="upgradeCost${upg.id}">${upg.cost}</span> 💰`;
-            }
         });
 
         swords.forEach(s=>{
             s.owned=false;
-            const swordButton=document.getElementById(`sword${s.id}`).querySelector('button');
-            swordButton.disabled=false;
-            swordButton.innerHTML=`Buy (Cost: <span id="swordCost${s.id}">${s.cost}</span> 💰)`;
         });
 
         quests.forEach(q=>{
@@ -749,12 +665,8 @@ function resetGame(){
         bossesDefeated=0;
         currentBoss=null;
         achievements.forEach(ach=>ach.achieved=false);
-        const achievementsList=document.getElementById('achievementsList');
-        achievementsList.innerHTML='';
         initializeAchievements();
-
-        const monstersContainer=document.getElementById('monstersContainer');
-        monstersContainer.innerHTML='';
+        document.getElementById('monstersContainer').innerHTML='';
         updateStats();
         updateAchievements();
         initializeQuests();
@@ -794,11 +706,7 @@ function toggleMusic() {
     const backgroundMusic = document.getElementById('backgroundMusic');
     const muteButton = document.getElementById('muteButton');
     
-    if (!backgroundMusic) {
-        console.error("Audio element not found!");
-        return;
-    }
-    
+    if (!backgroundMusic) return;
     if (isMuted) {
         backgroundMusic.muted = false;
         muteButton.textContent = '🔊';
@@ -808,7 +716,6 @@ function toggleMusic() {
     }
     isMuted = !isMuted;
 }
-
 
 function setVolume(value){
     const audioElements=document.querySelectorAll('audio');
@@ -842,9 +749,6 @@ function enhanceUIResponsiveness(){
     }
     window.addEventListener('resize',adjustUI);
     adjustUI();
-    const heroClickEffect=document.createElement('div');
-    heroClickEffect.className='hero-pixel-click-effect';
-    gameContainer.appendChild(heroClickEffect);
 }
 
 function initializeUpgrades(){
@@ -922,7 +826,7 @@ function updateComboDisplay() {
     document.getElementById('comboBonus').textContent = (comboCount * 10) + '%';
 
     if (comboCount >= 3) {
-        const comboHealthRegen = Math.round(maxHealth * 0.02); // 2% regeneracija už kiekvieną combo > 3
+        const comboHealthRegen = Math.round(maxHealth * 0.02);
         health = Math.min(health + comboHealthRegen, maxHealth);
         updateStats();
         showNotification(`🔥 Combo Health Regen: +${comboHealthRegen} health!`, 'success');
@@ -931,8 +835,8 @@ function updateComboDisplay() {
 
 function spawnMonster() {
     const randomType = monsterTypes[Math.floor(Math.random() * monsterTypes.length)];
-    const healthMultiplier = 1 + (level * 0.05) + (attackPower * 0.02); // Mažesnis sveikatos skalavimas
-    const attackMultiplier = 1 + (defense * 0.01) + (level * 0.05); // Mažesnis žalos skalavimas
+    const healthMultiplier = 1 + (level * 0.05) + (attackPower * 0.02);
+    const attackMultiplier = 1 + (defense * 0.01) + (level * 0.05);
 
     const newMonster = {
         id: monsterId,
@@ -941,19 +845,20 @@ function spawnMonster() {
         attack: Math.max(1, Math.round(randomType.attack * attackMultiplier)),
         emoji: randomType.emoji,
         isBoss: false,
+        isFinal: false,
+        isMagic: randomType.isMagic || false,
         attackTimeout: null
     };
 
     monsters.push(newMonster);
     renderMonster(newMonster);
     scheduleMonsterAttack(newMonster);
+    scheduleMonsterSpell(newMonster);
     monsterId++;
 
     showNotification(`👾 New Monster Appeared: ${newMonster.name}!`, 'achievement');
     playSound(document.getElementById('monsterAppearSound'));
 }
-
-
 
 function renderMonster(monster) {
     const monstersContainer = document.getElementById('monstersContainer');
@@ -976,15 +881,12 @@ function renderMonster(monster) {
         ${spellButton}
     `;
     monstersContainer.appendChild(monsterDiv);
-
-    // Update attack button state for Idle Mode
     updateIdleModeUI();
 }
 
-
 function getMonsterSpawnInterval() {
     if (level <= 10) {
-        return Math.floor(Math.random() * (60000 - 40000 + 1)) + 40000; // Greičiau, bet ne per greitai
+        return Math.floor(Math.random() * (60000 - 40000 + 1)) + 40000;
     } else if (level <= 20) {
         return Math.floor(Math.random() * (40000 - 30000 + 1)) + 30000;
     } else {
@@ -992,11 +894,10 @@ function getMonsterSpawnInterval() {
     }
 }
 
-
 function attackMonster(monsterId) {
     if (idleMode) {
         showNotification("❌ You can't attack while in Idle Mode!", 'error');
-        return; // Stop the function if Idle Mode is active
+        return; 
     }
 
     const monster = monsters.find(m => m.id === monsterId) || (currentBoss && currentBoss.id === monsterId ? currentBoss : null);
@@ -1036,13 +937,6 @@ function killMonster(monster) {
         bossesDefeated++;
         playSound(document.getElementById('bossDefeatedSound'));
         showNotification(`🎉 Boss ${monster.name} defeated! Earned 1000 gold and 1000 XP!`, 'success');
-        
-        // Išvalome atkūrimo atakų ciklą
-        if(monster.attackInterval){
-            clearInterval(monster.attackInterval);
-            monster.attackInterval = null;
-        }
-        
         currentBoss = null;
     } else {
         gold += 100;
@@ -1061,6 +955,7 @@ function killMonster(monster) {
     checkQuests();
     if(monster.isBoss && monster.isFinal && swords.every(s => s.owned)) showVictoryModal();
 }
+
 function clearMonsterIntervals(monster) {
     if (monster.attackTimeout) {
         clearInterval(monster.attackTimeout);
@@ -1072,13 +967,10 @@ function clearMonsterIntervals(monster) {
     }
 }
 
-
-
 function attackPlayer(monster) {
     if (!monster) return;
-
     const shieldUpgrades = upgrades.find(u => u.type === 'shield').owned || 0;
-    const damage = Math.max(Math.round(monster.attack - (2 * shieldUpgrades)), 0);
+    let damage = Math.max(Math.round(monster.attack - (2 * shieldUpgrades)), 0);
 
     health -= damage;
     showDamageAnimation(damage, 'home');
@@ -1099,58 +991,22 @@ function attackPlayer(monster) {
     updateStats();
 }
 
-
-
-function removeMonster(monster){
-    clearMonsterIntervals(monster);
-    
-    // Jei pašalinamas monstras yra bosas, atstatome currentBoss į null ir išvalome atkūrimo atakų ciklą
-    if(monster.isBoss && currentBoss && currentBoss.id === monster.id) {
-        if(monster.attackInterval){
-            clearInterval(monster.attackInterval);
-            monster.attackInterval = null;
-        }
-        currentBoss = null;
-    }
-    
-    monsters = monsters.filter(m => m.id !== monster.id);
-    const monsterDiv = document.getElementById(`monster${monster.id}`);
-    if(monsterDiv) monsterDiv.remove();
+function handleGameOver(){
+    showGameOverModal();
 }
 
-function showDamageAnimation(amount, targetId) {
-    if(targetId==='home'){
-        const homeSection=document.getElementById('home');
-        const damageText=document.createElement('div');
-        damageText.className='damage-text';
-        damageText.textContent=`-${amount}`;
-        homeSection.appendChild(damageText);
-        setTimeout(()=>{damageText.remove();},1000);
-    } else {
-        const targetElement=document.getElementById(targetId);
-        if(targetElement){
-            const damageText=document.createElement('div');
-            damageText.className='damage-text';
-            damageText.textContent=`-${amount}`;
-            targetElement.appendChild(damageText);
-            setTimeout(()=>{damageText.remove();},1000);
-        }
-    }
-}
 function scheduleMonsterAttack(monster) {
     if (monster.attackTimeout) {
-        clearInterval(monster.attackTimeout); // Clear any existing interval to avoid duplication
+        clearInterval(monster.attackTimeout);
     }
-
     monster.attackTimeout = setInterval(() => {
-        // Check if the monster is still alive and in the game
         if (!gamePaused && !idleMode && monsters.includes(monster)) {
-            attackPlayer(monster); // Trigger the player's health reduction
+            attackPlayer(monster);
         } else if (idleMode) {
-            clearInterval(monster.attackTimeout); // Stop attacks in Idle Mode
+            clearInterval(monster.attackTimeout);
             monster.attackTimeout = null;
         }
-    }, Math.floor(Math.random() * (7000 - 3000 + 1)) + 3000); // Random delay for attack
+    }, Math.floor(Math.random() * (7000 - 3000 + 1)) + 3000);
 }
 
 function scheduleMonsterSpell(monster) {
@@ -1159,7 +1015,7 @@ function scheduleMonsterSpell(monster) {
         monster.spellTimeout = setTimeout(() => {
             if (!gamePaused && monsters.includes(monster)) {
                 castSpell(monster);
-                scheduleMonsterSpell(monster); // Iš naujo suplanuojame burtą
+                scheduleMonsterSpell(monster);
             }
         }, spellDelay);
     }
@@ -1167,17 +1023,13 @@ function scheduleMonsterSpell(monster) {
 
 function castSpell(monster) {
     if (!monster) return;
-
-    // Spell damage: 80% of monster's attack
     const spellDamage = Math.max(1, Math.floor(monster.attack * 0.8));
     health -= spellDamage;
 
-    // Show spell damage animation and notifications
     showDamageAnimation(spellDamage, 'home');
     playSound(document.getElementById('spellCastSound'));
     showNotification(`✨ ${monster.name} cast a spell for ${spellDamage} damage!`, 'error');
 
-    // Check player health and lives
     if (health <= 0) {
         lives -= 1;
         deaths += 1;
@@ -1193,7 +1045,6 @@ function castSpell(monster) {
     updateStats();
 }
 
-
 let spellCooldown = false;
 
 function castSpellOnMonster(monsterId) {
@@ -1203,7 +1054,7 @@ function castSpellOnMonster(monsterId) {
     }
 
     spellCooldown = true;
-    setTimeout(() => (spellCooldown = false), 3000); // 3-second cooldown
+    setTimeout(() => (spellCooldown = false), 3000);
 
     const monster = monsters.find(m => m.id === monsterId);
     if (!monster) {
@@ -1229,10 +1080,235 @@ function castSpellOnMonster(monsterId) {
     }
 }
 
+function showDamageAnimation(amount, targetId) {
+    if(targetId==='home'){
+        const homeSection=document.getElementById('home');
+        const damageText=document.createElement('div');
+        damageText.className='damage-text';
+        damageText.textContent=`-${amount}`;
+        homeSection.appendChild(damageText);
+        setTimeout(()=>{damageText.remove();},1000);
+    } else {
+        const targetElement=document.getElementById(targetId);
+        if(targetElement){
+            const damageText=document.createElement('div');
+            damageText.className='damage-text';
+            damageText.textContent=`-${amount}`;
+            targetElement.appendChild(damageText);
+            setTimeout(()=>{damageText.remove();},1000);
+        }
+    }
+}
 
+function spawnBoss(isLevelBased = false) {
+    if (currentBoss) return;
+    if (level < 30) return;
 
-function handleGameOver(){
-    showGameOverModal();
+    const bossHealthBase = isLevelBased ? (300 + (level * 150)) : 300; 
+    const bossAttackBase = isLevelBased ? (5 + (level * 2)) : 5; 
+
+    const boss = {
+        id: 500 + bosses.length,
+        name: `Boss ${bosses.length + 1}`,
+        health: Math.round(bossHealthBase + (attackPower * 2)),
+        attack: Math.round(bossAttackBase + (defense * 1)),
+        emoji: '👹',
+        isBoss: true,
+        isFinal: false,
+        attackTimeout: null
+    };
+
+    currentBoss = boss;
+    bosses.push(boss);
+    monsters.push(boss);
+
+    renderMonster(boss);
+    scheduleMonsterAttack(boss);
+    showNotification(`⚠️ Boss appeared: ${boss.name}!`, 'achievement');
+}
+
+function spawnFinalBoss() {
+    if (currentBoss) return;
+    const fb = {
+        ...finalBoss, 
+        health: 200000,
+        attack: 99,
+        attackTimeout: null,
+        isBoss: true,
+        isFinal: true
+    };
+
+    currentBoss = fb;
+    monsters.push(currentBoss);
+
+    renderMonster(currentBoss);
+    scheduleMonsterAttack(currentBoss);
+    showNotification(`⚠️ Final Boss Appears: ${currentBoss.name}!`, 'achievement');
+}
+
+function prestige(){
+    if(confirm("Are you sure you want to Prestige?\nYou will reset your progress but gain a permanent gold multiplier.")){
+        prestigeCount++;
+        gold=0;level=1;experience=0;expToNext=10;
+        attackPower=1;defense=1;health=100;maxHealth=100;passiveIncome=0;lives=3;
+        totalClicks=0;defenseUpgrades=0;healthUpgrades=0;autoClickPurchased=false;bossesDefeated=0;deaths=0;synergyForged=false;
+
+        upgrades.forEach(upg=>{
+            upg.owned=(upg.type==='autoClick'?false:0);
+        });
+
+        swords.forEach(s=>{s.owned=false;});
+
+        monsters.forEach(m=>clearMonsterIntervals(m));
+        monsters=[];
+        monsterId=1;
+        monstersDefeated=0;
+        bossesDefeated=0;
+        currentBoss=null;
+        achievements.forEach(ach=>ach.achieved=false);
+
+        quests.forEach(q=>{
+            q.level=1;
+            q.claimed=false;
+        });
+
+        switchTab('home', document.querySelector('.tab-button'));
+
+        initializeAchievements();
+        initializeUpgrades();
+        initializeSwords();
+        updateStats();
+        updateAchievements();
+        initializeQuests();
+        updateComboDisplay();
+        showNotification(`✨ Prestige done! Your gold income is now permanently increased! ✨`,'success');
+    }
+}
+
+function showLevelMilestoneNotification() {
+    if (level % 10 === 0) {
+        showNotification(`🎉 You've reached Level ${level}! Keep it up!`, 'achievement');
+    }
+}
+
+const shields = [
+    {
+        id: 1,
+        name: 'Basic Shield 🛡️',
+        cost: 500,
+        defense: 2,
+        description: 'A simple shield providing minimal protection.',
+        effect: 'Reduces incoming damage slightly.',
+        owned: false
+    },
+    {
+        id: 2,
+        name: 'Iron Shield 🛡️🪓',
+        cost: 1500,
+        defense: 5,
+        description: 'A strong shield made of iron.',
+        effect: 'Provides more defense.',
+        owned: false
+    },
+    {
+        id: 3,
+        name: 'Golden Shield 🛡️✨',
+        cost: 5000,
+        defense: 10,
+        description: 'A luxurious shield offering excellent protection.',
+        effect: 'Even more defense!',
+        owned: false
+    },
+    {
+        id: 4,
+        name: 'Crystal Barrier 🛡️🔷',
+        cost: 10000,
+        defense: 15,
+        description: 'A mystical shield infused with crystal energy.',
+        effect: 'High defense boost.',
+        owned: false
+    },
+    {
+        id: 5,
+        name: 'Phoenix Guard 🛡️🔥',
+        cost: 20000,
+        defense: 20,
+        description: 'A shield imbued with the spirit of the phoenix.',
+        effect: 'Excellent defense.',
+        owned: false
+    },
+    {
+        id: 6,
+        name: 'Shadow Aegis 🛡️🌑',
+        cost: 35000,
+        defense: 25,
+        description: 'A shield forged from the shadows.',
+        effect: 'Great defense boost.',
+        owned: false
+    },
+    {
+        id: 7,
+        name: 'Stormwall Shield 🛡️⚡',
+        cost: 50000,
+        defense: 30,
+        description: 'A shield that channels the power of storms.',
+        effect: 'Huge defense boost.',
+        owned: false
+    },
+    {
+        id: 8,
+        name: 'Dragon Scale 🛡️🐉',
+        cost: 75000,
+        defense: 40,
+        description: 'An ancient shield made from dragon scales.',
+        effect: 'Massive defense boost.',
+        owned: false
+    }
+];
+
+function initializeShields() {
+    const shieldsList = document.getElementById('shieldsList');
+    shieldsList.innerHTML = '';
+    shields.forEach(shield => {
+        const shieldDiv = document.createElement('div');
+        shieldDiv.className = 'shield';
+        shieldDiv.id = `shield${shield.id}`;
+        shieldDiv.innerHTML = `
+            <span class="icon">🛡️</span>
+            <div>
+                <strong>${shield.name}</strong><br>
+                ${shield.description}<br>
+                Defense: +${shield.defense} 🛡️<br>
+                <em>Effect: ${shield.effect}</em>
+            </div>
+            <button class="upgrade-button" onclick="buyShield(${shield.id})">
+                ${shield.owned ? 'Owned ✅' : `Buy (Cost: ${shield.cost} 💰)`}
+            </button>
+        `;
+        shieldsList.appendChild(shieldDiv);
+    });
+}
+
+function buyShield(shieldId) {
+    const shield = shields.find(s => s.id === shieldId);
+    if (!shield) return;
+
+    if (shield.owned) {
+        showNotification('❗ You already own this shield!', 'error');
+        return;
+    }
+
+    if (gold >= shield.cost) {
+        gold -= shield.cost;
+        shield.owned = true;
+        defense += shield.defense;
+        updateStats();
+        playSound(document.getElementById('upgradeSound'));
+        showNotification(`Purchased Shield: ${shield.name}`, 'success');
+        initializeShields();
+    } else {
+        showNotification('❗ Not enough gold!', 'error');
+    }
 }
 
 function attemptForgeSynergy() {
@@ -1255,12 +1331,10 @@ function attemptForgeSynergy() {
 }
 
 function initializeQuests(){
-    console.log("[DEBUG] initializeQuests called.");
     const questsList=document.getElementById('questsList');
     questsList.innerHTML='';
     quests.forEach(q=>{
         const conditionMet=checkQuestCondition(q);
-        console.log(`[DEBUG] Rendering quest: ${q.name}, level: ${q.level}, conditionMet: ${conditionMet}`);
         let statusText=conditionMet?(q.claimed?'Completed (Claimed)':'Completed!'):'In Progress';
         let claimButton=conditionMet&&!q.claimed?`<button onclick="claimQuestReward(${q.id})">Claim Reward</button>`:'';
         const currentGoal=getQuestGoal(q);
@@ -1281,12 +1355,12 @@ function initializeQuests(){
 }
 
 function getQuestGoal(q) {
-    const goalScaling = 1.5; // Didiname tikslų reikalavimus
+    const goalScaling = 1.5; 
     return Math.ceil(q.baseGoal * Math.pow(goalScaling, q.level));
 }
 
 function getQuestGoldReward(q) {
-    const rewardScaling = 1.3; // Lėčiau augantys apdovanojimai
+    const rewardScaling = 1.3;
     return Math.ceil(q.baseGold * Math.pow(rewardScaling, q.level));
 }
 
@@ -1328,475 +1402,81 @@ function checkQuests(){
     initializeQuests();
 }
 
-function spawnMonsterRandomly() {
-    if (gamePaused || idleMode) return; // Prevent spawning in Idle Mode
-    const monstersToSpawn = Math.min(1 + Math.floor(level / 10), 10); // Spawn limit
-
-    for (let i = 0; i < monstersToSpawn; i++) {
-        spawnMonster();
-    }
-
-    function scheduleNextSpawn() {
-        const interval = getMonsterSpawnInterval();
-        setTimeout(() => {
-            if (!gamePaused && !idleMode) { // Skip if Idle Mode is active
-                spawnMonsterRandomly();
-                scheduleNextSpawn();
-            }
-        }, interval);
-    }
-
-    scheduleNextSpawn();
-}
-
-function spawnBoss(isLevelBased = false) {
-    if (currentBoss) return; // Prevent multiple bosses from appearing at the same time
-
-    if (level < 30) {
-        console.log("[DEBUG] Bosses cannot spawn before level 30.");
-        return; // Exit if the level is below 30
-    }
-
-    // Adjust boss health and attack scaling
-    const bossHealthBase = isLevelBased ? (300 + (level * 150)) : 300; // Adjust health scaling
-    const bossAttackBase = isLevelBased ? (5 + (level * 2)) : 5; // Lower attack scaling
-
-    const boss = {
-        id: 500 + bosses.length,
-        name: `Boss ${bosses.length + 1}`,
-        health: Math.round(bossHealthBase + (attackPower * 2)), // Adjust health multiplier
-        attack: Math.round(bossAttackBase + (defense * 1)), // Adjust attack multiplier
-        emoji: '👹',
-        isBoss: true,
-        isFinal: false,
-        attackTimeout: null
-    };
-
-    currentBoss = boss;
-    bosses.push(boss);
-    monsters.push(boss);
-
-    renderMonster(boss);
-    scheduleMonsterAttack(boss);
-    showNotification(`⚠️ Boss appeared: ${boss.name}!`, 'achievement');
-}
-
-
-function spawnFinalBoss() {
-    if (currentBoss) return;
-
-    const finalBoss = {
-        ...finalBoss, 
-        id: 999,
-        health: 200000,
-        attack: 99,
-        attackTimeout: null,
-        isBoss: true,
-        isFinal: true
-    };
-
-    currentBoss = finalBoss;
-    monsters.push(currentBoss);
-
-    renderMonster(currentBoss);
-    scheduleMonsterAttack(currentBoss);
-    showNotification(`⚠️ Final Boss Appears: ${currentBoss.name}!`, 'achievement');
-}
-
-
-function startBossAttackLoop(boss) {
-    const attackInterval = 5000; // Atakuoja kas 5 sekundes
-    // Naudojame setInterval ir saugome interval ID boss objekte
-    boss.attackInterval = setInterval(() => {
-        if(currentBoss && currentBoss.id === boss.id){
-            attackPlayer(boss);
-        }
-    }, attackInterval);
-}
-
-
-function prestige(){
-    if(confirm("Are you sure you want to Prestige?\nYou will reset your progress but gain a permanent gold multiplier.")){
-        prestigeCount++;
-        gold=0;level=1;experience=0;expToNext=10;
-        attackPower=1;defense=1;health=100;maxHealth=100;passiveIncome=0;lives=3;
-        totalClicks=0;defenseUpgrades=0;healthUpgrades=0;autoClickPurchased=false;bossesDefeated=0;deaths=0;synergyForged=false;
-
-        upgrades.forEach(upg=>{
-            upg.owned=(upg.type==='autoClick'?false:0);
-        });
-
-        swords.forEach(s=>{
-            s.owned=false;
-        });
-
-        monsters.forEach(m=>clearMonsterIntervals(m));
-        monsters=[];
-        monsterId=1;
-        monstersDefeated=0;
-        bossesDefeated=0;
-        currentBoss=null;
-        achievements.forEach(ach=>ach.achieved=false);
-
-        quests.forEach(q=>{
-            q.level=1;
-            q.claimed=false;
-        });
-
-        switchTab('home', document.querySelector('.tab-button'));
-
-        initializeAchievements();
-        initializeUpgrades();
-        initializeSwords();
-        updateStats();
-        updateAchievements();
-        initializeQuests();
-        updateComboDisplay();
-        showNotification(`✨ Prestige done! Your gold income is now permanently increased! ✨`,'success');
-    }
-}
-
-window.addEventListener('load', function() {
-    const tutorialModal = document.getElementById("tutorialModal");
-    tutorialModal.classList.add("active");
-
-    const backgroundMusic = document.getElementById("backgroundMusic");
-    if (backgroundMusic) {
-        backgroundMusic.volume = 0.5;
-        backgroundMusic.play().catch(() => {}); // Pradinis bandymas
-        document.addEventListener('click', function startMusic() {
-            if (backgroundMusic.paused) {
-                backgroundMusic.play().catch(error => console.error("Audio playback blocked:", error));
-            }
-            document.removeEventListener('click', startMusic); // Pašalinamas įvykis po pirmo paspaudimo
-        }, { once: true });
-    }
-
-    enhanceUIResponsiveness();
-    document.getElementById('hero').addEventListener('click', heroClick);
-});
-
-window.addEventListener('load', function() {
-    const tutorialModal = document.getElementById("tutorialModal");
-    tutorialModal.classList.add("active");
-
-    startHealthRegeneration(); // Pradėti sveikatos regeneraciją
-
-    const backgroundMusic = document.getElementById("backgroundMusic");
-    if (backgroundMusic) {
-        backgroundMusic.volume = 0.5;
-        backgroundMusic.play().catch(() => {}); // Pradinis bandymas
-        document.addEventListener('click', function startMusic() {
-            if (backgroundMusic.paused) {
-                backgroundMusic.play().catch(error => console.error("Audio playback blocked:", error));
-            }
-            document.removeEventListener('click', startMusic); // Pašalinamas įvykis po pirmo paspaudimo
-        }, { once: true });
-    }
-
-    enhanceUIResponsiveness();
-    document.getElementById('hero').addEventListener('click', heroClick);
-});
-function showLevelMilestoneNotification() {
-    if (level % 10 === 0) {
-        showNotification(`🎉 You've reached Level ${level}! Keep it up!`, 'achievement');
-    }
-}
-
-const shields = [
-    {
-        id: 1,
-        name: 'Basic Shield 🛡️',
-        cost: 500,
-        defense: 2,
-        description: 'A simple shield providing minimal protection.',
-        effect: 'Reduces incoming damage by 2%.',
-        owned: false,
-        emoji: '🛡️'
-    },
-    {
-        id: 2,
-        name: 'Iron Shield 🛡️🪓',
-        cost: 1500,
-        defense: 5,
-        description: 'A strong shield made of iron, perfect for defense.',
-        effect: 'Adds a 10% chance to block damage completely.',
-        owned: false,
-        emoji: '🛡️🪓'
-    },
-    {
-        id: 3,
-        name: 'Golden Shield 🛡️✨',
-        cost: 5000,
-        defense: 10,
-        description: 'A luxurious shield offering excellent protection.',
-        effect: 'Reflects 5% of incoming damage back to the attacker.',
-        owned: false,
-        emoji: '🛡️✨'
-    },
-    {
-        id: 4,
-        name: 'Crystal Barrier 🛡️🔷',
-        cost: 10000,
-        defense: 15,
-        description: 'A mystical shield infused with crystal energy.',
-        effect: 'Reduces magic damage by 20%.',
-        owned: false,
-        emoji: '🛡️🔷'
-    },
-    {
-        id: 5,
-        name: 'Phoenix Guard 🛡️🔥',
-        cost: 20000,
-        defense: 20,
-        description: 'A shield imbued with the spirit of the phoenix.',
-        effect: 'Regenerates 5 health per second.',
-        owned: false,
-        emoji: '🛡️🔥'
-    },
-    {
-        id: 6,
-        name: 'Shadow Aegis 🛡️🌑',
-        cost: 35000,
-        defense: 25,
-        description: 'A shield forged from the shadows.',
-        effect: '15% chance to dodge all incoming attacks.',
-        owned: false,
-        emoji: '🛡️🌑'
-    },
-    {
-        id: 7,
-        name: 'Stormwall Shield 🛡️⚡',
-        cost: 50000,
-        defense: 30,
-        description: 'A shield that channels the power of storms.',
-        effect: 'Stuns attackers for 1 second upon hit.',
-        owned: false,
-        emoji: '🛡️⚡'
-    },
-    {
-        id: 8,
-        name: 'Dragon Scale 🛡️🐉',
-        cost: 75000,
-        defense: 40,
-        description: 'An ancient shield made from dragon scales.',
-        effect: 'Increases attack power by 10% while equipped.',
-        owned: false,
-        emoji: '🛡️🐉'
-    }
-];
-
-
-function initializeShields() {
-    const shieldsList = document.getElementById('shieldsList');
-    shieldsList.innerHTML = '';
-    shields.forEach(shield => {
-        const shieldDiv = document.createElement('div');
-        shieldDiv.className = 'shield';
-        shieldDiv.id = `shield${shield.id}`;
-        shieldDiv.innerHTML = `
-            <span class="icon">${shield.emoji}</span>
-            <div>
-                <strong>${shield.name}</strong><br>
-                ${shield.description}<br>
-                Defense: +${shield.defense} 🛡️<br>
-                <em>Effect: ${shield.effect}</em>
-            </div>
-            <button class="upgrade-button" onclick="buyShield(${shield.id})">
-                ${shield.owned ? 'Owned ✅' : `Buy (Cost: ${shield.cost} 💰)`}
-            </button>
-        `;
-        shieldsList.appendChild(shieldDiv);
-    });
-}
-
-function buyShield(shieldId) {
-    const shield = shields.find(s => s.id === shieldId);
-    if (!shield) return;
-
-    if (shield.owned) {
-        showNotification('❗ You already own this shield!', 'error');
-        return;
-    }
-
-    if (gold >= shield.cost) {
-        gold -= shield.cost;
-        shield.owned = true;
-        defense += shield.defense;
-
-        // Aktyvuojame skydo efektą pagal ID
-        switch (shieldId) {
-            case 4:
-                addCrystalBarrierEffect();
-                break;
-            case 5:
-                addPhoenixGuardEffect();
-                break;
-            case 6:
-                addShadowAegisEffect();
-                break;
-            case 7:
-                addStormwallShieldEffect();
-                break;
-            case 8:
-                addDragonScaleEffect();
-                break;
-        }
-
-        updateStats();
-        playSound(document.getElementById('upgradeSound'));
-        showNotification(`Purchased Shield: ${shield.name}`, 'success');
-        initializeShields();
-    } else {
-        showNotification('❗ Not enough gold!', 'error');
-    }
-}
-
-function addIronShieldEffect() {
-    // Pridėkite 10% šansą blokuoti žalą
-    const originalAttackPlayer = attackPlayer;
-    attackPlayer = function (monster) {
-        if (Math.random() < 0.1) {
-            showNotification('🛡️ Iron Shield Blocked the Damage!', 'success');
-        } else {
-            originalAttackPlayer(monster);
-        }
-    };
-}
-
-function addGoldenShieldEffect() {
-    // Pridėkite 5% žalą atgal puolėjui
-    const originalAttackMonster = attackMonster;
-    attackMonster = function (monsterId) {
-        const monster = monsters.find(m => m.id === monsterId);
-        if (!monster) return;
-        
-        const reflectedDamage = Math.round(monster.attack * 0.05);
-        if (reflectedDamage > 0) {
-            monster.health -= reflectedDamage;
-            showNotification(`✨ Golden Shield Reflected ${reflectedDamage} Damage!`, 'success');
-        }
-
-        originalAttackMonster(monsterId);
-    };
-}
-
-function addCrystalBarrierEffect() {
-    // Sumažiname magijos žalą
-    const originalAttackPlayer = attackPlayer;
-    attackPlayer = function (monster) {
-        const isMagicDamage = Math.random() < 0.2; // Pvz., 20% monstro atakų yra magiškos
-        const damageReduction = isMagicDamage ? monster.attack * 0.2 : 0;
-
-        health -= Math.round(monster.attack - damageReduction);
-        if (isMagicDamage) {
-            showNotification('🔷 Crystal Barrier reduced magic damage!', 'success');
-        }
-
-        updateStats();
-    };
-}
-
-function addPhoenixGuardEffect() {
-    // Atkuriame 5 sveikatos taškus kas sekundę
-    setInterval(() => {
-        if (!gamePaused) {
-            const regenAmount = 5;
-            health = Math.min(maxHealth, health + regenAmount);
-            updateStats();
-            showNotification('🔥 Phoenix Guard restored 5 health!', 'success');
-        }
-    }, 1000);
-}
-
-function addShadowAegisEffect() {
-    // Suteikiame šansą išvengti atakos
-    const originalAttackPlayer = attackPlayer;
-    attackPlayer = function (monster) {
-        if (Math.random() < 0.15) {
-            showNotification('🌑 Shadow Aegis dodged the attack!', 'success');
-        } else {
-            originalAttackPlayer(monster);
-        }
-    };
-}
-
-function addStormwallShieldEffect() {
-    // Sustabdome monstro ataką trumpam
-    const originalAttackMonster = attackMonster;
-    attackMonster = function (monsterId) {
-        const monster = monsters.find(m => m.id === monsterId);
-        if (!monster) return;
-
-        const stunChance = Math.random() < 0.1; // Pvz., 10% šansas
-        if (stunChance) {
-            monster.attackTimeout = null; // Laikinai sustabdome monstrą
-            showNotification('⚡ Stormwall Shield stunned the attacker!', 'success');
-        }
-
-        originalAttackMonster(monsterId);
-    };
-}
-
-function addDragonScaleEffect() {
-    // Padidiname puolimo galią 10%
-    attackPower *= 1.1;
-    updateStats();
-    showNotification('🐉 Dragon Scale boosted attack power by 10%!', 'success');
-}
-
-function castFreezeSpell(monsterId) {
-    const monster = monsters.find(m => m.id === monsterId);
-    if (!monster) {
-        showNotification('❌ Monster not found!', 'error');
-        return;
-    }
-
-    // Reduce monster attack for 5 seconds
-    const originalAttack = monster.attack;
-    monster.attack = Math.max(1, monster.attack - 5);
-    showNotification(`❄️ ${monster.name} is frozen and attacks are weakened!`, 'success');
-
-    // Revert attack after 5 seconds
-    setTimeout(() => {
-        monster.attack = originalAttack;
-        showNotification(`❄️ Freeze effect on ${monster.name} has ended.`, 'info');
-    }, 5000);
-}
+let healthRegenInterval;
 
 function startHealthRegeneration() {
     if (!healthRegenInterval) {
         healthRegenInterval = setInterval(() => {
-            if (!idleMode) { // Regenerate health only if not in Idle Mode
-                let totalRegen = healthRegenRate; // Base regeneration
-
-                // Check if the healthRegen upgrade is owned and apply its effect
+            if (!idleMode) {
+                let totalRegen = healthRegenRate; 
                 const healthRegenUpgrade = upgrades.find(u => u.type === 'healthRegen');
                 if (healthRegenUpgrade && healthRegenUpgrade.owned > 0) {
                     totalRegen += Math.round(maxHealth * 0.02 * healthRegenUpgrade.owned);
                 }
-
-                // Apply regeneration, ensuring it doesn't exceed maxHealth
                 health = Math.min(health + totalRegen, maxHealth);
                 updateStats();
             }
-        }, 1000); // Regenerates every second
+        }, 1000);
     }
 }
-function debugSpellSystem() {
-    console.log('--- Spell System Debug ---');
-    console.log('Monsters:', monsters);
-    console.log('Current Boss:', currentBoss);
-    console.log('Health:', health, '/', maxHealth);
-    console.log('Lives:', lives);
-    console.log('Attack Power:', attackPower);
-    console.log('--- End Debug ---');
+
+let idleMode = false; 
+const idleModeCost = 5000; 
+let idleAttackInterval = null;
+
+function toggleIdleMode() {
+    const button = document.getElementById('toggleIdleModeButton');
+
+    if (!idleMode && gold >= idleModeCost) {
+        gold -= idleModeCost;
+        idleMode = true;
+        button.textContent = "Deactivate Idle Mode";
+        showNotification("🌙 Idle Mode activated! Automatically attacking monsters.", "success");
+        startIdleMode();
+    } else if (idleMode) {
+        idleMode = false;
+        button.textContent = "Activate Idle Mode (5k Gold)";
+        showNotification("⚔️ Idle Mode deactivated. Back to manual gameplay.", "info");
+        stopIdleMode();
+    } else {
+        showNotification("❌ Not enough gold to activate Idle Mode!", "error");
+    }
+
+    updateStats();
 }
 
-function delayedMonsterSpawnWithCountdown() {
-    let countdown = 60; // Set the countdown duration in seconds
+function startIdleMode() {
+    if (idleAttackInterval) return;
+    idleAttackInterval = setInterval(() => {
+        if (monsters.length > 0) {
+            const monster = monsters[0];
+            attackMonster(monster.id);
+        }
+    }, 1000);
+}
 
-    // Create and update the countdown notification every 10 seconds
+function stopIdleMode() {
+    if (idleAttackInterval) {
+        clearInterval(idleAttackInterval);
+        idleAttackInterval = null;
+    }
+}
+
+function updateIdleModeUI() {
+    const heroButton = document.getElementById('hero');
+    const attackButtons = document.querySelectorAll('.attack-button');
+
+    if (idleMode) {
+        heroButton.disabled = true;
+        attackButtons.forEach(button => button.disabled = true);
+    } else {
+        heroButton.disabled = false;
+        attackButtons.forEach(button => button.disabled = false);
+    }
+}
+
+function delayedMonsterSpawn(){
+    let countdown = 60; 
     const countdownInterval = setInterval(() => {
         if (countdown > 0) {
             if (countdown % 10 === 0) {
@@ -1804,91 +1484,324 @@ function delayedMonsterSpawnWithCountdown() {
             }
             countdown--;
         } else {
-            clearInterval(countdownInterval); // Stop the countdown
-            spawnMonsterRandomly(); // Spawn monsters after countdown ends
+            clearInterval(countdownInterval);
+            spawnMonsterRandomly();
             showNotification(`👾 Monsters have arrived!`, 'achievement');
         }
-    }, 1000); // 1-second interval
+    }, 1000);
 }
 
-// Call this function to start the countdown
-delayedMonsterSpawnWithCountdown();
+function spawnMonsterRandomly() {
+    if (gamePaused || idleMode) return;
+    const monstersToSpawn = Math.min(1 + Math.floor(level / 10), 10);
+    for (let i = 0; i < monstersToSpawn; i++) {
+        spawnMonster();
+    }
+    function scheduleNextSpawn() {
+        const interval = getMonsterSpawnInterval();
+        setTimeout(() => {
+            if (!gamePaused && !idleMode) {
+                spawnMonsterRandomly();
+                scheduleNextSpawn();
+            }
+        }, interval);
+    }
+    scheduleNextSpawn();
+}
 
-let idleMode = false; // Default is active gameplay
+window.addEventListener('load', function() {
+    const tutorialModal = document.getElementById("tutorialModal");
+    tutorialModal.classList.add("active");
 
-function toggleIdleMode() {
-    idleMode = !idleMode; // Toggle Idle Mode state
+    startHealthRegeneration();
 
-    if (idleMode) {
-        // Activate Idle Mode
-        gamePaused = true; // Pause active gameplay
-        pauseMonsterAttacks(); // Pause monster attacks
-        stopHealthRegeneration(); // Stop health regeneration
-        showNotification("🌙 Idle Mode activated! Monsters will stop attacking.", 'info');
-    } else {
-        // Deactivate Idle Mode
-        gamePaused = false; // Resume active gameplay
-        resumeMonsterAttacks(); // Resume monster attacks
-        startHealthRegeneration(); // Restart health regeneration
-        showNotification("⚔️ Back to action mode! Monsters will resume attacks.", 'info');
+    const backgroundMusic = document.getElementById("backgroundMusic");
+    if (backgroundMusic) {
+        backgroundMusic.volume = 0.5;
+        backgroundMusic.play().catch(() => {});
+        document.addEventListener('click', function startMusic() {
+            if (backgroundMusic.paused) {
+                backgroundMusic.play().catch(error => console.error("Audio playback blocked:", error));
+            }
+            document.removeEventListener('click', startMusic);
+        }, { once: true });
     }
 
-    updateIdleModeUI(); // Update the UI to reflect Idle Mode state
+    enhanceUIResponsiveness();
+    document.getElementById('hero').addEventListener('click', heroClick);
+});
+
+// ---------------------------
+// Timed Global Buff Events
+// ---------------------------
+let globalBuffActive = false;
+let globalBuffMultiplier = 2; // Double gains
+let globalBuffDuration = 30 * 1000; // 30 seconds
+let globalBuffInterval = 10 * 60 * 1000; // Every 10 minutes
+
+const originalCurrentGoldGain = currentGoldGain;
+
+function buffedCurrentGoldGain(amount) {
+  let base = originalCurrentGoldGain(amount);
+  return globalBuffActive ? Math.floor(base * globalBuffMultiplier) : base;
 }
 
-function pauseMonsterAttacks() {
-    monsters.forEach(monster => {
-        if (monster.attackTimeout) {
-            clearInterval(monster.attackTimeout); // Clear the attack interval
-            monster.attackTimeout = null; // Mark it as paused
+// Reassign currentGoldGain to a wrapper
+currentGoldGain = function(amount) {
+  return buffedCurrentGoldGain(amount);
+};
+
+function startGlobalBuff() {
+  if (globalBuffActive) return; 
+  globalBuffActive = true;
+  showNotification('💫 A mystic aura surrounds you! Gains are doubled for 30s!', 'achievement');
+  setTimeout(() => {
+    globalBuffActive = false;
+    showNotification('💫 The mystic aura fades away.', 'info');
+  }, globalBuffDuration);
+}
+
+setInterval(startGlobalBuff, globalBuffInterval);
+
+// ---------------------------
+// Pet Companion Mechanic
+// ---------------------------
+let petOwned = false;
+let petHealthRegenBonus = 1; // +1 HP/s regen
+let petXpBoost = 0.1;       // 10% XP boost per click
+
+const buyPetButton = document.getElementById('buyPetButton');
+const petStatus = document.getElementById('petStatus');
+
+buyPetButton.addEventListener('click', () => {
+  if (petOwned) {
+    showNotification('❗ You already have a pet!', 'error');
+    return;
+  }
+  if (gold < 5000) {
+    showNotification('❗ Not enough gold to adopt a pet!', 'error');
+    return;
+  }
+  gold -= 5000;
+  petOwned = true;
+  petStatus.textContent = 'You have adopted a cute critter! It boosts your health regen and XP.';
+  updateStats();
+  showNotification('🐾 A pet joins your journey, boosting your abilities!', 'success');
+});
+
+const originalGainExperience = gainExperience;
+gainExperience = function(amount) {
+  let finalAmount = amount;
+  if (petOwned) {
+    finalAmount = Math.floor(finalAmount * (1 + petXpBoost));
+  }
+  originalGainExperience(finalAmount);
+};
+
+const originalHealthRegenFunction = startHealthRegeneration;
+startHealthRegeneration = function() {
+  if (!healthRegenInterval) {
+    healthRegenInterval = setInterval(() => {
+      if (!idleMode) {
+        let totalRegen = healthRegenRate;
+        const healthRegenUpgrade = upgrades.find(u => u.type === 'healthRegen');
+        if (healthRegenUpgrade && healthRegenUpgrade.owned > 0) {
+          totalRegen += Math.round(maxHealth * 0.02 * healthRegenUpgrade.owned);
         }
-    });
-}
+        if (petOwned) totalRegen += petHealthRegenBonus;
+        health = Math.min(health + totalRegen, maxHealth);
+        updateStats();
+      }
+    }, 1000);
+  }
+};
 
+// ---------------------------
+// Random Weather Events
+// ---------------------------
+const weathers = [
+    { name: 'Sunny', goldMultiplier: 1.2, healthMultiplier: 1, xpMultiplier: 1 },
+    { name: 'Rainy', goldMultiplier: 1, healthMultiplier: 0.9, xpMultiplier: 1 },
+    { name: 'Foggy', goldMultiplier: 1, healthMultiplier: 1, xpMultiplier: 0.9 },
+    { name: 'Stormy', goldMultiplier: 1, healthMultiplier: 0.95, xpMultiplier: 1.1 },
+];
 
-function clearMonstersAndBosses() {
-    // Clear existing monsters
-    monsters.forEach(monster => clearMonsterIntervals(monster));
-    monsters = [];
-    currentBoss = null;
+let currentWeather = weathers[0];
 
-    const monstersContainer = document.getElementById('monstersContainer');
-    if (monstersContainer) monstersContainer.innerHTML = ''; // Clear monster visuals
-}
+function applyWeatherEffects() {
+  const originalCurrentGoldGainFunc = currentGoldGain;
+  currentGoldGain = function(amount) {
+    let base = originalCurrentGoldGainFunc(amount);
+    return Math.floor(base * currentWeather.goldMultiplier);
+  };
 
-let healthRegenInterval;
+  const originalGainExperienceFunc = gainExperience;
+  gainExperience = function(amount) {
+    let final = Math.floor(amount * currentWeather.xpMultiplier);
+    originalGainExperienceFunc(final);
+  };
 
-function stopHealthRegeneration() {
-    if (healthRegenInterval) {
-        clearInterval(healthRegenInterval);
-        healthRegenInterval = null;
+  const originalSpawnMonster = spawnMonster;
+  spawnMonster = function() {
+    originalSpawnMonster();
+    if (monsters.length > 0) {
+      let m = monsters[monsters.length - 1];
+      m.health = Math.floor(m.health * currentWeather.healthMultiplier);
+      const mh = document.getElementById(`monsterHealth${m.id}`);
+      if(mh) mh.textContent = m.health;
     }
+  };
 }
 
-function updateIdleModeUI() {
-    const heroButton = document.getElementById('hero');
-    const idleModeToggle = document.getElementById('idleModeToggle');
-    const attackButtons = document.querySelectorAll('.attack-button');
+function changeWeather() {
+  const newWeather = weathers[Math.floor(Math.random() * weathers.length)];
+  currentWeather = newWeather;
+  showNotification(`🌦 The weather changed to ${newWeather.name}!`, 'achievement');
+}
 
-    if (idleMode) {
-        heroButton.disabled = true; // Disable clicking on the hero
-        idleModeToggle.textContent = "Switch to Active Mode";
-        attackButtons.forEach(button => button.disabled = true); // Disable all attack buttons
-        showNotification("🌙 Idle Mode: You can't attack monsters.", 'info');
-    } else {
-        heroButton.disabled = false; // Enable clicking on the hero
-        idleModeToggle.textContent = "Switch to Idle Mode";
-        attackButtons.forEach(button => button.disabled = false); // Enable all attack buttons
-        showNotification("⚔️ Active Mode: Attack the monsters!", 'info');
+// Change weather every 5 minutes
+setInterval(changeWeather, 5 * 60 * 1000);
+// Apply effects once at startup
+applyWeatherEffects();
+
+// ---------------------------
+// Artifact Discovery System
+// ---------------------------
+const artifacts = [];
+const artifactTypes = [
+  { name: 'Ancient Coin', effect: 'Gold gain +1%' },
+  { name: 'Crystal Feather', effect: 'XP gain +1%' },
+  { name: 'Obsidian Shard', effect: 'Attack Power +1' },
+  { name: 'Emerald Leaf', effect: 'Defense +1' },
+  { name: 'Ruby Heart', effect: 'Max Health +5' }
+];
+
+function applyArtifacts() {
+  let goldBoost = 0;
+  let xpBoost = 0;
+  let attackBoost = 0;
+  let defenseBoost = 0;
+  let healthBoost = 0;
+
+  artifacts.forEach(a => {
+    switch(a.name) {
+      case 'Ancient Coin': goldBoost += 0.01; break;
+      case 'Crystal Feather': xpBoost += 0.01; break;
+      case 'Obsidian Shard': attackBoost += 1; break;
+      case 'Emerald Leaf': defenseBoost += 1; break;
+      case 'Ruby Heart': healthBoost += 5; break;
     }
+  });
+
+  attackPower += attackBoost;
+  defense += defenseBoost;
+  maxHealth += healthBoost;
+  health = Math.min(health, maxHealth);
+
+  const originalCurrentGoldGainRef = currentGoldGain;
+  currentGoldGain = function(amount) {
+    let base = originalCurrentGoldGainRef(amount);
+    return Math.floor(base * (1 + goldBoost));
+  };
+
+  const originalGainExperienceRef = gainExperience;
+  gainExperience = function(amount) {
+    let final = Math.floor(amount * (1 + xpBoost));
+    originalGainExperienceRef(final);
+  };
+
+  updateStats();
 }
 
+function discoverArtifact() {
+  const found = Math.random() < 0.05; // 5% chance on monster kill
+  if (!found) return;
+  const artifact = artifactTypes[Math.floor(Math.random() * artifactTypes.length)];
+  artifacts.push(artifact);
+  showNotification(`💎 You found an artifact: ${artifact.name}! ${artifact.effect}`, 'success');
+  const artifactList = document.getElementById('artifactList');
+  const li = document.createElement('li');
+  li.textContent = `${artifact.name} - ${artifact.effect}`;
+  artifactList.appendChild(li);
 
-
-function resumeMonsterAttacks() {
-    monsters.forEach(monster => {
-        if (!monster.attackTimeout) {
-            scheduleMonsterAttack(monster); // Reschedule their attack
-        }
-    });
+  applyArtifacts();
 }
+
+const originalKillMonster = killMonster;
+killMonster = function(monster) {
+  originalKillMonster(monster);
+  if (!monster.isBoss) {
+    discoverArtifact();
+  }
+};
+
+// ---------------------------
+// Seasonal Festival Events 🌸🎉
+// ---------------------------
+const festivals = [
+  { name: 'Spring Bloom 🌸', goldReward: 300, xpReward: 30, description: 'Celebrate new life and flowers!' },
+  { name: 'Summer Sun ☀️', goldReward: 400, xpReward: 40, description: 'Feel the warmth of the sun!' },
+  { name: 'Autumn Harvest 🍂', goldReward: 500, xpReward: 50, description: 'Reap the season\'s bounty!' },
+  { name: 'Winter Wonder ❄️', goldReward: 600, xpReward: 60, description: 'Enjoy the snowy festivities!' }
+];
+
+let currentFestival = null;
+const currentFestivalName = document.getElementById('currentFestivalName');
+const festivalInfo = document.getElementById('festivalInfo');
+const joinFestivalButton = document.getElementById('joinFestivalButton');
+
+function startRandomFestival() {
+  currentFestival = festivals[Math.floor(Math.random() * festivals.length)];
+  currentFestivalName.textContent = currentFestival.name;
+  festivalInfo.textContent = currentFestival.description;
+  joinFestivalButton.disabled = false;
+  showNotification(`🎉 A ${currentFestival.name} has begun! Join now for rewards!`, 'achievement');
+}
+
+function endFestival() {
+  currentFestival = null;
+  currentFestivalName.textContent = 'None';
+  festivalInfo.textContent = 'No festival at the moment.';
+  joinFestivalButton.disabled = true;
+}
+
+joinFestivalButton.addEventListener('click', () => {
+  if (!currentFestival) return;
+  gold += currentFestival.goldReward;
+  gainExperience(currentFestival.xpReward);
+  updateStats();
+  showNotification(`🌟 You joined the ${currentFestival.name}! +${currentFestival.goldReward} Gold, +${currentFestival.xpReward} XP`, 'success');
+  endFestival();
+});
+
+// Festivals occur every hour
+setInterval(startRandomFestival, 60 * 60 * 1000);
+// Start one shortly after page load for demo (e.g. after 30 seconds)
+setTimeout(startRandomFestival, 30 * 1000);
+
+// ---------------------------
+// Player Titles 🎗️
+// ---------------------------
+const playerTitleElement = document.getElementById('playerTitle');
+
+function updatePlayerTitle() {
+  let title = 'Novice 👶';
+  if (level >= 100) {
+    title = 'Legendary Hero 🏆';
+  } else if (level >= 50) {
+    title = 'Epic Adventurer ⚔️';
+  } else if (level >= 20) {
+    title = 'Seasoned Warrior 🛡️';
+  } else if (level >= 10) {
+    title = 'Rising Star ⭐';
+  }
+  playerTitleElement.textContent = title;
+}
+
+const originalLevelUpFunc = levelUp;
+levelUp = function() {
+  originalLevelUpFunc();
+  updatePlayerTitle();
+};
+
+window.addEventListener('load', updatePlayerTitle);
