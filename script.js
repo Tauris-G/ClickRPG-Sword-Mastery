@@ -171,7 +171,7 @@ const achievements = [
     { id:19, name:'Survivor', description:'Survive 3 deaths.', achieved:false }
 ];
 
-// Define currentGoldGain function
+// Original currentGoldGain for reference
 function currentGoldGain(amount) {
     const goldMult = upgrades.find(u => u.type === 'goldMultiplier').owned;
     const luckMult = upgrades.find(u => u.type === 'luck').owned;
@@ -833,22 +833,30 @@ function updateComboDisplay() {
     }
 }
 
-function spawnMonster() {
+function spawnMonster(playerMaxHealth, playerAttack) {
     const randomType = monsterTypes[Math.floor(Math.random() * monsterTypes.length)];
-    const healthMultiplier = 1 + (level * 0.05) + (attackPower * 0.02);
-    const attackMultiplier = 1 + (defense * 0.01) + (level * 0.05);
+
+    // Define base multipliers with fair scaling
+    const healthMultiplier = 1 + (level * 0.03) + (attackPower * 0.01); 
+    const attackMultiplier = 1 + (defense * 0.02) + (level * 0.03);
 
     const newMonster = {
         id: monsterId,
         name: `${randomType.name} (Lv. ${level})`,
-        health: Math.max(1, Math.round(randomType.health * healthMultiplier)),
-        attack: Math.max(1, Math.round(randomType.attack * attackMultiplier)),
+        health: Math.round(randomType.health * healthMultiplier),
+        attack: Math.round(randomType.attack * attackMultiplier),
         emoji: randomType.emoji,
         isBoss: false,
         isFinal: false,
         isMagic: randomType.isMagic || false,
-        attackTimeout: null
+        attackTimeout: null,
     };
+
+    // Cap stats for fairness
+    const cappedHealth = Math.min(newMonster.health, (playerMaxHealth||maxHealth) * 2);
+    const cappedAttack = Math.min(newMonster.attack, (playerAttack||attackPower) * 1.5);
+    newMonster.health = cappedHealth;
+    newMonster.attack = cappedAttack;
 
     monsters.push(newMonster);
     renderMonster(newMonster);
@@ -1413,6 +1421,9 @@ function startHealthRegeneration() {
                 if (healthRegenUpgrade && healthRegenUpgrade.owned > 0) {
                     totalRegen += Math.round(maxHealth * 0.02 * healthRegenUpgrade.owned);
                 }
+                if (petOwned) {
+                    totalRegen += petHealthRegenBonus;
+                }
                 health = Math.min(health + totalRegen, maxHealth);
                 updateStats();
             }
@@ -1426,22 +1437,20 @@ let idleAttackInterval = null;
 
 function toggleIdleMode() {
     const button = document.getElementById('toggleIdleModeButton');
-
-    if (!idleMode && gold >= idleModeCost) {
-        gold -= idleModeCost;
-        idleMode = true;
-        button.textContent = "Deactivate Idle Mode";
-        showNotification("🌙 Idle Mode activated! Automatically attacking monsters.", "success");
-        startIdleMode();
-    } else if (idleMode) {
+    if (idleMode && idleAttackInterval) {
+        stopIdleMode();
         idleMode = false;
         button.textContent = "Activate Idle Mode (5k Gold)";
         showNotification("⚔️ Idle Mode deactivated. Back to manual gameplay.", "info");
-        stopIdleMode();
+    } else if (!idleMode && gold >= idleModeCost) {
+        gold -= idleModeCost;
+        idleMode = true;
+        startIdleMode();
+        button.textContent = "Deactivate Idle Mode";
+        showNotification("🌙 Idle Mode activated! Automatically attacking monsters.", "success");
     } else {
         showNotification("❌ Not enough gold to activate Idle Mode!", "error");
     }
-
     updateStats();
 }
 
@@ -1598,23 +1607,7 @@ gainExperience = function(amount) {
   originalGainExperience(finalAmount);
 };
 
-const originalHealthRegenFunction = startHealthRegeneration;
-startHealthRegeneration = function() {
-  if (!healthRegenInterval) {
-    healthRegenInterval = setInterval(() => {
-      if (!idleMode) {
-        let totalRegen = healthRegenRate;
-        const healthRegenUpgrade = upgrades.find(u => u.type === 'healthRegen');
-        if (healthRegenUpgrade && healthRegenUpgrade.owned > 0) {
-          totalRegen += Math.round(maxHealth * 0.02 * healthRegenUpgrade.owned);
-        }
-        if (petOwned) totalRegen += petHealthRegenBonus;
-        health = Math.min(health + totalRegen, maxHealth);
-        updateStats();
-      }
-    }, 1000);
-  }
-};
+// startHealthRegeneration is already modified above to include pet bonus
 
 // ---------------------------
 // Random Weather Events
@@ -1629,28 +1622,29 @@ const weathers = [
 let currentWeather = weathers[0];
 
 function applyWeatherEffects() {
-  const originalCurrentGoldGainFunc = currentGoldGain;
-  currentGoldGain = function(amount) {
-    let base = originalCurrentGoldGainFunc(amount);
-    return Math.floor(base * currentWeather.goldMultiplier);
-  };
+    const origCGG = currentGoldGain;
+    const origGainExp = gainExperience;
+    const origSpawnMon = spawnMonster;
 
-  const originalGainExperienceFunc = gainExperience;
-  gainExperience = function(amount) {
-    let final = Math.floor(amount * currentWeather.xpMultiplier);
-    originalGainExperienceFunc(final);
-  };
+    currentGoldGain = function(amount) {
+        let base = origCGG(amount);
+        return Math.floor(base * currentWeather.goldMultiplier);
+    };
 
-  const originalSpawnMonster = spawnMonster;
-  spawnMonster = function() {
-    originalSpawnMonster();
-    if (monsters.length > 0) {
-      let m = monsters[monsters.length - 1];
-      m.health = Math.floor(m.health * currentWeather.healthMultiplier);
-      const mh = document.getElementById(`monsterHealth${m.id}`);
-      if(mh) mh.textContent = m.health;
-    }
-  };
+    gainExperience = function(amount) {
+        let final = Math.floor(amount * currentWeather.xpMultiplier);
+        origGainExp(final);
+    };
+
+    spawnMonster = function() {
+        origSpawnMon();
+        if (monsters.length > 0) {
+          let m = monsters[monsters.length - 1];
+          m.health = Math.floor(m.health * currentWeather.healthMultiplier);
+          const mh = document.getElementById(`monsterHealth${m.id}`);
+          if(mh) mh.textContent = m.health;
+        }
+    };
 }
 
 function changeWeather() {
@@ -1751,12 +1745,13 @@ const festivalInfo = document.getElementById('festivalInfo');
 const joinFestivalButton = document.getElementById('joinFestivalButton');
 
 function startRandomFestival() {
-  currentFestival = festivals[Math.floor(Math.random() * festivals.length)];
-  currentFestivalName.textContent = currentFestival.name;
-  festivalInfo.textContent = currentFestival.description;
-  joinFestivalButton.disabled = false;
-  showNotification(`🎉 A ${currentFestival.name} has begun! Join now for rewards!`, 'achievement');
+    currentFestival = festivals[Math.floor(Math.random() * festivals.length)];
+    currentFestivalName.textContent = currentFestival.name;
+    festivalInfo.textContent = currentFestival.description;
+    joinFestivalButton.disabled = false;
+    showNotification(`🎉 ${currentFestival.name} has begun! Join for special bonuses!`, 'achievement');
 }
+
 
 function endFestival() {
   currentFestival = null;
@@ -1776,12 +1771,11 @@ joinFestivalButton.addEventListener('click', () => {
 
 // Festivals occur every hour
 setInterval(startRandomFestival, 60 * 60 * 1000);
-// Start one shortly after page load for demo (e.g. after 30 seconds)
+// Start one shortly after page load for demo
 setTimeout(startRandomFestival, 30 * 1000);
 
 // ---------------------------
 // Player Titles 🎗️
-// ---------------------------
 const playerTitleElement = document.getElementById('playerTitle');
 
 function updatePlayerTitle() {
@@ -1804,14 +1798,20 @@ levelUp = function() {
   updatePlayerTitle();
 };
 
-window.addEventListener('load', updatePlayerTitle);
+window.addEventListener('load', function() {
+    console.log("Game initialized!");
+    const heroElement = document.getElementById('hero');
+    if (heroElement) {
+        heroElement.addEventListener('click', heroClick);
+    } else {
+        console.error("Hero element not found!");
+    }
+});
 
 // ---------------------------
 // Rarity Tiers and Randomness in Loot
 // ---------------------------
 
-// Add a material drop system. For example, each monster has a 5% chance to drop 1 "Material".
-// Materials will be used to craft special rare swords/shields in the future.
 let materialCount = 0;
 const materialDropChance = 0.05; // 5% chance per monster kill
 const materialElement = document.getElementById('materialCount');
@@ -1824,7 +1824,6 @@ function tryMaterialDrop() {
     }
 }
 
-// Wrap killMonster again to add the material drop logic
 const originalKillMonsterForMaterials = killMonster;
 killMonster = function(monster) {
     originalKillMonsterForMaterials(monster);
@@ -1834,17 +1833,12 @@ killMonster = function(monster) {
     }
 };
 
-// Mystery Chests: When certain achievements are unlocked, we spawn a Mystery Chest.
-// The chest can be opened by the player for random rewards: gold, XP, artifacts, or temporary buffs.
-
-// Let's say we spawn a Mystery Chest when the player unlocks the "Sword Master" achievement (id:11)
-// and also when "Legendary Hero" (id:13) is unlocked.
+// Mystery Chests
 let chests = [];
 const chestsList = document.getElementById('chestsList');
 
 function spawnMysteryChest(reason) {
-    // Create a chest object
-    const chestId = Date.now(); // a unique ID
+    const chestId = Date.now();
     const chest = {
         id: chestId,
         reason: reason,
@@ -1876,98 +1870,72 @@ function openMysteryChest(chestId) {
     chest.opened = true;
     const chestDiv = document.getElementById(`chest${chestId}`);
 
-    // Determine random rewards:
-    // Possible rewards:
-    // 1) Gold: random between 100 to 1000
-    // 2) XP: random between 50 to 200
-    // 3) Artifact: small chance to get an artifact
-    // 4) Temporary buff: globalBuffActive for a short duration
-    // We'll pick 2 random rewards each time.
-
     let rewardsGiven = [];
 
-    // First reward
     const rewardType1 = pickRandomRewardType();
     applyChestReward(rewardType1, rewardsGiven);
 
-    // Second reward
     const rewardType2 = pickRandomRewardType();
     applyChestReward(rewardType2, rewardsGiven);
 
-    // Display rewards to player
     let rewardText = 'Mystery Chest Rewards:\n' + rewardsGiven.join('\n');
     showNotification('🧰 '+rewardText,'success');
     chestDiv.innerHTML += `<p>${rewardText.replace(/\n/g, '<br>')}</p>`;
 
-    // Disable open button
     const button = chestDiv.querySelector('button');
     if (button) button.disabled = true;
 }
 
 function pickRandomRewardType() {
-    // Possible types: gold, xp, artifact, buff
-    // Weighted probability:
-    // gold: 40%
-    // xp: 40%
-    // artifact: 15%
-    // buff: 5%
-    const r = Math.random();
-    if (r < 0.4) return 'gold';
-    else if (r < 0.8) return 'xp';
-    else if (r < 0.95) return 'artifact';
-    else return 'buff';
+    const weights = [0.4, 0.4, 0.15, 0.05]; // gold, xp, artifact, buff
+    const sum = weights.reduce((a, b) => a + b, 0);
+    let rand = Math.random() * sum;
+    for (let i = 0; i < weights.length; i++) {
+        if (rand < weights[i]) return ['gold', 'xp', 'artifact', 'buff'][i];
+        rand -= weights[i];
+    }
 }
 
 function applyChestReward(type, rewardsGiven) {
-    switch(type) {
+    switch (type) {
         case 'gold':
-            const goldAmount = Math.floor(100 + Math.random()*900); // 100-1000
+            const goldAmount = Math.floor(100 + Math.random() * 900);
             gold += goldAmount;
             updateStats();
             rewardsGiven.push(`+${goldAmount} Gold 💰`);
             break;
         case 'xp':
-            const xpAmount = Math.floor(50 + Math.random()*150); // 50-200
+            const xpAmount = Math.floor(50 + Math.random() * 150);
             gainExperience(xpAmount);
             rewardsGiven.push(`+${xpAmount} XP 📈`);
             break;
         case 'artifact':
-            // 50% chance for an artifact from the known list
             if (Math.random() < 0.5) {
                 const artifact = artifactTypes[Math.floor(Math.random() * artifactTypes.length)];
                 artifacts.push(artifact);
-                showNotification(`💎 Mystery Chest gave an artifact: ${artifact.name}! ${artifact.effect}`, 'success');
-                const artifactList = document.getElementById('artifactList');
-                const li = document.createElement('li');
-                li.textContent = `${artifact.name} - ${artifact.effect}`;
-                artifactList.appendChild(li);
+                showNotification(`💎 Artifact Found: ${artifact.name}! ${artifact.effect}`, 'success');
+                rewardsGiven.push(`${artifact.name} - ${artifact.effect}`);
                 applyArtifacts();
-                rewardsGiven.push(`Artifact: ${artifact.name} ${artifact.effect}`);
             } else {
-                // No artifact this time, give small consolation gold
                 gold += 200;
                 updateStats();
-                rewardsGiven.push(`No artifact... but you got +200 Gold 💰`);
+                rewardsGiven.push(`Consolation: +200 Gold 💰`);
             }
             break;
         case 'buff':
-            // Apply a short temporary buff, similar to globalBuff, but shorter and stackable
-            // Let's say a 60-second buff that increases gold gain by 50%
-            temporaryBuff(0.5, 60000); 
-            rewardsGiven.push(`Temporary Buff: +50% Gold for 60s ✨`);
+            temporaryBuff(0.5, 60000);
+            rewardsGiven.push(`Temporary Buff: +50% Gold (60s) ✨`);
             break;
     }
 }
 
 function temporaryBuff(goldIncrease, duration) {
-    // We'll wrap currentGoldGain again for the duration
     const originalCGG = currentGoldGain;
     currentGoldGain = function(amount) {
         let base = originalCGG(amount);
         return Math.floor(base * (1 + goldIncrease));
     };
 
-    // After duration revert
     setTimeout(() => {
         currentGoldGain = originalCGG;
         showNotification('✨ Your temporary gold buff ended.', 'info');
@@ -1979,15 +1947,13 @@ const originalUpdateAchievementsForChests = updateAchievements;
 updateAchievements = function() {
     const previousAchievements = achievements.map(a => a.achieved);
     originalUpdateAchievementsForChests();
-    // Check if new achievements unlocked
     achievements.forEach((ach, index) => {
         if(!previousAchievements[index] && ach.achieved) {
-            if(ach.id === 11) { // Sword Master
+            if(ach.id === 11) { 
                 spawnMysteryChest('Sword Master Achievement');
-            } else if(ach.id === 13) { // Legendary Hero
+            } else if(ach.id === 13) { 
                 spawnMysteryChest('Legendary Hero Achievement');
             }
         }
     });
 };
-
