@@ -20,7 +20,7 @@
     <!-- Notification Area -->
     <div id="notificationArea"></div>
 
-    <!-- Game Title -->
+    <!-- Title -->
     <h1>The Click-tastic Adventure 🏰</h1>
 
     <!-- Navigation Tabs -->
@@ -32,10 +32,9 @@
         <button class="tab-button" onclick="switchTab('achievements', this)">Achievements 🏆</button>
         <button class="tab-button" onclick="switchTab('quests', this)">Quests 📜</button>
         <button class="tab-button" onclick="switchTab('forge', this)">Forge 🔥</button>
-        
     </div>
 
-    <!-- Blood Particles Container -->
+    <!-- Blood Particles -->
     <div id="bloodParticles"></div>
 
     <!-- Level-Up Modal -->
@@ -50,7 +49,6 @@
         <h2>🏆 Victory! 🏆</h2>
         <p>Congratulations! You have acquired all 30 swords and reached Level 100!</p>
         <button onclick="closeVictoryModal()">Celebrate 🎉</button>
-        <!-- Prestige Button -->
         <button id="prestigeButton" onclick="prestige()" style="display:none;">Prestige</button>
     </div>
 
@@ -61,9 +59,9 @@
         <button onclick="restartGame()">Restart</button>
     </div>
 
-    <!-- Sections Container -->
+    <!-- Main Sections -->
     <div style="width: 100%; flex: 1; display: flex; flex-direction: column; align-items: center; overflow: auto;">
-
+        
         <!-- Home Section -->
         <div id="home" class="section active">
             <div id="hero" title="Click to earn gold!">🧝</div>
@@ -82,6 +80,12 @@
                 <p>Health: <span id="currentHealth">100</span> / <span id="maxHealth">100</span> ❤️</p>
                 <p>Lives: <span id="lives">3</span> 💔</p>
                 <p>Prestige Count: <span id="prestigeCountDisplay">0</span></p>
+            </div>
+
+            <div id="petContainer">
+                <h3>Your Pet Companion 🐾</h3>
+                <p id="petStatus">No pet owned yet.</p>
+                <button id="buyPetButton">Adopt Pet (5,000 Gold)</button>
             </div>
 
             <!-- Combo Indicator -->
@@ -104,13 +108,12 @@
             <div id="swordsList"></div>
         </div>
 
-<!-- Nauja skydų sekcija -->
-<div id="shields" class="section">
-    <h2>Shields 🛡️</h2>
-    <p>Purchase shields to increase your defense and reduce incoming damage.</p>
-    <div id="shieldsList"></div>
-</div>
-
+        <!-- Shields Section -->
+        <div id="shields" class="section">
+            <h2>Shields 🛡️</h2>
+            <p>Purchase shields to increase your defense and reduce incoming damage.</p>
+            <div id="shieldsList"></div>
+        </div>
 
         <!-- Achievements Section -->
         <div id="achievements" class="section">
@@ -137,11 +140,17 @@
         </div>
     </div>
 
+    <!-- Health Regen Display -->
     <div id="healthRegenContainer" class="stat-section">
         <span class="stat-title">Health Regeneration Rate:</span>
         <span id="healthRegenRate" class="stat-value">1 HP/s</span>
     </div>
-    
+
+    <!-- Artifacts Section -->
+    <div id="artifactsContainer">
+        <h3>Artifacts Collected</h3>
+        <ul id="artifactList"></ul>
+    </div>
 
     <!-- Save and Load Buttons -->
     <div id="saveLoadButtons">
@@ -149,12 +158,12 @@
         <button onclick="loadGame()">📂 Load Game</button>
         <button id="resetButton" onclick="resetGame()">🔄 Reset Game</button>
         <button id="buyHeartButton" onclick="buyHeart()">❤️ Buy Full Heart (10k Gold)</button>
-        <button id="idleModeToggle" onclick="toggleIdleMode()">Idle Mode</button>
+        <button id="toggleIdleModeButton" onclick="toggleIdleMode()">Activate Idle Mode (5k Gold)</button>
         <button id="muteButton" onclick="toggleMusic()">🔊</button>
         <input type="range" id="volumeSlider" min="0" max="1" step="0.01" onchange="setVolume(this.value)">
     </div>
 
-    <!-- Sound Effects -->
+    <!-- Audio Elements -->
     <audio id="clickSound" src="https://cdn.pixabay.com/audio/2024/08/30/audio_60cd586a99.mp3" preload="auto"></audio>
     <audio id="upgradeSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" preload="auto"></audio>
     <audio id="levelUpSound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg" preload="auto"></audio>
@@ -169,8 +178,21 @@
     <audio id="spellCastSound" src="https://cdn.pixabay.com/audio/2024/08/31/audio_f9943b511b.mp3" preload="auto"></audio>
     <audio id="buyHeartSound" src="https://actions.google.com/sounds/v1/cartoon/metal_hit_and_jingle.ogg" preload="auto"></audio>
     <!-- Background Music -->
-    <audio id="backgroundMusic" src="https://cdn.pixabay.com/audio/2021/11/05/audio_6acc538346.mp3" preload="auto" loop></audio>
+    <audio id="backgroundMusic" src="https://cdn.pixabay.com/audio/2022/03/27/audio_96602eadfc.mp3" preload="auto" loop></audio>
 </div>
+
+<!-- Festival Container -->
+<div id="festivalContainer">
+    <h3>Current Festival: <span id="currentFestivalName">None</span></h3>
+    <p id="festivalInfo">No festival at the moment.</p>
+    <button id="joinFestivalButton" disabled>Join Festival</button>
+</div>
+
+<!-- Player Title Container -->
+<div id="playerTitleContainer">
+    <p>Your Title: <span id="playerTitle">Novice 👶</span></p>
+</div>
+
 <footer id="gameFooter">
     <p>© 2024 Tauris Games Inc.™ All Rights Reserved. Unauthorized clicking may result in humorous consequences. 🤪 | Version 1.0.2</p>
 </footer>
