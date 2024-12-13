@@ -2,7 +2,7 @@
 
 Welcome to **ClickRPG: Sword Mastery**, an engaging and immersive clicker game where you embark on an epic journey to defend your realm from mischievous monsters! Click, upgrade, and conquer your way to becoming the ultimate hero. ⚔️💰👾
 
-RUN GAME:  https://tauris-g.github.io/The-Click-tastic-RPG/
+RUN GAME:  [https://tauris-g.github.io/The-Click-tastic-RPG/](https://tauris-g.github.io/ClickRPG-Sword-Mastery/)
 
 ## Table of Contents
 
