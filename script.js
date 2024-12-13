@@ -1805,3 +1805,189 @@ levelUp = function() {
 };
 
 window.addEventListener('load', updatePlayerTitle);
+
+// ---------------------------
+// Rarity Tiers and Randomness in Loot
+// ---------------------------
+
+// Add a material drop system. For example, each monster has a 5% chance to drop 1 "Material".
+// Materials will be used to craft special rare swords/shields in the future.
+let materialCount = 0;
+const materialDropChance = 0.05; // 5% chance per monster kill
+const materialElement = document.getElementById('materialCount');
+
+function tryMaterialDrop() {
+    if (Math.random() < materialDropChance) {
+        materialCount++;
+        materialElement.textContent = materialCount;
+        showNotification('🪨 You found a crafting material!', 'success');
+    }
+}
+
+// Wrap killMonster again to add the material drop logic
+const originalKillMonsterForMaterials = killMonster;
+killMonster = function(monster) {
+    originalKillMonsterForMaterials(monster);
+    // Only non-boss monsters drop materials
+    if (!monster.isBoss) {
+        tryMaterialDrop();
+    }
+};
+
+// Mystery Chests: When certain achievements are unlocked, we spawn a Mystery Chest.
+// The chest can be opened by the player for random rewards: gold, XP, artifacts, or temporary buffs.
+
+// Let's say we spawn a Mystery Chest when the player unlocks the "Sword Master" achievement (id:11)
+// and also when "Legendary Hero" (id:13) is unlocked.
+let chests = [];
+const chestsList = document.getElementById('chestsList');
+
+function spawnMysteryChest(reason) {
+    // Create a chest object
+    const chestId = Date.now(); // a unique ID
+    const chest = {
+        id: chestId,
+        reason: reason,
+        opened: false
+    };
+    chests.push(chest);
+
+    const chestDiv = document.createElement('div');
+    chestDiv.className = 'mystery-chest';
+    chestDiv.id = `chest${chestId}`;
+    chestDiv.style.background='#555';
+    chestDiv.style.padding='10px';
+    chestDiv.style.margin='5px';
+    chestDiv.style.border='2px solid #ffcc00';
+    chestDiv.style.display='inline-block';
+    chestDiv.innerHTML = `
+        <span class="icon">🧰</span>
+        <div><strong>Mystery Chest</strong><br>Reason: ${reason}</div>
+        <button onclick="openMysteryChest(${chestId})">Open Chest</button>
+    `;
+    chestsList.appendChild(chestDiv);
+    showNotification('🧰 A Mystery Chest has appeared!', 'achievement');
+}
+
+function openMysteryChest(chestId) {
+    const chest = chests.find(c => c.id === chestId);
+    if (!chest || chest.opened) return;
+
+    chest.opened = true;
+    const chestDiv = document.getElementById(`chest${chestId}`);
+
+    // Determine random rewards:
+    // Possible rewards:
+    // 1) Gold: random between 100 to 1000
+    // 2) XP: random between 50 to 200
+    // 3) Artifact: small chance to get an artifact
+    // 4) Temporary buff: globalBuffActive for a short duration
+    // We'll pick 2 random rewards each time.
+
+    let rewardsGiven = [];
+
+    // First reward
+    const rewardType1 = pickRandomRewardType();
+    applyChestReward(rewardType1, rewardsGiven);
+
+    // Second reward
+    const rewardType2 = pickRandomRewardType();
+    applyChestReward(rewardType2, rewardsGiven);
+
+    // Display rewards to player
+    let rewardText = 'Mystery Chest Rewards:\n' + rewardsGiven.join('\n');
+    showNotification('🧰 '+rewardText,'success');
+    chestDiv.innerHTML += `<p>${rewardText.replace(/\n/g, '<br>')}</p>`;
+
+    // Disable open button
+    const button = chestDiv.querySelector('button');
+    if (button) button.disabled = true;
+}
+
+function pickRandomRewardType() {
+    // Possible types: gold, xp, artifact, buff
+    // Weighted probability:
+    // gold: 40%
+    // xp: 40%
+    // artifact: 15%
+    // buff: 5%
+    const r = Math.random();
+    if (r < 0.4) return 'gold';
+    else if (r < 0.8) return 'xp';
+    else if (r < 0.95) return 'artifact';
+    else return 'buff';
+}
+
+function applyChestReward(type, rewardsGiven) {
+    switch(type) {
+        case 'gold':
+            const goldAmount = Math.floor(100 + Math.random()*900); // 100-1000
+            gold += goldAmount;
+            updateStats();
+            rewardsGiven.push(`+${goldAmount} Gold 💰`);
+            break;
+        case 'xp':
+            const xpAmount = Math.floor(50 + Math.random()*150); // 50-200
+            gainExperience(xpAmount);
+            rewardsGiven.push(`+${xpAmount} XP 📈`);
+            break;
+        case 'artifact':
+            // 50% chance for an artifact from the known list
+            if (Math.random() < 0.5) {
+                const artifact = artifactTypes[Math.floor(Math.random() * artifactTypes.length)];
+                artifacts.push(artifact);
+                showNotification(`💎 Mystery Chest gave an artifact: ${artifact.name}! ${artifact.effect}`, 'success');
+                const artifactList = document.getElementById('artifactList');
+                const li = document.createElement('li');
+                li.textContent = `${artifact.name} - ${artifact.effect}`;
+                artifactList.appendChild(li);
+                applyArtifacts();
+                rewardsGiven.push(`Artifact: ${artifact.name} ${artifact.effect}`);
+            } else {
+                // No artifact this time, give small consolation gold
+                gold += 200;
+                updateStats();
+                rewardsGiven.push(`No artifact... but you got +200 Gold 💰`);
+            }
+            break;
+        case 'buff':
+            // Apply a short temporary buff, similar to globalBuff, but shorter and stackable
+            // Let's say a 60-second buff that increases gold gain by 50%
+            temporaryBuff(0.5, 60000); 
+            rewardsGiven.push(`Temporary Buff: +50% Gold for 60s ✨`);
+            break;
+    }
+}
+
+function temporaryBuff(goldIncrease, duration) {
+    // We'll wrap currentGoldGain again for the duration
+    const originalCGG = currentGoldGain;
+    currentGoldGain = function(amount) {
+        let base = originalCGG(amount);
+        return Math.floor(base * (1 + goldIncrease));
+    };
+
+    // After duration revert
+    setTimeout(() => {
+        currentGoldGain = originalCGG;
+        showNotification('✨ Your temporary gold buff ended.', 'info');
+    }, duration);
+}
+
+// Spawn a Mystery Chest when unlocking "Sword Master" (id:11) and "Legendary Hero" (id:13)
+const originalUpdateAchievementsForChests = updateAchievements;
+updateAchievements = function() {
+    const previousAchievements = achievements.map(a => a.achieved);
+    originalUpdateAchievementsForChests();
+    // Check if new achievements unlocked
+    achievements.forEach((ach, index) => {
+        if(!previousAchievements[index] && ach.achieved) {
+            if(ach.id === 11) { // Sword Master
+                spawnMysteryChest('Sword Master Achievement');
+            } else if(ach.id === 13) { // Legendary Hero
+                spawnMysteryChest('Legendary Hero Achievement');
+            }
+        }
+    });
+};
+
