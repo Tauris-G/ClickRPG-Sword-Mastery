@@ -391,22 +391,44 @@ button:hover {
 }
 
 #monstersContainer {
-    position:relative;
-    width:100%;
-    height:400px;
+    position: relative;
+    width: 100%;
+    height: 400px;
+    /* Existing background styles */
     background: linear-gradient(90deg, #222 50%, #242424 50%), 
                 linear-gradient(#222 50%, #242424 50%);
     background-size: 4px 4px;
-    border:2px solid #ffcc00;
-    border-radius:0;
-    overflow:auto;
-    margin-top:10px;
-    display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(120px,1fr));
-    grid-auto-rows:150px;
-    gap:5px;
+    border: 2px solid #ffcc00;
+    border-radius: 0;
+    overflow: auto;
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    grid-auto-rows: 150px;
+    gap: 5px;
     image-rendering: pixelated;
     box-shadow: inset 0 0 2px #000;
+
+    /* New background image properties */
+    background-image: url('https://i.pinimg.com/originals/43/d4/d7/43d4d7e5ba1cfa7959a1fab8d64f22ea.gif'), 
+                      linear-gradient(90deg, #222 50%, #242424 50%), 
+                      linear-gradient(#222 50%, #242424 50%);
+    background-size: cover, 4px 4px, 4px 4px; /* Adjust sizes for multiple backgrounds */
+    background-position: center, 0 0, 0 0; /* Position the main image at center */
+    background-repeat: no-repeat, repeat, repeat; /* Prevent repeating of the main image */
+    z-index: 1; /* Ensure it stays behind monster elements */
+}
+
+/* Optional: Semi-transparent overlay for better visibility */
+#monstersContainer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(30, 30, 30, 0.5); /* Adjust color and opacity as needed */
+    z-index: 0; /* Behind the monsters */
 }
 
 .monster {
