@@ -31,6 +31,9 @@ let comboTimeout = null;
 const comboMaxStacks = 5;
 const comboDuration = 2000; 
 let lastClickTime = 0;
+let idleMode = false; 
+const idleModeCost = 5000; 
+let idleAttackInterval = null;
 
 const baseUpgradeCosts = {
     attack: 50,
@@ -226,8 +229,22 @@ function initializeGame() {
     initializeQuests();
     updateComboDisplay();
     startHealthRegeneration();
-}
+    
+    // Update Pet UI based on ownership
+    if(petOwned){
+        document.getElementById('petDisplay').style.display = 'block';
+        buyPetButton.textContent = 'Owned ✅';
+        buyPetButton.disabled = true;
+        petStatus.textContent = 'Boosts your health regen and XP.';
+    } else {
+        document.getElementById('petDisplay').style.display = 'none';
+        buyPetButton.textContent = 'Adopt Pet (5,000 Gold)';
+        buyPetButton.disabled = false;
+        petStatus.textContent = 'No pet owned yet.';
+    }
+} // <-- Add this closing brace to properly end initializeGame
 
+// Move these functions outside of initializeGame
 // Tutorial dialog
 let dialogIndex = 0;
 const tutorialDialog = [
@@ -262,11 +279,11 @@ function nextDialog() {
 
 function switchTab(tabName, buttonElement) {
     const sections = document.querySelectorAll('.section');
-    sections.forEach(section=>section.classList.remove('active'));
+    sections.forEach(section => section.classList.remove('active'));
     document.getElementById(tabName).classList.add('active');
 
     const tabs = document.querySelectorAll('.tab-button');
-    tabs.forEach(tab=>tab.classList.remove('active'));
+    tabs.forEach(tab => tab.classList.remove('active'));
     buttonElement.classList.add('active');
 }
 
@@ -562,11 +579,13 @@ function saveGame(){
         monstersDefeated,bossesDefeated,currentBoss,achievements,totalClicks,
         defenseUpgrades,healthUpgrades,autoClickPurchased,deaths,synergyForged,
         prestigeCount,
-        quests
+        quests,
+        petOwned // Add pet ownership
     };
     localStorage.setItem('goldyMcGoldfaceSave',JSON.stringify(gameState));
     showNotification('💾 Game Saved!','success');
 }
+
 
 function loadGame(){
     const savedState = localStorage.getItem('goldyMcGoldfaceSave');
@@ -613,6 +632,9 @@ function loadGame(){
         deaths = gameState.deaths || 0;
         synergyForged = gameState.synergyForged || false;
         prestigeCount = gameState.prestigeCount || 0;
+        petOwned = gameState.petOwned || false; // Retrieve pet ownership
+
+        
         updateStats();
         renderLoadedMonsters();
         gamePaused = false;
@@ -642,8 +664,8 @@ function resetGame(){
         localStorage.removeItem('goldyMcGoldfaceSave');
         gold=0;level=1;experience=0;expToNext=10;
         attackPower=1;defense=1;health=100;maxHealth=100;passiveIncome=0;lives=3;
-        upgradeCosts={...baseUpgradeCosts};
         totalClicks=0;defenseUpgrades=0;healthUpgrades=0;autoClickPurchased=false;bossesDefeated=0;deaths=0;synergyForged=false;
+        petOwned = false; // Reset pet ownership
 
         upgrades.forEach(upg=>{
             upg.owned=(upg.type==='autoClick'?false:0);
@@ -671,9 +693,17 @@ function resetGame(){
         updateAchievements();
         initializeQuests();
         updateComboDisplay();
+        
+        // Update Pet UI
+        document.getElementById('petDisplay').style.display = 'none';
+        buyPetButton.textContent = 'Adopt Pet (5,000 Gold)';
+        buyPetButton.disabled = false;
+        petStatus.textContent = 'No pet owned yet.';
+        
         showNotification('🔄 Game has been reset.','success');
     }
 }
+
 
 function buyHeart(){
     const heartCost=10000;
@@ -837,8 +867,9 @@ function spawnMonster(playerMaxHealth, playerAttack) {
     const randomType = monsterTypes[Math.floor(Math.random() * monsterTypes.length)];
 
     // Define base multipliers with fair scaling
-    const healthMultiplier = 1 + (level * 0.03) + (attackPower * 0.01); 
-    const attackMultiplier = 1 + (defense * 0.02) + (level * 0.03);
+    const healthMultiplier = 1 + (level * 0.02) + (attackPower * 0.005); // Lėtesnis sveikatos augimas
+    const attackMultiplier = 1 + (defense * 0.01) + (level * 0.02); // Silpnesnė ataka
+
 
     const newMonster = {
         id: monsterId,
@@ -853,8 +884,8 @@ function spawnMonster(playerMaxHealth, playerAttack) {
     };
 
     // Cap stats for fairness
-    const cappedHealth = Math.min(newMonster.health, (playerMaxHealth||maxHealth) * 2);
-    const cappedAttack = Math.min(newMonster.attack, (playerAttack||attackPower) * 1.5);
+    const cappedHealth = Math.min(newMonster.health, (playerMaxHealth || maxHealth) * 2);
+    const cappedAttack = Math.min(newMonster.attack, (playerAttack || attackPower) * 1.5);
     newMonster.health = cappedHealth;
     newMonster.attack = cappedAttack;
 
@@ -867,6 +898,7 @@ function spawnMonster(playerMaxHealth, playerAttack) {
     showNotification(`👾 New Monster Appeared: ${newMonster.name}!`, 'achievement');
     playSound(document.getElementById('monsterAppearSound'));
 }
+
 
 function renderMonster(monster) {
     const monstersContainer = document.getElementById('monstersContainer');
@@ -894,18 +926,21 @@ function renderMonster(monster) {
 
 function getMonsterSpawnInterval() {
     if (level <= 10) {
-        return Math.floor(Math.random() * (60000 - 40000 + 1)) + 40000;
+        return Math.floor(Math.random() * (60000 - 50000 + 1)) + 50000; // Monstrai atsiranda kas 50–60 s.
     } else if (level <= 20) {
-        return Math.floor(Math.random() * (40000 - 30000 + 1)) + 30000;
+        return Math.floor(Math.random() * (70000 - 60000 + 1)) + 60000; // Kas 60–70 s.
+    } else if (level <= 30) {
+        return Math.floor(Math.random() * (80000 - 70000 + 1)) + 70000; // Kas 70–80 s.
     } else {
-        return Math.floor(Math.random() * (30000 - 20000 + 1)) + 20000;
+        return Math.floor(Math.random() * (90000 - 80000 + 1)) + 80000; // Kas 80–90 s.
     }
 }
+
 
 function attackMonster(monsterId) {
     if (idleMode) {
         showNotification("❌ You can't attack while in Idle Mode!", 'error');
-        return; 
+        return;
     }
 
     const monster = monsters.find(m => m.id === monsterId) || (currentBoss && currentBoss.id === monsterId ? currentBoss : null);
@@ -925,8 +960,11 @@ function attackMonster(monsterId) {
         playSound(document.getElementById('clickSound'));
     }
 
+    // Monster Slayer Bonus
     const monsterSlayerUpgrades = upgrades.find(u => u.type === 'monsterSlayer').owned;
     playerDamage += 3 * monsterSlayerUpgrades;
+
+    // Decrease monster's health
     monster.health -= playerDamage;
     showDamageAnimation(playerDamage, `monster${monster.id}`);
     if (monster.health <= 0) {
@@ -1160,12 +1198,18 @@ function prestige(){
         gold=0;level=1;experience=0;expToNext=10;
         attackPower=1;defense=1;health=100;maxHealth=100;passiveIncome=0;lives=3;
         totalClicks=0;defenseUpgrades=0;healthUpgrades=0;autoClickPurchased=false;bossesDefeated=0;deaths=0;synergyForged=false;
-
+        petOwned = false; // Reset pet ownership
+        
         upgrades.forEach(upg=>{
             upg.owned=(upg.type==='autoClick'?false:0);
         });
 
         swords.forEach(s=>{s.owned=false;});
+
+        quests.forEach(q=>{
+            q.level=1;
+            q.claimed=false;
+        });
 
         monsters.forEach(m=>clearMonsterIntervals(m));
         monsters=[];
@@ -1189,9 +1233,17 @@ function prestige(){
         updateAchievements();
         initializeQuests();
         updateComboDisplay();
+        
+        // Update Pet UI
+        document.getElementById('petDisplay').style.display = 'none';
+        buyPetButton.textContent = 'Adopt Pet (5,000 Gold)';
+        buyPetButton.disabled = false;
+        petStatus.textContent = 'No pet owned yet.';
+        
         showNotification(`✨ Prestige done! Your gold income is now permanently increased! ✨`,'success');
     }
 }
+
 
 function showLevelMilestoneNotification() {
     if (level % 10 === 0) {
@@ -1421,7 +1473,7 @@ function startHealthRegeneration() {
                 if (healthRegenUpgrade && healthRegenUpgrade.owned > 0) {
                     totalRegen += Math.round(maxHealth * 0.02 * healthRegenUpgrade.owned);
                 }
-                if (petOwned) {
+                if (petOwned) { // Apply pet's health regen bonus
                     totalRegen += petHealthRegenBonus;
                 }
                 health = Math.min(health + totalRegen, maxHealth);
@@ -1431,18 +1483,15 @@ function startHealthRegeneration() {
     }
 }
 
-let idleMode = false; 
-const idleModeCost = 5000; 
-let idleAttackInterval = null;
 
 function toggleIdleMode() {
     const button = document.getElementById('toggleIdleModeButton');
-    if (idleMode && idleAttackInterval) {
+    if (idleMode) {
         stopIdleMode();
         idleMode = false;
         button.textContent = "Activate Idle Mode (5k Gold)";
         showNotification("⚔️ Idle Mode deactivated. Back to manual gameplay.", "info");
-    } else if (!idleMode && gold >= idleModeCost) {
+    } else if (gold >= idleModeCost) {
         gold -= idleModeCost;
         idleMode = true;
         startIdleMode();
@@ -1457,10 +1506,8 @@ function toggleIdleMode() {
 function startIdleMode() {
     if (idleAttackInterval) return;
     idleAttackInterval = setInterval(() => {
-        if (monsters.length > 0) {
-            const monster = monsters[0];
-            attackMonster(monster.id);
-        }
+        const monster = monsters[0];
+        if (monster) attackMonster(monster.id);
     }, 1000);
 }
 
@@ -1469,21 +1516,17 @@ function stopIdleMode() {
         clearInterval(idleAttackInterval);
         idleAttackInterval = null;
     }
+    updateIdleModeUI();
 }
 
 function updateIdleModeUI() {
-    const heroButton = document.getElementById('hero');
     const attackButtons = document.querySelectorAll('.attack-button');
-
-    if (idleMode) {
-        heroButton.disabled = true;
-        attackButtons.forEach(button => button.disabled = true);
-    } else {
-        heroButton.disabled = false;
-        attackButtons.forEach(button => button.disabled = false);
-    }
+    attackButtons.forEach(button => {
+        button.disabled = idleMode;
+    });
+    const heroButton = document.getElementById('hero');
+    if (heroButton) heroButton.disabled = idleMode;
 }
-
 function delayedMonsterSpawn(){
     let countdown = 60; 
     const countdownInterval = setInterval(() => {
@@ -1500,14 +1543,24 @@ function delayedMonsterSpawn(){
     }, 1000);
 }
 
+const maxMonsters = 40; // Maksimalus monstrų skaičius
+
 function spawnMonsterRandomly() {
-    if (gamePaused || idleMode) return;
-    const monstersToSpawn = Math.min(1 + Math.floor(level / 10), 10);
+    console.log("spawnMonsterRandomly called");
+    if (gamePaused || idleMode || monsters.length >= maxMonsters) {
+        console.log("Spawn conditions not met:", { gamePaused, idleMode, monstersLength: monsters.length });
+        return; // Niekas nevyksta, jei per daug monstrų
+    }
+    const monstersToSpawn = Math.min(1 + Math.floor(level / 10), maxMonsters - monsters.length); // Tik trūkstami monstrai
+    console.log(`Spawning ${monstersToSpawn} monsters`);
     for (let i = 0; i < monstersToSpawn; i++) {
         spawnMonster();
     }
+    scheduleNextSpawn();
+
     function scheduleNextSpawn() {
         const interval = getMonsterSpawnInterval();
+        console.log(`Next spawn in ${interval} ms`);
         setTimeout(() => {
             if (!gamePaused && !idleMode) {
                 spawnMonsterRandomly();
@@ -1583,21 +1636,28 @@ const buyPetButton = document.getElementById('buyPetButton');
 const petStatus = document.getElementById('petStatus');
 
 buyPetButton.addEventListener('click', () => {
-  if (petOwned) {
-    showNotification('❗ You already have a pet!', 'error');
-    return;
-  }
-  if (gold < 5000) {
-    showNotification('❗ Not enough gold to adopt a pet!', 'error');
-    return;
-  }
-  gold -= 5000;
-  petOwned = true;
-  petStatus.textContent = 'You have adopted a cute critter! It boosts your health regen and XP.';
-  updateStats();
-  showNotification('🐾 A pet joins your journey, boosting your abilities!', 'success');
-});
-
+    if (petOwned) {
+      showNotification('❗ You already have a pet!', 'error');
+      return;
+    }
+    if (gold < 5000) {
+      showNotification('❗ Not enough gold to adopt a pet!', 'error');
+      return;
+    }
+    gold -= 5000;
+    petOwned = true;
+    
+    // Update UI Elements
+    petStatus.textContent = 'You have adopted a cute critter! It boosts your health regen and XP.';
+    document.getElementById('petDisplay').style.display = 'block';
+    buyPetButton.textContent = 'Owned ✅';
+    buyPetButton.disabled = true;
+    
+    updateStats();
+    showNotification('🐾 A pet joins your journey, boosting your abilities!', 'success');
+  });
+  
+  
 const originalGainExperience = gainExperience;
 gainExperience = function(amount) {
   let finalAmount = amount;
@@ -1957,3 +2017,24 @@ updateAchievements = function() {
         }
     });
 };
+
+function processClick(event) {
+    totalClicks++;
+    const now = Date.now();
+    if (now - lastClickTime <= comboDuration) {
+        if (comboCount < comboMaxStacks) comboCount++;
+    } else {
+        comboCount = 1;
+    }
+    lastClickTime = now;
+
+    let damageDealt = attackPower;
+    gold += currentGoldGain(damageDealt);
+    updateStats();
+    createBloodParticles(event);
+    updateComboDisplay();
+
+    const monster = monsters[0];
+    if (monster) attackMonster(monster.id);
+}
+
