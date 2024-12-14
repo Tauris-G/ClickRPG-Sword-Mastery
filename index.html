@@ -1,5 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html> 
+<html lang="lt">
 <head>
     <meta charset="UTF-8">
     <title>ClickRPG: Sword Mastery</title>
@@ -13,8 +13,8 @@
             <div style="text-align: center;">
                 <h2>The Wise Old Wizard 👴</h2>
                 <p id="npcDialog">Welcome, young adventurer! 👀 Prepare for an epic journey!</p>
-                <button onclick="nextDialog()">Next</button>
-                <button id="startGameButton" onclick="startGame()" style="display: none;">Start Game!</button>
+                <button id="nextDialogButton">Next</button>
+                <button id="startGameButton" style="display: none;">Start Game!</button>
             </div>
         </div>
 
@@ -26,13 +26,13 @@
 
         <!-- Navigation Tabs -->
         <div class="nav-tabs">
-            <button class="tab-button active" onclick="switchTab('home', this)">Home</button>
-            <button class="tab-button" onclick="switchTab('upgrades', this)">Upgrades 🛠️</button>
-            <button class="tab-button" onclick="switchTab('swords', this)">Swords 🗡️</button>
-            <button class="tab-button" onclick="switchTab('shields', this)">Shields 🛡️</button>
-            <button class="tab-button" onclick="switchTab('achievements', this)">Achievements 🏆</button>
-            <button class="tab-button" onclick="switchTab('quests', this)">Quests 📜</button>
-            <button class="tab-button" onclick="switchTab('forge', this)">Forge 🔥</button>
+            <button class="tab-button active" data-tab="home">Home</button>
+            <button class="tab-button" data-tab="upgrades">Upgrades 🛠️</button>
+            <button class="tab-button" data-tab="swords">Swords 🗡️</button>
+            <button class="tab-button" data-tab="shields">Shields 🛡️</button>
+            <button class="tab-button" data-tab="achievements">Achievements 🏆</button>
+            <button class="tab-button" data-tab="quests">Quests 📜</button>
+            <button class="tab-button" data-tab="forge">Forge 🔥</button>
         </div>
 
         <!-- Blood Particles -->
@@ -42,14 +42,14 @@
         <div id="levelUpModal" class="modal">
             <h2>🎉 Level Up! 🎉</h2>
             <p>You have reached Level <span id="newLevel">1</span>!</p>
-            <button onclick="closeLevelUpModal()">Close</button>
+            <button id="closeLevelUpModalButton">Close</button>
         </div>
 
         <!-- Victory Modal -->
         <div id="victoryModal" class="modal">
             <h2>🏆 Victory! 🏆</h2>
             <p>Congratulations! You have acquired all 30 swords and reached Level 100!</p>
-            <button onclick="closeVictoryModal()">Celebrate 🎉</button>
+            <button id="closeVictoryModalButton">Celebrate 🎉</button>
             <button id="prestigeButton" onclick="prestige()" style="display:none;">Prestige</button>
         </div>
 
@@ -57,7 +57,7 @@
         <div id="gameOverModal" class="modal">
             <h2>💀 Game Over! 💀</h2>
             <p>You have lost all your lives. The game will restart.</p>
-            <button onclick="restartGame()">Restart</button>
+            <button id="restartGameButton">Restart</button>
         </div>
 
         <!-- Main Layout: Left Main Content, Right Sidebar -->
@@ -97,7 +97,7 @@
                             <p id="petOwnedStatus">OWNED ✅</p>
                         </div>
                         <p id="petStatus">No pet owned yet.</p>
-                        <button id="buyPetButton" onclick="buyPet()">Adopt Pet (5,000 Gold)</button>
+                        <button id="buyPetButton">Adopt Pet (5,000 Gold)</button>
                     </div>
 
                     <!-- Combo Indicator -->
@@ -141,7 +141,7 @@
                     <div id="forgeSection">
                         <p><strong>Synergy: "Venomous Light Serpent"</strong><br>
                         Requires owning Swords #5, #10, #15. Grants +50 Attack once.<br>
-                        <button id="forgeButton" onclick="attemptForgeSynergy()">Forge Synergy</button></p>
+                        <button id="forgeButton">Forge Synergy</button></p>
                         <p id="forgeStatus"></p>
                     </div>
                 </div>
@@ -180,13 +180,13 @@
                 </div>
 
                 <div id="saveLoadButtons">
-                    <button onclick="saveGame()">💾 Save Game</button>
-                    <button onclick="loadGame()">📂 Load Game</button>
-                    <button id="resetButton" onclick="resetGame()">🔄 Reset Game</button>
-                    <button id="buyHeartButton" onclick="buyHeart()">❤️ Full Heart (10k)</button>
-                    <button id="toggleIdleModeButton" onclick="toggleIdleMode()">Idle Mode (5k)</button>
-                    <button id="muteButton" onclick="toggleMusic()">🔊</button>
-                    <input type="range" id="volumeSlider" min="0" max="1" step="0.01" onchange="setVolume(this.value)">
+                    <button id="saveGameButton">💾 Save Game</button>
+                    <button id="loadGameButton">📂 Load Game</button>
+                    <button id="resetButton">🔄 Reset Game</button>
+                    <button id="buyHeartButton">❤️ Full Heart (10k)</button>
+                    <button id="toggleIdleModeButton">Idle Mode (5k)</button>
+                    <button id="muteButton">🔊</button>
+                    <input type="range" id="volumeSlider" min="0" max="1" step="0.01">
                 </div>
             </div>
         </div>
@@ -212,8 +212,6 @@
         <p>© 2024 Tauris Games Inc.™ All Rights Reserved. Unauthorized clicking may result in humorous consequences. 🤪 | Version 1.0.2</p>
     </footer>
 
-    <link rel="stylesheet" href="styles.css">
     <script src="script.js"></script>
-
 </body>
 </html>
