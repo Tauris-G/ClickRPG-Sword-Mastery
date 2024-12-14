@@ -2038,3 +2038,48 @@ function processClick(event) {
     if (monster) attackMonster(monster.id);
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    // Tutorial Modal Buttons
+    const nextDialogButton = document.getElementById('nextDialogButton');
+    const startGameButton = document.getElementById('startGameButton');
+
+    nextDialogButton.addEventListener('click', nextDialog);
+    startGameButton.addEventListener('click', startGame);
+
+    // Close Modals Buttons
+    const closeLevelUpModalButton = document.getElementById('closeLevelUpModalButton');
+    closeLevelUpModalButton.addEventListener('click', closeLevelUpModal);
+
+    const closeVictoryModalButton = document.getElementById('closeVictoryModalButton');
+    closeVictoryModalButton.addEventListener('click', closeVictoryModal);
+
+    const restartGameButton = document.getElementById('restartGameButton');
+    restartGameButton.addEventListener('click', restartGame);
+
+    // Navigation Tabs
+    const tabButtons = document.querySelectorAll('.tab-button');
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            switchTab(button.getAttribute('data-tab'), button);
+        });
+    });
+
+    // Other Buttons
+    const saveGameButton = document.getElementById('saveGameButton');
+    const loadGameButton = document.getElementById('loadGameButton');
+    const resetButton = document.getElementById('resetButton');
+    const buyHeartButton = document.getElementById('buyHeartButton');
+    const toggleIdleModeButton = document.getElementById('toggleIdleModeButton');
+    const muteButton = document.getElementById('muteButton');
+    const volumeSlider = document.getElementById('volumeSlider');
+
+    saveGameButton.addEventListener('click', saveGame);
+    loadGameButton.addEventListener('click', loadGame);
+    resetButton.addEventListener('click', resetGame);
+    buyHeartButton.addEventListener('click', buyHeart);
+    toggleIdleModeButton.addEventListener('click', toggleIdleMode);
+    muteButton.addEventListener('click', toggleMusic);
+    volumeSlider.addEventListener('input', (e) => setVolume(e.target.value));
+
+    // Additional event listeners for buttons created dynamically can be handled within respective functions
+});
