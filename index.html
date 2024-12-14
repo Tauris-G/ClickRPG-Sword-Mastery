@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,218 +6,214 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div id="game-container">
+    <div id="game-container">
 
-    <!-- Tutorial Modal -->
-    <div id="tutorialModal" class="modal active">
-        <div style="text-align: center;">
-            <h2>The Wise Old Wizard 👴</h2>
-            <p id="npcDialog">Welcome, young adventurer! 👀 Prepare for an epic journey!</p>
-            <button onclick="nextDialog()">Next</button>
-            <button id="startGameButton" onclick="startGame()" style="display: none;">Start Game!</button>
-        </div>
-    </div>
-
-    <!-- Notification Area -->
-    <div id="notificationArea"></div>
-
-    <!-- Game Title -->
-    <h1>ClickRPG: Sword Mastery 🏰</h1>
-
-    <!-- Navigation Tabs -->
-    <div class="nav-tabs">
-        <button class="tab-button active" onclick="switchTab('home', this)">Home</button>
-        <button class="tab-button" onclick="switchTab('upgrades', this)">Upgrades 🛠️</button>
-        <button class="tab-button" onclick="switchTab('swords', this)">Swords 🗡️</button>
-        <button class="tab-button" onclick="switchTab('shields', this)">Shields 🛡️</button>
-        <button class="tab-button" onclick="switchTab('achievements', this)">Achievements 🏆</button>
-        <button class="tab-button" onclick="switchTab('quests', this)">Quests 📜</button>
-        <button class="tab-button" onclick="switchTab('forge', this)">Forge 🔥</button>
-    </div>
-
-    <!-- Blood Particles -->
-    <div id="bloodParticles"></div>
-
-    <!-- Level-Up Modal -->
-    <div id="levelUpModal" class="modal">
-        <h2>🎉 Level Up! 🎉</h2>
-        <p>You have reached Level <span id="newLevel">1</span>!</p>
-        <button onclick="closeLevelUpModal()">Close</button>
-    </div>
-
-    <!-- Victory Modal -->
-    <div id="victoryModal" class="modal">
-        <h2>🏆 Victory! 🏆</h2>
-        <p>Congratulations! You have acquired all 30 swords and reached Level 100!</p>
-        <button onclick="closeVictoryModal()">Celebrate 🎉</button>
-        <button id="prestigeButton" onclick="prestige()" style="display:none;">Prestige</button>
-    </div>
-
-    <!-- Game Over Modal -->
-    <div id="gameOverModal" class="modal">
-        <h2>💀 Game Over! 💀</h2>
-        <p>You have lost all your lives. The game will restart.</p>
-        <button onclick="restartGame()">Restart</button>
-    </div>
-
-    <!-- Main Layout: Left Main Content, Right Sidebar -->
-    <div id="main-layout">
-
-        <!-- Main Content Area -->
-        <div id="main-content">
-            <!-- Sections: Home, Upgrades, Swords, Shields, Achievements, Quests, Forge -->
-            <div id="home" class="section active">
-                 <!-- Hero and Platform Section -->
-        <div id="heroPlatformContainer">
-            <div id="platform">
-                <img src="" alt="Platform">
-            </div>
-            <div id="hero" title="Click to earn gold!">
-                <img src="https://i.pinimg.com/originals/d7/b3/da/d7b3da3d4b19b7f0c44673374158df0a.gif" alt="Hero Image">
+        <!-- Tutorial Modal -->
+        <div id="tutorialModal" class="modal active">
+            <div style="text-align: center;">
+                <h2>The Wise Old Wizard 👴</h2>
+                <p id="npcDialog">Welcome, young adventurer! 👀 Prepare for an epic journey!</p>
+                <button onclick="nextDialog()">Next</button>
+                <button id="startGameButton" onclick="startGame()" style="display: none;">Start Game!</button>
             </div>
         </div>
-            <p>Click to earn gold and fend off mischievous monsters! 💰👾</p>
 
-                <div class="stats">
-                    <p>Gold: <span id="gold">0</span> 💰</p>
-                    <p>Level: <span id="level">1</span> 🔼</p>
-                    <p>Experience: <span id="experience">0</span> / <span id="expToNext">10</span> XP</p>
-                    <div class="progress-bar-container">
-                        <div id="xpBar" class="progress-bar"></div>
+        <!-- Notification Area -->
+        <div id="notificationArea"></div>
+
+        <!-- Game Title -->
+        <h1>ClickRPG: Sword Mastery 🏰</h1>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="tab-button active" onclick="switchTab('home', this)">Home</button>
+            <button class="tab-button" onclick="switchTab('upgrades', this)">Upgrades 🛠️</button>
+            <button class="tab-button" onclick="switchTab('swords', this)">Swords 🗡️</button>
+            <button class="tab-button" onclick="switchTab('shields', this)">Shields 🛡️</button>
+            <button class="tab-button" onclick="switchTab('achievements', this)">Achievements 🏆</button>
+            <button class="tab-button" onclick="switchTab('quests', this)">Quests 📜</button>
+            <button class="tab-button" onclick="switchTab('forge', this)">Forge 🔥</button>
+        </div>
+
+        <!-- Blood Particles -->
+        <div id="bloodParticles"></div>
+
+        <!-- Level-Up Modal -->
+        <div id="levelUpModal" class="modal">
+            <h2>🎉 Level Up! 🎉</h2>
+            <p>You have reached Level <span id="newLevel">1</span>!</p>
+            <button onclick="closeLevelUpModal()">Close</button>
+        </div>
+
+        <!-- Victory Modal -->
+        <div id="victoryModal" class="modal">
+            <h2>🏆 Victory! 🏆</h2>
+            <p>Congratulations! You have acquired all 30 swords and reached Level 100!</p>
+            <button onclick="closeVictoryModal()">Celebrate 🎉</button>
+            <button id="prestigeButton" onclick="prestige()" style="display:none;">Prestige</button>
+        </div>
+
+        <!-- Game Over Modal -->
+        <div id="gameOverModal" class="modal">
+            <h2>💀 Game Over! 💀</h2>
+            <p>You have lost all your lives. The game will restart.</p>
+            <button onclick="restartGame()">Restart</button>
+        </div>
+
+        <!-- Main Layout: Left Main Content, Right Sidebar -->
+        <div id="main-layout">
+
+            <!-- Main Content Area -->
+            <div id="main-content">
+                <!-- Sections: Home, Upgrades, Swords, Shields, Achievements, Quests, Forge -->
+                <div id="home" class="section active">
+                    <!-- Hero Container -->
+                    <div id="heroContainer">
+                        <div id="hero" title="Click to earn gold!">
+                            <img src="https://i.pinimg.com/originals/d7/b3/da/d7b3da3d4b19b7f0c44673374158df0a.gif" alt="Hero Image">
+                        </div>
                     </div>
-                    <p>Passive Income: <span id="passiveIncome">0</span> gold/sec ⏳</p>
-                    <p>Damage: <span id="attackPower">1</span> 🗡️</p>
-                    <p>Defense: <span id="defense">1</span> 🛡️</p>
-                    <p>Health: <span id="currentHealth">100</span> / <span id="maxHealth">100</span> ❤️</p>
-                    <p>Lives: <span id="lives">3</span> 💔</p>
-                    <p>Prestige Count: <span id="prestigeCountDisplay">0</span></p>
-                </div>
+                    <p>Click to earn gold and fend off mischievous monsters! 💰👾</p>
 
-                <div id="petContainer">
-                    <h3>Your Pet Companion 🐾</h3>
-                    <div id="petDisplay" style="display: none;">
-                        <img id="petImage" src="https://i.pinimg.com/originals/15/c1/44/15c144e8dc552a100b3292d268854499.gif" alt="Pet" style="width: 50px; height: 50px; animation: bounce 1s infinite;">
-                        <p id="petOwnedStatus">OWNED ✅</p>
+                    <div class="stats">
+                        <p>Gold: <span id="gold">0</span> 💰</p>
+                        <p>Level: <span id="level">1</span> 🔼</p>
+                        <p>Experience: <span id="experience">0</span> / <span id="expToNext">10</span> XP</p>
+                        <div class="progress-bar-container">
+                            <div id="xpBar" class="progress-bar"></div>
+                        </div>
+                        <p>Passive Income: <span id="passiveIncome">0</span> gold/sec ⏳</p>
+                        <p>Damage: <span id="attackPower">1</span> 🗡️</p>
+                        <p>Defense: <span id="defense">1</span> 🛡️</p>
+                        <p>Health: <span id="currentHealth">100</span> / <span id="maxHealth">100</span> ❤️</p>
+                        <p>Lives: <span id="lives">3</span> 💔</p>
+                        <p>Prestige Count: <span id="prestigeCountDisplay">0</span></p>
                     </div>
-                    <p id="petStatus">No pet owned yet.</p>
-                    <button id="buyPetButton" onclick="buyPet()">Adopt Pet (5,000 Gold)</button>
+
+                    <div id="petContainer">
+                        <h3>Your Pet Companion 🐾</h3>
+                        <div id="petDisplay" style="display: none;">
+                            <img id="petImage" src="https://i.pinimg.com/originals/15/c1/44/15c144e8dc552a100b3292d268854499.gif" alt="Pet">
+                            <p id="petOwnedStatus">OWNED ✅</p>
+                        </div>
+                        <p id="petStatus">No pet owned yet.</p>
+                        <button id="buyPetButton" onclick="buyPet()">Adopt Pet (5,000 Gold)</button>
+                    </div>
+
+                    <!-- Combo Indicator -->
+                    <div id="comboContainer">
+                        <p>Combo: <span id="comboCount">0</span> 🔥 (Gold Bonus: <span id="comboBonus">0%</span>)</p>
+                    </div>
+
+                    <!-- Monsters -->
+                    <div id="monstersContainer"></div>
                 </div>
-                
 
-                <!-- Combo Indicator -->
-                <div id="comboContainer">
-                    <p>Combo: <span id="comboCount">0</span> 🔥 (Gold Bonus: <span id="comboBonus">0%</span>)</p>
+                <div id="upgrades" class="section">
+                    <h2>Upgrades 🛠️</h2>
+                    <div id="upgradesList"></div>
                 </div>
 
-                <!-- Monsters -->
-                <div id="monstersContainer"></div>
+                <div id="swords" class="section">
+                    <h2>Sword Upgrades 🗡️</h2>
+                    <div id="swordsList"></div>
+                </div>
+
+                <div id="shields" class="section">
+                    <h2>Shields 🛡️</h2>
+                    <p>Purchase shields to increase your defense and reduce incoming damage.</p>
+                    <div id="shieldsList"></div>
+                </div>
+
+                <div id="achievements" class="section">
+                    <h2>Achievements 🏆</h2>
+                    <div id="achievementsList"></div>
+                </div>
+
+                <div id="quests" class="section">
+                    <h2>Quests 📜</h2>
+                    <div id="questsList"></div>
+                </div>
+
+                <div id="forge" class="section">
+                    <h2>Forge 🔥</h2>
+                    <p>Combine certain swords to forge powerful synergies!</p>
+                    <div id="forgeSection">
+                        <p><strong>Synergy: "Venomous Light Serpent"</strong><br>
+                        Requires owning Swords #5, #10, #15. Grants +50 Attack once.<br>
+                        <button id="forgeButton" onclick="attemptForgeSynergy()">Forge Synergy</button></p>
+                        <p id="forgeStatus"></p>
+                    </div>
+                </div>
             </div>
 
-            <div id="upgrades" class="section">
-                <h2>Upgrades 🛠️</h2>
-                <div id="upgradesList"></div>
-            </div>
+            <!-- Sidebar -->
+            <div id="sidebar">
+                <div id="healthRegenContainer" class="stat-section">
+                    <span class="stat-title">Health Regeneration Rate:</span>
+                    <span id="healthRegenRate" class="stat-value">1 HP/s</span>
+                </div>
 
-            <div id="swords" class="section">
-                <h2>Sword Upgrades 🗡️</h2>
-                <div id="swordsList"></div>
-            </div>
+                <div id="artifactsContainer">
+                    <h3>Artifacts Collected</h3>
+                    <ul id="artifactList"></ul>
+                </div>
 
-            <div id="shields" class="section">
-                <h2>Shields 🛡️</h2>
-                <p>Purchase shields to increase your defense and reduce incoming damage.</p>
-                <div id="shieldsList"></div>
-            </div>
+                <div id="materialsContainer">
+                    <h3>Crafting Materials</h3>
+                    <p>Materials: <span id="materialCount">0</span> 🪨</p>
+                </div>
 
-            <div id="achievements" class="section">
-                <h2>Achievements 🏆</h2>
-                <div id="achievementsList"></div>
-            </div>
+                <div id="mysteryChestContainer">
+                    <h3>Mystery Chests</h3>
+                    <div id="chestsList"></div>
+                </div>
 
-            <div id="quests" class="section">
-                <h2>Quests 📜</h2>
-                <div id="questsList"></div>
-            </div>
+                <div id="festivalContainer">
+                    <h3>Current Festival: <span id="currentFestivalName">None</span></h3>
+                    <p id="festivalInfo">No festival at the moment.</p>
+                    <button id="joinFestivalButton" disabled>Join Festival</button>
+                </div>
 
-            <div id="forge" class="section">
-                <h2>Forge 🔥</h2>
-                <p>Combine certain swords to forge powerful synergies!</p>
-                <div id="forgeSection">
-                    <p><strong>Synergy: "Venomous Light Serpent"</strong><br>
-                    Requires owning Swords #5, #10, #15. Grants +50 Attack once.<br>
-                    <button id="forgeButton" onclick="attemptForgeSynergy()">Forge Synergy</button></p>
-                    <p id="forgeStatus"></p>
+                <div id="playerTitleContainer">
+                    <p>Your Title: <span id="playerTitle">Novice 👶</span></p>
+                </div>
+
+                <div id="saveLoadButtons">
+                    <button onclick="saveGame()">💾 Save Game</button>
+                    <button onclick="loadGame()">📂 Load Game</button>
+                    <button id="resetButton" onclick="resetGame()">🔄 Reset Game</button>
+                    <button id="buyHeartButton" onclick="buyHeart()">❤️ Full Heart (10k)</button>
+                    <button id="toggleIdleModeButton" onclick="toggleIdleMode()">Idle Mode (5k)</button>
+                    <button id="muteButton" onclick="toggleMusic()">🔊</button>
+                    <input type="range" id="volumeSlider" min="0" max="1" step="0.01" onchange="setVolume(this.value)">
                 </div>
             </div>
         </div>
 
-        <!-- Sidebar -->
-        <div id="sidebar">
-            <div id="healthRegenContainer" class="stat-section">
-                <span class="stat-title">Health Regeneration Rate:</span>
-                <span id="healthRegenRate" class="stat-value">1 HP/s</span>
-            </div>
-
-            <div id="artifactsContainer">
-                <h3>Artifacts Collected</h3>
-                <ul id="artifactList"></ul>
-            </div>
-
-            <div id="materialsContainer">
-                <h3>Crafting Materials</h3>
-                <p>Materials: <span id="materialCount">0</span> 🪨</p>
-            </div>
-
-            <div id="mysteryChestContainer">
-                <h3>Mystery Chests</h3>
-                <div id="chestsList"></div>
-            </div>
-
-            <div id="festivalContainer">
-                <h3>Current Festival: <span id="currentFestivalName">None</span></h3>
-                <p id="festivalInfo">No festival at the moment.</p>
-                <button id="joinFestivalButton" disabled>Join Festival</button>
-            </div>
-
-            <div id="playerTitleContainer">
-                <p>Your Title: <span id="playerTitle">Novice 👶</span></p>
-            </div>
-
-            <div id="saveLoadButtons">
-                <button onclick="saveGame()">💾 Save Game</button>
-                <button onclick="loadGame()">📂 Load Game</button>
-                <button id="resetButton" onclick="resetGame()">🔄 Reset Game</button>
-                <button id="buyHeartButton" onclick="buyHeart()">❤️ Full Heart (10k)</button>
-                <button id="toggleIdleModeButton" onclick="toggleIdleMode()">Idle Mode (5k)</button>
-                <button id="muteButton" onclick="toggleMusic()">🔊</button>
-                <input type="range" id="volumeSlider" min="0" max="1" step="0.01" onchange="setVolume(this.value)">
-            </div>
-        </div>
+        <!-- Audio Elements -->
+        <audio id="clickSound" src="https://cdn.pixabay.com/audio/2024/08/30/audio_60cd586a99.mp3" preload="auto"></audio>
+        <audio id="upgradeSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" preload="auto"></audio>
+        <audio id="levelUpSound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg" preload="auto"></audio>
+        <audio id="monsterAttackSound" src="https://cdn.pixabay.com/audio/2024/08/29/audio_9a0bfbcd2a.mp3" preload="auto"></audio>
+        <audio id="monsterDefeatedSound" src="https://cdn.pixabay.com/audio/2024/03/12/audio_eb26b5444b.mp3" preload="auto"></audio>
+        <audio id="victorySound" src="https://actions.google.com/sounds/v1/cartoon/celebration_whistle.ogg" preload="auto"></audio>
+        <audio id="bossAppearSound" src="https://actions.google.com/sounds/v1/cartoon/concussive_hit_guitar_boing.ogg" preload="auto"></audio>
+        <audio id="bossDefeatedSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" preload="auto"></audio>
+        <audio id="gameOverSound" src="https://actions.google.com/sounds/v1/human_voices/breathing_deep_fast.ogg" preload="auto"></audio>
+        <audio id="criticalHitSound" src="https://cdn.pixabay.com/audio/2024/02/20/audio_6d4de9d80e.mp3" preload="auto"></audio>
+        <audio id="monsterAppearSound" src="https://cdn.pixabay.com/audio/2022/03/20/audio_ee34a46a5f.mp3" preload="auto"></audio>
+        <audio id="spellCastSound" src="https://cdn.pixabay.com/audio/2024/08/31/audio_f9943b511b.mp3" preload="auto"></audio>
+        <audio id="buyHeartSound" src="https://actions.google.com/sounds/v1/cartoon/metal_hit_and_jingle.ogg" preload="auto"></audio>
+        <audio id="backgroundMusic" src="https://cdn.pixabay.com/audio/2022/03/27/audio_96602eadfc.mp3" preload="auto" loop></audio>
     </div>
 
-    <!-- Audio Elements -->
-    <audio id="clickSound" src="https://cdn.pixabay.com/audio/2024/08/30/audio_60cd586a99.mp3" preload="auto"></audio>
-    <audio id="upgradeSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" preload="auto"></audio>
-    <audio id="levelUpSound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg" preload="auto"></audio>
-    <audio id="monsterAttackSound" src="https://cdn.pixabay.com/audio/2024/08/29/audio_9a0bfbcd2a.mp3" preload="auto"></audio>
-    <audio id="monsterDefeatedSound" src="https://cdn.pixabay.com/audio/2024/03/12/audio_eb26b5444b.mp3" preload="auto"></audio>
-    <audio id="victorySound" src="https://actions.google.com/sounds/v1/cartoon/celebration_whistle.ogg" preload="auto"></audio>
-    <audio id="bossAppearSound" src="https://actions.google.com/sounds/v1/cartoon/concussive_hit_guitar_boing.ogg" preload="auto"></audio>
-    <audio id="bossDefeatedSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" preload="auto"></audio>
-    <audio id="gameOverSound" src="https://actions.google.com/sounds/v1/human_voices/breathing_deep_fast.ogg" preload="auto"></audio>
-    <audio id="criticalHitSound" src="https://cdn.pixabay.com/audio/2024/02/20/audio_6d4de9d80e.mp3" preload="auto"></audio>
-    <audio id="monsterAppearSound" src="https://cdn.pixabay.com/audio/2022/03/20/audio_ee34a46a5f.mp3" preload="auto"></audio>
-    <audio id="spellCastSound" src="https://cdn.pixabay.com/audio/2024/08/31/audio_f9943b511b.mp3" preload="auto"></audio>
-    <audio id="buyHeartSound" src="https://actions.google.com/sounds/v1/cartoon/metal_hit_and_jingle.ogg" preload="auto"></audio>
-    <audio id="backgroundMusic" src="https://cdn.pixabay.com/audio/2022/03/27/audio_96602eadfc.mp3" preload="auto" loop></audio>
-</div>
+    <footer id="gameFooter">
+        <p>© 2024 Tauris Games Inc.™ All Rights Reserved. Unauthorized clicking may result in humorous consequences. 🤪 | Version 1.0.2</p>
+    </footer>
 
-<footer id="gameFooter">
-    <p>© 2024 Tauris Games Inc.™ All Rights Reserved. Unauthorized clicking may result in humorous consequences. 🤪 | Version 1.0.2</p>
-</footer>
-
-<link rel="stylesheet" href="styles.css">
-<script src="script.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js"></script>
 
 </body>
 </html>
