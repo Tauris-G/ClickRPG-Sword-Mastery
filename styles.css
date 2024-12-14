@@ -591,6 +591,8 @@ button:hover {
     display: inline-block;
     image-rendering: pixelated;
     text-align: center;
+    border-radius: 5px;
+    position: relative;
 }
 
 #buyPetButton {
@@ -739,4 +741,43 @@ button:hover {
     .damage-text {font-size:5px;}
     #upgradesList {gap:5px;padding:5px;}
     #sidebar {width:150px;}
+}
+
+@keyframes levelUpEffect {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.level-up-animation {
+    animation: levelUpEffect 1s ease-in-out;
+    color: gold;
+    font-size: 2rem;
+    text-align: center;
+    z-index: 9999;
+}
+
+#petDisplay {
+    margin-top: 10px;
+}
+
+#petImage {
+    width: 100px;
+    height: 100px;
+}
+
+#petOwnedStatus {
+    font-size: 10px;
+    color: #28a745;
+    text-shadow: 1px 1px #000;
+    margin-top: 5px;
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
 }
