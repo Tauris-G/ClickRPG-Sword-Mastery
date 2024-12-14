@@ -87,9 +87,14 @@
 
                 <div id="petContainer">
                     <h3>Your Pet Companion 🐾</h3>
+                    <div id="petDisplay" style="display: none;">
+                        <img id="petImage" src="https://i.pinimg.com/originals/15/c1/44/15c144e8dc552a100b3292d268854499.gif" alt="Pet" style="width: 50px; height: 50px; animation: bounce 1s infinite;">
+                        <p id="petOwnedStatus">OWNED ✅</p>
+                    </div>
                     <p id="petStatus">No pet owned yet.</p>
-                    <button id="buyPetButton">Adopt Pet (5,000 Gold)</button>
+                    <button id="buyPetButton" onclick="buyPet()">Adopt Pet (5,000 Gold)</button>
                 </div>
+                
 
                 <!-- Combo Indicator -->
                 <div id="comboContainer">
@@ -203,6 +208,8 @@
     <p>© 2024 Tauris Games Inc.™ All Rights Reserved. Unauthorized clicking may result in humorous consequences. 🤪 | Version 1.0.2</p>
 </footer>
 
+<link rel="stylesheet" href="styles.css">
 <script src="script.js"></script>
+
 </body>
 </html>
